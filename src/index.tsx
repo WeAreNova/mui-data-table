@@ -1,4 +1,5 @@
 import {
+  alpha,
   Button,
   makeStyles,
   Table as MUITable,
@@ -14,24 +15,17 @@ import {
 import TablePaginationActions from "@material-ui/core/TablePagination/TablePaginationActions";
 import { Help } from "@material-ui/icons";
 import clsx from "clsx";
-import Color from "color";
-import deepdash from "deepdash";
-import lodash from "lodash";
+import get from "lodash.get";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
-import UAParser from "ua-parser-js";
-import { formatThousands } from "../../utils/helpers";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableProvider, TableState } from "./table.context";
-import { BaseData, ColGroup, MonetaryObject, TableColumnStructure, TableProps } from "./table.types";
-import { findIndexFrom, findLastIndexFrom } from "./utils";
-
-const _ = deepdash(lodash);
-const parser = new UAParser();
+import { BaseData, ColGroup, TableProps } from "./table.types";
+import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
 
 const useStyles = makeStyles(
   (theme) => ({
     alternateRowColour: {
-      backgroundColor: Color(theme.palette.error.dark).fade(0.9).toString(),
+      backgroundColor: alpha(theme.palette.error.dark, 0.9),
     },
     columnCell: {
       transition: theme.transitions.create("width", {
@@ -230,15 +224,15 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
   );
 
   const groupBy = useCallback((groupByKey: string, data: RowType, index: number, arr: RowType[]) => {
-    const value = _.get(data, groupByKey);
-    const previousValue = _.get(arr[index - 1], groupByKey);
+    const value = get(data, groupByKey);
+    const previousValue = get(arr[index - 1], groupByKey);
     if (value && previousValue && value === previousValue) {
       // if previous row has same group by value, this row merges with the row above
       return 0;
     }
     if (value) {
       // go forward until we find a different value, then span all the rows in between
-      const endIndex = findIndexFrom(arr, (v) => _.get(v, groupByKey) !== value, index);
+      const endIndex = findIndexFrom(arr, (v) => get(v, groupByKey) !== value, index);
       return endIndex > -1 ? endIndex - index : arr.length - index;
     }
     return 1;
@@ -265,34 +259,7 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
   );
   const hasFooter = useMemo(() => cellColumns.some((struct) => Boolean(struct.footer)), [cellColumns]);
 
-  const getValue = useCallback(
-    (struct: TableColumnStructure<RowType, DataType>, data: RowType, rowId: string, dataArrayIndex: number) => {
-      if (struct.render) {
-        return struct.render(data, false, rowId, dataArrayIndex);
-      }
-      if (struct.monetary) {
-        const {
-          path,
-          decimalPlaces = 2,
-          minDecimalPlaces,
-          maxDecimalPlaces,
-        } = typeof struct.monetary === "object"
-          ? (struct.monetary as MonetaryObject)
-          : ({ path: struct.monetary === true ? struct.dataIndex : struct.monetary } as MonetaryObject);
-        const value = _.get(data, path as string);
-        return !isNaN(Number(value))
-          ? formatThousands(value, decimalPlaces, true, minDecimalPlaces, maxDecimalPlaces)
-          : "";
-      }
-      return _.get(data, struct.dataIndex! as string) as string;
-    },
-    [],
-  );
-
-  const isMacOS = useMemo(() => {
-    const os = parser.getOS();
-    return os.name === "Mac OS";
-  }, []);
+  const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
 
   const handleRowClick = useCallback(
     (data, e, rowId, idx, rowSpan = 1) => {
@@ -360,7 +327,7 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
             {tableData.map((data, dataIndex, arr) => {
               const isAlternateColour = rowOptions.alternateRowColour && rowOptions.alternateRowColour(data);
               const isDisabledRow = rowOptions.rowDisabled && rowOptions.rowDisabled(data);
-              const rowId = data.id || data._id || dataIndex;
+              const rowId = getRowId(data, dataIndex);
               return (
                 <TableRow
                   key={rowId}

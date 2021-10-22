@@ -1,9 +1,9 @@
 import { useUtils } from "@material-ui/pickers";
 import get from "lodash.get";
 import orderBy from "lodash.orderby";
-// import moment, { Moment } from "moment";
-// import {  } from "@material-ui/pickers"
+import type { ReactNode } from "react";
 import { SetRequired } from "type-fest";
+import { MonetaryObject } from ".";
 import type {
   ActiveFilter,
   ActiveFilters,
@@ -161,6 +161,53 @@ export const getFilterPath = (c: SetRequired<TableColumnStructure<any> | ColGrou
   return c.dataIndex!;
 };
 
+export const numberFormatter = (
+  value: number,
+  {
+    currency = true,
+    decimalPlaces,
+    ...options
+  }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean; decimalPlaces?: number },
+) =>
+  new Intl.NumberFormat(window.navigator.language, {
+    style: currency ? "currency" : undefined,
+    currency: currency ? "GBP" : undefined,
+    minimumFractionDigits: decimalPlaces ?? 2,
+    maximumFractionDigits: decimalPlaces ?? 2,
+    ...options,
+  }).format(value);
+
+export const getRowId = <T extends BaseData>(data: T, arrayIndex: number) => String(data.id || data._id || arrayIndex);
+
+export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
+  struct: TableColumnStructure<T, DataType>,
+  data: T,
+  rowId: string,
+  dataArrayIndex: number,
+): ReactNode | string | number => {
+  if (struct.monetary) {
+    const {
+      path,
+      decimalPlaces = 2,
+      minDecimalPlaces,
+      maxDecimalPlaces,
+    }: MonetaryObject<T> = typeof struct.monetary === "object"
+      ? struct.monetary
+      : {
+          path: struct.monetary === true ? struct.dataIndex! : struct.monetary!,
+        };
+    const value = get(data, path as string);
+    if (isNaN(Number(value))) return "";
+    return numberFormatter(value, {
+      currency: true,
+      minimumFractionDigits: minDecimalPlaces ?? decimalPlaces,
+      maximumFractionDigits: maxDecimalPlaces ?? decimalPlaces,
+    });
+  }
+  if (struct.render) return struct.render(data, false, rowId, dataArrayIndex);
+  return get(data, struct.dataIndex! as string) as string;
+};
+
 export const exportTableToCSV = async <
   RowType extends BaseData,
   DataType extends RowType[] = RowType[],
@@ -168,55 +215,25 @@ export const exportTableToCSV = async <
 >(
   tableData: DataType,
   tableStructure: TableColumn[] = [],
-) =>
-  parseAsync(tableData, {
-    defaultValue: "",
-    includeEmptyRows: true,
-    fields: tableStructure.flatMap((column) => {
-      /**
-       * Extract the value from the table structure object.
-       *
-       * To retrieve a value, we search through the following
-       * destinations in the order:
-       *
-       * 1) render() method
-       * 2) monetary{...}.path (monetary as an object)
-       * 3) dataIndex
-       * 4) monetary (monetary as a string)
-       * 5) key
-       */
-      const getValue =
-        (tableColumn: TableColumnStructure<RowType, DataType> | ColGroup<RowType, DataType>) => (row: RowType) => {
-          // set the retrievedValue
-          const retrievedValue = tableColumn.render
-            ? tableColumn.render(row, true)
-            : typeof tableColumn.monetary === "object"
-            ? get(row, tableColumn.monetary.path, 0)
-            : get(row, (tableColumn.dataIndex || tableColumn.monetary) as string);
-
-          if (retrievedValue === null) return "(null)";
-
-          // If the retrieved value is an object (not just 'null'), we can't display it.
-          // If it's undefined, the row is empty and we should reflect this in the CSV
-          // (instead of leaving fields completely empty).
-          switch (typeof retrievedValue) {
-            case "object":
-              return "Non-Displayable Information";
-            case "undefined":
-              return "(empty)";
-            default:
-              return retrievedValue;
-          }
-        };
-
-      return column.colGroup
-        ? column.colGroup.map((colGroup) => ({
-            label: `${column.title}_${colGroup.title}`,
-            value: getValue(colGroup),
-          }))
-        : {
-            label: column.title,
-            value: getValue(column),
-          };
+) => {
+  const getTitle = (c: TableColumn | ColGroup<RowType, DataType>) => {
+    if (typeof c.title === "function") return c.title(tableData);
+    return c.title;
+  };
+  const flattenedStructure = tableStructure.flatMap((c) => [c, ...(c.colGroup ?? [])]);
+  const csvHeaders = flattenedStructure.map(getTitle).join();
+  const csvRows = tableData.flatMap((row, dataIndex) =>
+    flattenedStructure.map((c) => {
+      const renderedValue = getValue(c, row, getRowId(row, dataIndex), dataIndex);
+      switch (typeof renderedValue) {
+        case "object":
+          return "Invalid Value";
+        case "number":
+          return renderedValue;
+        default:
+          return `"${renderedValue}""`;
+      }
     }),
-  });
+  );
+  return [csvHeaders, ...csvRows].join("\n");
+};

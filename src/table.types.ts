@@ -11,8 +11,33 @@ export interface BaseData {
 
 export type PathType<RowType extends BaseData> = Exclude<LiteralUnion<keyof RowType, string>, symbol | number>;
 
-export interface ColGroup<RowType, DataType extends RowType[] = RowType[]> extends Omit<TableColumnStructure<RowType, DataType>, "colGroup"> {
+export type Sorter<T> = (ab: T, ba: T) => number;
+
+export interface BaseColumnStructure<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
+  dataIndex?: PathType<RowType>;
+  footer?(tableData: DataType): React.ReactNode;
+  groupBy?: PathType<RowType>;
+  id?: string;
+  key?: string;
+  limitWidth?: "lg" | "sm";
+  monetary?: Monetary<RowType>;
+  render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): React.ReactNode;
+  rowSpan?(data: RowType, index: number, arr: RowType[]): number;
+  sorter?: boolean | PathType<RowType> | Sorter<RowType>;
+  title: React.ReactNode | ((data: DataType) => React.ReactNode);
+  filterColumn?: FilterColumn<RowType>;
+  pinnable?: boolean;
+  actionButtons?: ActionButton[];
   isColGroup?: boolean;
+}
+
+export interface TableColumnStructure<RowType extends BaseData, DataType extends RowType[] = RowType[]>
+  extends BaseColumnStructure<RowType, DataType> {
+  colGroup?: ColGroup<RowType, DataType>[];
+}
+
+export interface ColGroup<RowType extends BaseData, DataType extends RowType[] = RowType[]>
+  extends BaseColumnStructure<RowType, DataType> {
   hasColGroupFooter?: boolean;
 }
 
@@ -57,30 +82,11 @@ export interface ActiveFilter<RowType extends BaseData = any> extends NonNullabl
   operator: OperatorValues;
 }
 
-export type NullableActiveFilter<RowType extends BaseData = any> = { [key in keyof ActiveFilter<RowType>]: ActiveFilter<RowType>[key] | null };
+export type NullableActiveFilter<RowType extends BaseData = any> = {
+  [key in keyof ActiveFilter<RowType>]: ActiveFilter<RowType>[key] | null;
+};
 
 export type ActiveFilters<RowType extends BaseData = any> = ActiveFilter<RowType>[];
-
-export type Sorter<RowType extends BaseData> = (ab: RowType, ba: RowType) => number;
-
-export interface TableColumnStructure<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
-  colGroup?: ColGroup<RowType, DataType>[];
-  dataIndex?: PathType<RowType>;
-  footer?(tableData: DataType): React.ReactNode;
-  groupBy?: PathType<RowType>;
-  id?: string;
-  isColGroup?: boolean;
-  key?: string;
-  limitWidth?: "lg" | "sm";
-  monetary?: Monetary<RowType>;
-  render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): React.ReactNode;
-  rowSpan?(data: RowType, index: number, arr: RowType[]): number;
-  sorter?: boolean | PathType<RowType> | Sorter<RowType>;
-  title: React.ReactNode | ((data: DataType) => React.ReactNode);
-  filterColumn?: FilterColumn<RowType>;
-  pinnable?: boolean;
-  actionButtons?: ActionButton[];
-}
 
 export interface OnChangeObject {
   columnFilters: ActiveFilters;
@@ -107,7 +113,10 @@ export interface TableProps<RowType extends BaseData = BaseData, DataType extend
   enableHiddenColumns?: boolean;
   exportToCSVOption?: boolean;
   hideColumnsOption?: boolean;
-  onChange?: <T extends boolean>(changeObject: OnChangeObject, isExport: T) => T extends true ? DataType | Promise<DataType> : any;
+  onChange?: <T extends boolean>(
+    changeObject: OnChangeObject,
+    isExport: T,
+  ) => T extends true ? DataType | Promise<DataType> : any;
   rowClick?(data: RowType, e: React.MouseEvent<HTMLTableRowElement, MouseEvent>): void;
   rowOptions?: RowOptions;
   rowsPerPageOptions?: TablePaginationProps["rowsPerPageOptions"];

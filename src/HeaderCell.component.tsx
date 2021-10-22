@@ -1,5 +1,7 @@
 import { IconButton, makeStyles, TableCell, TableSortLabel, Tooltip } from "@material-ui/core";
-import { AcUnit, FilterList, Visibility } from "@material-ui/icons";
+import AcUnit from "@material-ui/icons/AcUnit";
+import FilterList from "@material-ui/icons/FilterList";
+import Visibility from "@material-ui/icons/Visibility";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";

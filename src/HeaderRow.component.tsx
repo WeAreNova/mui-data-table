@@ -6,8 +6,6 @@ import HeaderCell from "./HeaderCell.component";
 import TableContext from "./table.context";
 import { TableColumnStructure } from "./table.types";
 
-interface Props {}
-
 const useStyles = makeStyles(
   (theme) => ({
     borderRight: {
@@ -20,7 +18,7 @@ const useStyles = makeStyles(
   { name: "HeaderRowComponent" },
 );
 
-const HeaderRow: React.FC<Props> = (props) => {
+const HeaderRow: React.FC = (props) => {
   const classes = useStyles(props);
   const { tableStructure, filteredTableStructure, hiddenColumns } = useContext(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);

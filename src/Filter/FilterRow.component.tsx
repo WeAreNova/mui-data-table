@@ -9,7 +9,15 @@ import React, { ChangeEvent, useCallback, useContext, useMemo } from "react";
 import { SetRequired } from "type-fest";
 import * as Yup from "yup";
 import TableContext from "../table.context";
-import type { ActiveFilter, ColGroup, FilterColumn, FilterTypes, NullableActiveFilter, OperatorValues, TableColumnStructure } from "../table.types";
+import type {
+  ActiveFilter,
+  ColGroup,
+  FilterColumn,
+  FilterTypes,
+  NullableActiveFilter,
+  OperatorValues,
+  TableColumnStructure,
+} from "../table.types";
 import { getFilterPath } from "../utils";
 import { FILTER_TYPES, OPERATORS } from "./filter.consts";
 import ValueField from "./ValueField.component";
@@ -101,10 +109,12 @@ const getFilterType = (f: FilterColumn<any>): Exclude<FilterTypes, undefined | n
 };
 
 const getOperatorOptions = (type: Exclude<FilterTypes, undefined | null> | null) =>
-  OPERATORS.filter((o) => !o.typeLabelMap || o.typeLabelMap.default || (Boolean(type) && type! in o.typeLabelMap)).map((o) => ({
-    label: !o.typeLabelMap ? o.value : (type && o.typeLabelMap[type]) ?? o.typeLabelMap.default,
-    value: o.value,
-  }));
+  OPERATORS.filter((o) => !o.typeLabelMap || o.typeLabelMap.default || (Boolean(type) && type! in o.typeLabelMap)).map(
+    (o) => ({
+      label: !o.typeLabelMap ? o.value : (type && o.typeLabelMap[type]) ?? o.typeLabelMap.default,
+      value: o.value,
+    }),
+  );
 
 const FilterRow: React.FC<Props> = ({ value, last, onSubmit, onRemove, name, ...props }) => {
   const classes = useStyles(props);
@@ -114,7 +124,9 @@ const FilterRow: React.FC<Props> = ({ value, last, onSubmit, onRemove, name, ...
     () =>
       tableStructure
         .flatMap((c) => [c, ...(c.colGroup?.map((cg) => ({ ...cg, title: `${c.title} - ${cg.title}` })) ?? [])])
-        .filter((c): c is SetRequired<TableColumnStructure<any> | ColGroup<any>, "filterColumn"> => Boolean(c.filterColumn))
+        .filter((c): c is SetRequired<TableColumnStructure<any> | ColGroup<any>, "filterColumn"> =>
+          Boolean(c.filterColumn),
+        )
         .map((c) => ({
           label: c.title,
           value: getFilterPath(c),
@@ -166,7 +178,12 @@ const FilterRow: React.FC<Props> = ({ value, last, onSubmit, onRemove, name, ...
                 size="small"
                 variant="standard"
                 onChange={(e: ChangeEvent<HTMLInputElement>, selected: typeof columns[number] | null) =>
-                  setValues((currValues) => ({ ...currValues, [e.target.name]: selected?.value, type: selected?.type ?? null, value: "" }))
+                  setValues((currValues) => ({
+                    ...currValues,
+                    [e.target.name]: selected?.value,
+                    type: selected?.type ?? null,
+                    value: "",
+                  }))
                 }
               />
             </div>

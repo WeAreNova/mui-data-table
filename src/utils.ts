@@ -3,7 +3,6 @@ import get from "lodash.get";
 import orderBy from "lodash.orderby";
 import type { ReactNode } from "react";
 import { SetRequired } from "type-fest";
-import { MonetaryObject } from ".";
 import type {
   ActiveFilter,
   ActiveFilters,
@@ -13,6 +12,7 @@ import type {
   Sorter,
   TableColumnStructure,
 } from "./table.types";
+import { MonetaryObject } from "./table.types";
 
 export function findIndexFrom<T>(
   array: T[],
@@ -32,16 +32,6 @@ export function findLastIndexFrom<T>(
 
 function isNil<T>(value: T | null | undefined): value is null | undefined {
   return value === null || value === undefined;
-}
-
-function uniqBy<T>(array: T[], key: keyof T | ((item: T) => string)): T[] {
-  const seen = new Set<keyof T | string>();
-  return array.filter((item) => {
-    const k = typeof key === "function" ? key(item) : key;
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
 }
 
 const getFilterTypeConvertors = (value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) => {

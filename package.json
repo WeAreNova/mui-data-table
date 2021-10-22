@@ -23,8 +23,11 @@
     "fetching"
   ],
   "devDependencies": {
+    "@types/lodash": "^4.14.176",
+    "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.orderby": "^4.6.6",
+    "@types/lodash.uniqueid": "^4.0.6",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "eslint": "^7.32.0",
@@ -39,8 +42,9 @@
     "@material-ui/pickers": "^3.3.10"
   },
   "dependencies": {
-    "clsx": "^1.1.1",
+    "lodash.debounce": "^4.0.8",
     "lodash.get": "^4.4.2",
-    "lodash.orderby": "^4.6.0"
+    "lodash.orderby": "^4.6.0",
+    "lodash.uniqueid": "^4.0.1"
   }
 }

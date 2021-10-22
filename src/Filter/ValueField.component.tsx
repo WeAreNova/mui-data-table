@@ -26,7 +26,9 @@ const ValueField: React.FC = () => {
       case "boolean":
         return <Field {...commonProps} component={SimpleSelectField} options={["true", "false"]} />;
       case "date":
-        return <Field {...commonProps} component={DatePickerField} format="DD/MM/YYYY" inputVariant={commonProps.variant} />;
+        return (
+          <Field {...commonProps} component={DatePickerField} format="DD/MM/YYYY" inputVariant={commonProps.variant} />
+        );
       case "number":
         return <Field {...commonProps} component={NumberQuestion} />;
       default:

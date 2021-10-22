@@ -1,9 +1,11 @@
 import { Checkbox } from "@material-ui/core";
 import { useUtils } from "@material-ui/pickers";
 import fileDownload from "js-file-download";
-import _, { DebouncedFunc } from "lodash";
+import type { DebouncedFunc as DebouncedFunction } from "lodash";
+import debounce from "lodash.debounce";
+import get from "lodash.get";
+import uniqueId from "lodash.uniqueid";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
-import { v4 as uuidv4 } from "uuid";
 import type { ActiveFilters, BaseData, OnChangeObject, Sort, TableColumnStructure, TableProps } from "./table.types";
 import { ActiveFilter } from "./table.types";
 import { exportTableToCSV, getFilteredData, getPagedData, getSortedData } from "./utils";
@@ -61,7 +63,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
 export interface TableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
   extends Omit<BaseTableState<RowType, DataType>, "onChange"> {
   count: number;
-  onChange?: DebouncedFunc<(queryParams?: OnChangeObject) => Promise<DataType>>;
+  onChange?: DebouncedFunction<(queryParams?: OnChangeObject) => Promise<DataType>>;
   allTableData: DataType;
   update: Update;
   filteredTableStructure: TableColumnStructure<RowType, DataType>[];
@@ -138,7 +140,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       rowsPerPage: parsed.limit || defaultStored.rowsPerPage,
       activeFilters: [...(Array.isArray(filters) ? filters : Object.values<ActiveFilter>(filters))].map((f) => ({
         ...f,
-        id: f.id || uuidv4(),
+        id: f.id || uniqueId(),
       })),
     };
   }, [defaultSort, rowsPerPageDefault]);
@@ -160,9 +162,9 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);
 
   const update = useMemo(() => {
-    function updateFunction(value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
+    const updateFunction = (value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) => {
       dispatch(_.pick(value, DYNAMIC_STATE));
-    }
+    };
     DYNAMIC_STATE.forEach((curr) => {
       updateFunction[curr] = (
         arg: BaseTableState[typeof curr] | ((currState: BaseTableState[typeof curr]) => BaseTableState[typeof curr]),
@@ -196,7 +198,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   const handleChange = useMemo(
     () =>
       tableState.onChange &&
-      _.debounce(async (queryParams = {}, isExport: boolean = false) => {
+      debounce(async (queryParams = {}, isExport = false) => {
         if (!isExport) update.loading(true);
         const data = await tableState.onChange!({ ...queryParams }, isExport);
         if (!isExport) update.loading(false);
@@ -217,6 +219,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       ? sortedData
       : getPagedData(sortedData, { limit: state.rowsPerPage, page: state.page });
   }, [
+    pickersUtils,
     state.activeFilters,
     state.page,
     state.rowsPerPage,
@@ -251,7 +254,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       if (tableState.selectGroupBy) {
         const extraRows = [...tableData]
           .slice(dataArrayIndex + 1)
-          .filter((value) => _.get(data, tableState.selectGroupBy!) === _.get(value, tableState.selectGroupBy!));
+          .filter((value) => get(data, tableState.selectGroupBy!) === get(value, tableState.selectGroupBy!));
         extraRows.forEach((row, extraRowIndex) => {
           const extraRowId = row.id || row._id || dataArrayIndex + (extraRowIndex + 1);
           if (updatedSelectedRows[extraRowId]) {

@@ -1,14 +1,11 @@
 import { Button, makeStyles, Paper } from "@material-ui/core";
-import { Add } from "@material-ui/icons";
+import Add from "@material-ui/icons/Add";
 import { createStyles } from "@material-ui/styles";
+import { uniqueId } from "lodash";
 import React, { Fragment, useCallback, useContext, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { BaseData } from "..";
 import TableContext from "../table.context";
-import { ActiveFilter, NullableActiveFilter } from "../table.types";
+import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
-
-interface Props {}
 
 const useStyles = makeStyles(
   (theme) =>
@@ -31,14 +28,17 @@ const useStyles = makeStyles(
   { name: "FilterComponent" },
 );
 
-const Filter: React.FC<Props> = (props) => {
+const Filter: React.FC = (props) => {
   const classes = useStyles(props);
   const { activeFilters, update } = useContext(TableContext);
   const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>
-    activeFilters.length ? activeFilters : [{ id: uuidv4(), ...EMPTY_FILTER }],
+    activeFilters.length ? activeFilters : [{ id: uniqueId(), ...EMPTY_FILTER }],
   );
 
-  const handleAddBlankFilter = useCallback(() => setFiltersArray((currFiltersArray) => [...currFiltersArray, { id: uuidv4(), ...EMPTY_FILTER }]), []);
+  const handleAddBlankFilter = useCallback(
+    () => setFiltersArray((currFiltersArray) => [...currFiltersArray, { id: uniqueId(), ...EMPTY_FILTER }]),
+    [],
+  );
 
   const handleRemoveFilter = useCallback(
     (value: ActiveFilter | NullableActiveFilter) => {
@@ -49,7 +49,7 @@ const Filter: React.FC<Props> = (props) => {
       }
       setFiltersArray((currFiltersArray) => {
         const updatedArray = removePredicate(currFiltersArray);
-        return updatedArray.length ? updatedArray : [{ id: uuidv4(), ...EMPTY_FILTER }];
+        return updatedArray.length ? updatedArray : [{ id: uniqueId(), ...EMPTY_FILTER }];
       });
     },
     [update],
@@ -57,7 +57,9 @@ const Filter: React.FC<Props> = (props) => {
 
   const handleFilterSubmit = useCallback(
     <RowType extends BaseData>(value: ActiveFilter<RowType>) => {
-      const submitPredicate = <T extends ActiveFilter<RowType> | NullableActiveFilter<RowType>>(currFiltersArray: T[]) => {
+      const submitPredicate = <T extends ActiveFilter<RowType> | NullableActiveFilter<RowType>>(
+        currFiltersArray: T[],
+      ) => {
         const filterIndex = currFiltersArray.findIndex((filter) => filter.id === value.id);
         if (filterIndex === -1) return [...currFiltersArray, value];
         const updatedArray = [...currFiltersArray];
@@ -87,7 +89,14 @@ const Filter: React.FC<Props> = (props) => {
         ))}
       </div>
       <div className={classes.filterFooter}>
-        <Button onClick={handleAddBlankFilter} data-testid="addFilter" startIcon={<Add />} size="small" variant="text" color="inherit">
+        <Button
+          onClick={handleAddBlankFilter}
+          data-testid="addFilter"
+          startIcon={<Add />}
+          size="small"
+          variant="text"
+          color="inherit"
+        >
           Add filter
         </Button>
       </div>

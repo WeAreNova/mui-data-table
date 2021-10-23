@@ -156,7 +156,6 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
   disablePagination = false,
-  selectGroupBy,
   rowClick,
   ...props
 }: PropsWithChildren<TableProps<RowType, DataType>>) => {

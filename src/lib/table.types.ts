@@ -24,7 +24,7 @@ export interface BaseColumnStructure<RowType extends BaseData, DataType extends 
   render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): React.ReactNode;
   rowSpan?(data: RowType, index: number, arr: RowType[]): number;
   sorter?: boolean | PathType<RowType> | Sorter<RowType>;
-  title: React.ReactNode | ((data: DataType) => React.ReactNode);
+  title: React.ReactNode | ((data: DataType) => NonNullable<React.ReactNode>);
   filterColumn?: FilterColumn<RowType>;
   pinnable?: boolean;
   actionButtons?: ActionButton[];
@@ -97,8 +97,8 @@ export interface OnChangeObject {
 }
 
 export interface RowOptions {
-  alternateRowColour?(data: GenericObject): boolean;
-  rowDisabled?(data: GenericObject): boolean;
+  alternateRowColour?(data: Record<string, any>): boolean;
+  rowDisabled?(data: Record<string, any>): boolean;
 }
 
 export interface Sort {

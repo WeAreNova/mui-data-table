@@ -1,8 +1,6 @@
-import { Checkbox } from "@material-ui/core";
+import { Checkbox, debounce } from "@material-ui/core";
 import { useUtils } from "@material-ui/pickers";
 import fileDownload from "js-file-download";
-import type { DebouncedFunc as DebouncedFunction } from "lodash";
-import debounce from "lodash.debounce";
 import get from "lodash.get";
 import uniqueId from "lodash.uniqueid";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
@@ -63,7 +61,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
 export interface TableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
   extends Omit<BaseTableState<RowType, DataType>, "onChange"> {
   count: number;
-  onChange?: DebouncedFunction<(queryParams?: OnChangeObject) => Promise<DataType>>;
+  onChange?(queryParams?: OnChangeObject): Promise<DataType>;
   allTableData: DataType;
   update: Update;
   filteredTableStructure: TableColumnStructure<RowType, DataType>[];
@@ -91,7 +89,7 @@ const reducer: TableReducer<any, any> = (state, action) =>
         ...Object.entries(action).reduce<Partial<DynamicState>>(
           (prev, [key, value]) => ({
             ...prev,
-            [key]: typeof value === "function" ? value(state[key] as never) : value,
+            [key]: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
           }),
           {} as Partial<DynamicState>,
         ),
@@ -163,10 +161,16 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
 
   const update = useMemo(() => {
     const updateFunction = (value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) => {
-      dispatch(_.pick(value, DYNAMIC_STATE));
+      dispatch(
+        Object.entries(value).reduce(
+          (prev, [key, value]) =>
+            DYNAMIC_STATE.includes(key as typeof DYNAMIC_STATE[number]) ? { ...prev, [key]: value } : prev,
+          {},
+        ),
+      );
     };
     DYNAMIC_STATE.forEach((curr) => {
-      updateFunction[curr] = (
+      (updateFunction as any)[curr] = (
         arg: BaseTableState[typeof curr] | ((currState: BaseTableState[typeof curr]) => BaseTableState[typeof curr]),
       ) => dispatch({ [curr]: arg });
     });
@@ -195,17 +199,19 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     window.sessionStorage.setItem(window.location.pathname, JSON.stringify(onChangeObject));
   }, [onChangeObject]);
 
-  const handleChange = useMemo(
-    () =>
-      tableState.onChange &&
-      debounce(async (queryParams = {}, isExport = false) => {
-        if (!isExport) update.loading(true);
-        const data = await tableState.onChange!({ ...queryParams }, isExport);
-        if (!isExport) update.loading(false);
-        return data;
-      }, 250),
+  const onChange = useCallback(
+    async (queryParams = {}, isExport = false) => {
+      if (!tableState.onChange) return;
+      dispatch({ loading: true });
+      if (!isExport) update.loading(true);
+      const data = await tableState.onChange!({ ...queryParams }, isExport);
+      if (!isExport) update.loading(false);
+      return data;
+    },
     [tableState.onChange, update],
   );
+
+  const handleChange = useMemo(() => tableState.onChange && debounce(onChange, 250), [onChange, tableState.onChange]);
 
   useEffect(() => {
     handleChange?.(onChangeObject);
@@ -232,15 +238,14 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
 
   const exportToCSV = useCallback(async () => {
     let data = tableState.tableData;
-    if (handleChange) {
-      handleChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
-      data = (await handleChange.flush())!; // ? To force the debounced function to be invoked
-      await handleChange(onChangeObject);
+    if (tableState.onChange) {
+      data = await onChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
+      await onChange(onChangeObject);
     }
-    const csvString = await exportTableToCSV(data, tableState.tableStructure);
+    const csvString = await exportTableToCSV(data, tableState.tableStructure as any);
     const filename = csvFilename!.endsWith(".csv") ? csvFilename! : `${csvFilename}.csv`;
     fileDownload(new Blob([csvString]), filename, "text/csv;charset=utf-16;");
-  }, [csvFilename, handleChange, onChangeObject, tableState.tableData, tableState.tableStructure]);
+  }, [csvFilename, onChange, onChangeObject, tableState.onChange, tableState.tableData, tableState.tableStructure]);
 
   const handleSelectedChange = useCallback(
     (data: RowType, rowId: string, dataArrayIndex: number, e: React.MouseEvent) => {

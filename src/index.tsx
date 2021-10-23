@@ -1,78 +1,16 @@
-import { PropsWithChildren, useMemo } from "react";
-import Table from "./Table.component";
-import { TableProvider } from "./table.context";
-import { BaseData, TableProps } from "./table.types";
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-const TableWrapper = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
-  props: PropsWithChildren<TableProps<RowType, DataType>>,
-) => {
-  const {
-    allProps,
-    onChange,
-    onSelectedRowsChange,
-    tableData,
-    tableStructure,
-    hideColumnsOption,
-    enableHiddenColumns,
-    rowsSelectable,
-    selectGroupBy,
-    defaultSort,
-    disablePagination,
-    rowsPerPageDefault,
-    csvFilename,
-    count,
-  } = useMemo(() => {
-    const allProps = {
-      hideColumnsOption: false,
-      enableHiddenColumns: false,
-      rowsSelectable: false,
-      defaultSort: { key: null, direction: undefined },
-      rowsPerPageDefault: 25,
-      csvFilename: "TableExport",
-      ...props,
-    };
-    return { allProps, ...allProps };
-  }, [props]);
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById("root"),
+);
 
-  const tableState = useMemo(
-    () => ({
-      onChange,
-      onSelectedRowsChange,
-      tableData,
-      tableStructure,
-      hideColumnsOption,
-      enableHiddenColumns,
-      rowsSelectable,
-      selectGroupBy,
-      defaultSort,
-      disablePagination,
-      rowsPerPageDefault,
-      csvFilename,
-      count,
-    }),
-    [
-      onChange,
-      onSelectedRowsChange,
-      tableData,
-      tableStructure,
-      hideColumnsOption,
-      enableHiddenColumns,
-      rowsSelectable,
-      selectGroupBy,
-      defaultSort,
-      disablePagination,
-      rowsPerPageDefault,
-      csvFilename,
-      count,
-    ],
-  );
-
-  return (
-    <TableProvider value={tableState}>
-      <Table {...allProps} />
-    </TableProvider>
-  );
-};
-
-export * from "./table.types";
-export default TableWrapper;
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals(console.log);

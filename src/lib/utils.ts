@@ -34,12 +34,12 @@ function isNil<T>(value: T | null | undefined): value is null | undefined {
   return value === null || value === undefined;
 }
 
-const getFilterTypeConvertors = (value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) => {
+export const getFilterTypeConvertors = (value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) => {
   const convertors = {
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
     boolean: (): boolean | null => (typeof value === "boolean" ? value : value === "true"),
-    date: (): any | null => utils.startOfDay(value),
+    date: (): any | null => utils.startOfDay(utils.date(value)),
   } as const;
   return Object.entries(convertors).reduce(
     (prev, [key, convertor]) => ({ ...prev, [key]: () => (isNil(value) ? null : convertor()) }),

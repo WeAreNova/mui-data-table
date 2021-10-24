@@ -119,12 +119,11 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     const errs = {
       path: !values.path,
       operator: !values.operator,
-      value: !values.operator?.includes("exists") && !values.value,
+      value: !values.operator?.includes("exists") && typeof values.value !== "boolean" && !values.value,
     };
     const hasError = Object.values(errs).some((v) => v);
-    if (hasError) {
-      setErrors(errs);
-    } else {
+    setErrors(errs);
+    if (!hasError) {
       debouncedSubmit(values as ActiveFilter);
     }
   }, [debouncedSubmit, values]);

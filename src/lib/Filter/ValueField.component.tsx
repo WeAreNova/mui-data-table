@@ -42,8 +42,8 @@ const ValueField = <
 
   const specifiable = useMemo(() => !filter.operator?.includes("exists"), [filter.operator]);
   const commonProps = useMemo(
-    () => ({ ...COMMON_PROPS, value: filterValue, error: hasError }),
-    [filterValue, hasError],
+    () => ({ ...COMMON_PROPS, defaultValue: filter.value, error: hasError }),
+    [filter.value, hasError],
   );
 
   const handleSelectChange = useCallback(
@@ -63,14 +63,22 @@ const ValueField = <
   );
 
   const field = useMemo(() => {
+    const { defaultValue, ...otherCommonProps } = commonProps;
+    const dateProps = { ...otherCommonProps, defaultValue: defaultValue };
     switch (filter.type) {
       case "boolean":
-        return <SimpleSelect {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
+        return (
+          <SimpleSelect
+            {...otherCommonProps}
+            value={defaultValue}
+            onChange={handleSelectChange}
+            options={BOOLEAN_OPTIONS}
+          />
+        );
       case "date":
         return (
           <DatePicker
-            {...commonProps}
-            value={commonProps.value as MaterialUiPickersDate | null}
+            {...(dateProps as any)}
             onChange={handleDateChange}
             variant="dialog"
             inputVariant={commonProps.variant}
@@ -96,9 +104,10 @@ const ValueField = <
   useEffect(() => {
     (() => {
       if (filterValue === filter.value) return;
-      if (!filter.operator?.includes("exists") && !filterValue) {
-        setHasError(true);
+      if (!filter.operator?.includes("exists") && typeof filterValue !== "boolean" && !filterValue) {
+        return setHasError(true);
       }
+      setHasError(false);
       debouncedChange(filterValue as V | null);
     })();
   }, [debouncedChange, filter.operator, filter.value, filterValue]);

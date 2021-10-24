@@ -27,12 +27,16 @@ const useStyles = makeStyles(
   { name: "SimpleSelectFieldComponent" },
 );
 
-const Option: React.FC<{ value: string }> = (props) => {
-  const isAccuratePointer = useMediaQuery("(pointer: fine)");
-  if (!isAccuratePointer) return <Typography {...props} variant="caption" component="option" />;
+const getOption = (value: string, label: string, isAccuratePointer: boolean) => {
+  if (!isAccuratePointer)
+    return (
+      <Typography key={value} variant="caption" component="option">
+        {label}
+      </Typography>
+    );
   return (
-    <MenuItem {...props}>
-      <Typography variant="caption">{props.value === "" ? <em>{props.children}</em> : props.children}</Typography>
+    <MenuItem key={value} value={value}>
+      <Typography variant="caption">{value === "" ? <em>{label}</em> : label}</Typography>
     </MenuItem>
   );
 };
@@ -68,15 +72,11 @@ const SimpleSelectField = <T extends Option>({
         native={!isAccuratePointer}
         className={classes.select}
       >
-        {placeholder && <Option value="">{placeholder}</Option>}
+        {placeholder && getOption("", placeholder, isAccuratePointer)}
         {options.map((option) => {
           const value = typeof option === "string" ? option : option.value;
           const label = typeof option === "string" ? option : option.label;
-          return (
-            <Option key={value} value={value}>
-              {label}
-            </Option>
-          );
+          return getOption(value, label, isAccuratePointer);
         })}
       </Select>
     </FormControl>

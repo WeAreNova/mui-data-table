@@ -41,7 +41,10 @@ const ValueField = <
   const [hasError, setHasError] = useState(false);
 
   const specifiable = useMemo(() => !filter.operator?.includes("exists"), [filter.operator]);
-  const commonProps = useMemo(() => ({ ...COMMON_PROPS, error: hasError }), [hasError]);
+  const commonProps = useMemo(
+    () => ({ ...COMMON_PROPS, value: filterValue, error: hasError }),
+    [filterValue, hasError],
+  );
 
   const handleSelectChange = useCallback(
     (_e, selected: Option | null) => setFilterValue(selected ? selected.value === "true" : null),
@@ -62,26 +65,23 @@ const ValueField = <
   const field = useMemo(() => {
     switch (filter.type) {
       case "boolean":
-        return (
-          <SimpleSelect {...commonProps} value={filterValue} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />
-        );
+        return <SimpleSelect {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
       case "date":
         return (
           <DatePicker
             {...commonProps}
-            value={filterValue as Date | null}
+            value={commonProps.value as MaterialUiPickersDate | null}
             onChange={handleDateChange}
             variant="dialog"
             inputVariant={commonProps.variant}
           />
         );
       case "number":
-        return <TextField {...commonProps} value={filterValue} onChange={handleOtherChange} type="number" />;
+        return <TextField {...commonProps} onChange={handleOtherChange} type="number" />;
       default:
         return (
           <TextField
             {...commonProps}
-            value={filterValue}
             onChange={handleOtherChange}
             InputLabelProps={{
               shrink: true,
@@ -89,7 +89,7 @@ const ValueField = <
           />
         );
     }
-  }, [commonProps, filter.type, filterValue, handleDateChange, handleOtherChange, handleSelectChange]);
+  }, [commonProps, filter.type, handleDateChange, handleOtherChange, handleSelectChange]);
 
   const debouncedChange = useMemo(() => debounce(onChange, 500), [onChange]);
 

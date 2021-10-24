@@ -8,7 +8,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
-import React, { ChangeEvent, ChangeEventHandler, PropsWithChildren, useCallback } from "react";
+import React, { ChangeEvent, ChangeEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
 
 export type Option = { label: string; value: string };
 
@@ -29,9 +29,8 @@ const useStyles = makeStyles(
 
 const Option: React.FC<{ value: string }> = (props) => {
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
-  return !isAccuratePointer ? (
-    <Typography {...props} variant="caption" component="option" />
-  ) : (
+  if (!isAccuratePointer) return <Typography {...props} variant="caption" component="option" />;
+  return (
     <MenuItem {...props}>
       <Typography variant="caption">{props.value === "" ? <em>{props.children}</em> : props.children}</Typography>
     </MenuItem>
@@ -49,10 +48,11 @@ const SimpleSelectField = <T extends Option>({
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
+  const defaultValue = useMemo(() => value || "", [value]);
+
   const handleChange = useCallback<ChangeEventHandler<{ name?: string; value: unknown }>>(
     (e) => {
       const value = e.target.value === "" ? null : e.target.value;
-      // if (!onChange) return form.setFieldValue(field.name, value);
       onChange(e, options.find((o) => o.value === value) ?? null);
     },
     [onChange, options],
@@ -62,7 +62,7 @@ const SimpleSelectField = <T extends Option>({
     <FormControl className={className}>
       <Select
         {...selectProps}
-        value={value}
+        defaultValue={defaultValue}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}

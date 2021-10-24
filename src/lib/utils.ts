@@ -2,17 +2,17 @@ import { useUtils } from "@material-ui/pickers";
 import get from "lodash.get";
 import orderBy from "lodash.orderby";
 import type { ReactNode } from "react";
-import { SetRequired } from "type-fest";
 import type {
   ActiveFilter,
   ActiveFilters,
   BaseData,
-  ColGroup,
+  ColGroupDefinition,
+  ColumnDefinition,
+  NumericalObject,
+  PathValueType,
   Sort,
   Sorter,
-  TableColumnStructure,
 } from "./table.types";
-import { MonetaryObject } from "./table.types";
 
 export function findIndexFrom<T>(
   array: T[],
@@ -114,13 +114,13 @@ export const getFilteredData = <RowType extends BaseData>(
 export const getSortedData = <RowType extends BaseData>(
   data: RowType[],
   sort: Sort,
-  tableStructure?: TableColumnStructure<RowType>[],
+  tableStructure?: ColumnDefinition<RowType>[],
 ) => {
   if (!sort.key || !sort.direction) return data;
 
   const sortColumn = tableStructure
-    ?.flatMap<TableColumnStructure<RowType> | ColGroup<RowType>>((c) => [c, ...(c.colGroup ?? [])])
-    .find((c) => c.dataIndex === sort.key || c.id === sort.key || c.key === sort.key);
+    ?.flatMap<ColumnDefinition<RowType> | ColGroupDefinition<RowType>>((c) => [c, ...(c.colGroup ?? [])])
+    .find((c) => c.key === sort.key);
 
   if (typeof sortColumn?.sorter === "function") {
     return [...data].sort((a, b) =>
@@ -142,13 +142,13 @@ export const getPagedData = <RowType extends BaseData>(
   return pagination.limit ? data.slice(page * pagination.limit, page * pagination.limit + pagination.limit) : data;
 };
 
-export const getFilterPath = (c: SetRequired<TableColumnStructure<any> | ColGroup<any>, "filterColumn">) => {
-  if (
-    typeof c.filterColumn === "string" ||
-    (typeof c.filterColumn !== "boolean" && typeof c.filterColumn.path !== "boolean")
-  )
-    return typeof c.filterColumn === "string" ? c.filterColumn : (c.filterColumn.path as string);
-  return c.dataIndex!;
+export const getPath = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+  value: PathValueType<RowType> | { path?: PathValueType<RowType> },
+  struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+): string => {
+  const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
+  if (path === true || path === undefined) return struct.dataIndex!;
+  return path;
 };
 
 export const numberFormatter = (
@@ -157,11 +157,11 @@ export const numberFormatter = (
     currency = true,
     decimalPlaces,
     ...options
-  }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean; decimalPlaces?: number },
+  }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number },
 ) =>
   new Intl.NumberFormat(window.navigator.language, {
     style: currency ? "currency" : undefined,
-    currency: currency ? "GBP" : undefined,
+    currency: typeof currency === "string" ? currency : currency ? "GBP" : undefined,
     minimumFractionDigits: decimalPlaces ?? 2,
     maximumFractionDigits: decimalPlaces ?? 2,
     ...options,
@@ -170,26 +170,27 @@ export const numberFormatter = (
 export const getRowId = <T extends BaseData>(data: T, arrayIndex: number) => String(data.id || data._id || arrayIndex);
 
 export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
-  struct: TableColumnStructure<T, DataType>,
+  struct: ColumnDefinition<T, DataType> | ColGroupDefinition<T, DataType>,
   data: T,
   rowId: string,
   dataArrayIndex: number,
 ): ReactNode | string | number => {
-  if (struct.monetary) {
+  if (struct.numerical) {
     const {
       path,
       decimalPlaces = 2,
       minDecimalPlaces,
       maxDecimalPlaces,
-    }: MonetaryObject<T> = typeof struct.monetary === "object"
-      ? struct.monetary
+      currency,
+    }: NumericalObject<T> = typeof struct.numerical === "object"
+      ? struct.numerical
       : {
-          path: struct.monetary === true ? struct.dataIndex! : struct.monetary!,
+          path: struct.numerical,
         };
-    const value = get(data, path as string);
+    const value = get(data, getPath(path, struct));
     if (isNaN(Number(value))) return "";
     return numberFormatter(value, {
-      currency: true,
+      currency,
       minimumFractionDigits: minDecimalPlaces ?? decimalPlaces,
       maximumFractionDigits: maxDecimalPlaces ?? decimalPlaces,
     });
@@ -201,12 +202,12 @@ export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
 export const exportTableToCSV = async <
   RowType extends BaseData,
   DataType extends RowType[] = RowType[],
-  TableColumn extends TableColumnStructure<RowType, DataType> = TableColumnStructure<RowType, DataType>,
+  TableColumn extends ColumnDefinition<RowType, DataType> = ColumnDefinition<RowType, DataType>,
 >(
   tableData: DataType,
   tableStructure: TableColumn[] = [],
 ) => {
-  const getTitle = (c: TableColumn | ColGroup<RowType, DataType>) => {
+  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, DataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
   };

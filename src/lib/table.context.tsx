@@ -4,8 +4,15 @@ import fileDownload from "js-file-download";
 import get from "lodash.get";
 import uniqueId from "lodash.uniqueid";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
-import type { ActiveFilters, BaseData, OnChangeObject, Sort, TableColumnStructure, TableProps } from "./table.types";
-import { ActiveFilter } from "./table.types";
+import type {
+  ActiveFilter,
+  ActiveFilters,
+  BaseData,
+  ColumnDefinition,
+  OnChangeObject,
+  Sort,
+  TableProps,
+} from "./table.types";
 import { exportTableToCSV, getFilteredData, getPagedData, getSortedData } from "./utils";
 
 const DYNAMIC_STATE = [
@@ -64,7 +71,7 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   onChange?(queryParams?: OnChangeObject): Promise<DataType>;
   allTableData: DataType;
   update: Update;
-  filteredTableStructure: TableColumnStructure<RowType, DataType>[];
+  filteredTableStructure: ColumnDefinition<RowType, DataType>[];
 }
 
 type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reducer<

@@ -1,9 +1,9 @@
 import { PropsWithChildren, useMemo } from "react";
-import Table from "./Table.component";
 import { TableProvider } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
+import _Table from "./_Table.component";
 
-const TableWrapper = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+const Table = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, DataType>>,
 ) => {
   const {
@@ -69,10 +69,10 @@ const TableWrapper = <RowType extends BaseData, DataType extends RowType[] = Row
 
   return (
     <TableProvider value={tableState}>
-      <Table {...allProps} />
+      <_Table {...allProps} />
     </TableProvider>
   );
 };
 
 export * from "./table.types";
-export default TableWrapper;
+export default Table;

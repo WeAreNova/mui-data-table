@@ -19,7 +19,7 @@ import get from "lodash.get";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
-import { BaseData, ColGroup, TableProps } from "./table.types";
+import { BaseData, ColGroupDefinition, ColumnDefinition, TableProps } from "./table.types";
 import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
 
 const useStyles = makeStyles(
@@ -150,7 +150,7 @@ const useStyles = makeStyles(
   { name: "TableComponent" },
 );
 
-const Table = <RowType extends BaseData, DataType extends RowType[]>({
+const _Table = <RowType extends BaseData, DataType extends RowType[]>({
   tableProps = {},
   rowOptions = {},
   rowsPerPageOptions = [5, 10, 25, 50, 100],
@@ -239,16 +239,15 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
 
   const cellColumns = useMemo(
     () =>
-      filteredTableStructure.flatMap((struct) =>
-        struct.colGroup && !hiddenColumns[struct.id || struct.key || ""]
-          ? struct.colGroup.map(
-              (colGroup) =>
-                ({ ...colGroup, isColGroup: true, hasColGroupFooter: Boolean(struct.footer) } as ColGroup<
-                  RowType,
-                  DataType
-                >),
-            )
-          : struct,
+      filteredTableStructure.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>(
+        (struct) =>
+          !struct.colGroup || hiddenColumns[struct.key]
+            ? [struct]
+            : struct.colGroup.map((colGroup) => ({
+                ...colGroup,
+                isColGroup: true,
+                hasColGroupFooter: Boolean(struct.footer),
+              })),
       ),
     [filteredTableStructure, hiddenColumns],
   );
@@ -340,7 +339,6 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
                   })}
                 >
                   {cellColumns.map((struct) => {
-                    const cellId = struct.id || struct.key;
                     const value = getValue(struct, data, String(rowId), dataIndex);
                     const rowSpan = struct.rowSpan
                       ? struct.rowSpan(data, dataIndex, arr)
@@ -350,13 +348,13 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
                     return (
                       Boolean(rowSpan) && (
                         <TableCell
-                          key={cellId}
+                          key={struct.key}
                           onClick={(e) => handleRowClick(data, e, rowId, dataIndex, rowSpan)}
                           className={clsx([
                             classes.columnCell,
                             {
-                              [classes.hiddenColumnCell]: Boolean(hiddenColumns[cellId!]),
-                              [classes.pinnedColumnCell]: pinnedColumn === cellId,
+                              [classes.hiddenColumnCell]: Boolean(hiddenColumns[struct.key!]),
+                              [classes.pinnedColumnCell]: pinnedColumn === struct.key,
                               [classes.limitedWidthSm]: Boolean(struct.limitWidth == "sm"),
                               [classes.limitedWidthLg]: Boolean(struct.limitWidth == "lg"),
                             },
@@ -384,7 +382,7 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
                 <TableRow>
                   {cellColumns.map((struct) => (
                     <TableCell
-                      key={struct.id || struct.key}
+                      key={struct.key}
                       rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
                     >
                       {struct.footer ? struct.footer(allTableData) : ""}
@@ -396,7 +394,7 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
                 <TableRow>
                   {filteredTableStructure.map(({ colGroup, footer, ...struct }) =>
                     colGroup && footer ? (
-                      <TableCell key={struct.id || struct.key} colSpan={colGroup.length}>
+                      <TableCell key={struct.key} colSpan={colGroup.length}>
                         {footer(allTableData)}
                       </TableCell>
                     ) : null,
@@ -482,4 +480,4 @@ const Table = <RowType extends BaseData, DataType extends RowType[]>({
   );
 };
 
-export default Table;
+export default _Table;

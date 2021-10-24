@@ -5,14 +5,13 @@ import Visibility from "@material-ui/icons/Visibility";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
-import { SetRequired } from "type-fest";
-import TableContext from "./table.context";
-import { ActionButton, BaseData, TableColumnStructure } from "./table.types";
-import { getFilterPath } from "./utils";
+import TableContext, { TableState } from "./table.context";
+import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
+import { getPath } from "./utils";
 
 interface Props<RowType extends BaseData, DataType extends RowType[]> {
   id: string;
-  structure: TableColumnStructure<RowType, DataType>;
+  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>;
   onFilterClick(target: HTMLTableCellElement): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
@@ -125,7 +124,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
 }: PropsWithChildren<Props<RowType, DataType>>) => {
   const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update } =
-    useContext(TableContext);
+    useContext<TableState<RowType, DataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(
@@ -144,7 +143,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
 
   const filterEnabled = useMemo(() => Boolean(structure.filterColumn), [structure]);
   const filterPath = useMemo(
-    () => filterEnabled && getFilterPath(structure as SetRequired<typeof structure, "filterColumn">),
+    () => filterEnabled && getPath(structure.filterColumn, structure),
     [filterEnabled, structure],
   );
   const filterActive = useMemo(
@@ -157,7 +156,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
       update.hiddenColumns((currHiddenColumns) => ({
         ...currHiddenColumns,
         [id]: typeof hidden === "boolean" ? hidden : !currHiddenColumns[id],
-        ...(structure.colGroup?.reduce((acc, col) => ({ ...acc, [(col.id || col.key)!]: hidden }), {}) || {}),
+        ...(structure.colGroup?.reduce((acc, col) => ({ ...acc, [col.key]: hidden }), {}) || {}),
       })),
     [id, structure.colGroup, update],
   );

@@ -1,65 +1,84 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
 import type React from "react";
-import type { LiteralUnion } from "type-fest";
+import { ReactNode } from "react";
+import type { LiteralUnion, RequireExactlyOne } from "type-fest";
 import { BASE_OPERATORS, FILTER_TYPES } from "./Filter/filter.consts";
 
 export interface BaseData {
   id?: string | null;
-  _id?: string | null;
   [key: string]: any;
 }
 
 export type PathType<RowType extends BaseData> = Exclude<LiteralUnion<keyof RowType, string>, symbol | number>;
 
+export type PathValueType<T extends BaseData> = PathType<T> | true | undefined;
+
 export type Sorter<T> = (ab: T, ba: T) => number;
 
-export interface BaseColumnStructure<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
+interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
+  key: string;
   dataIndex?: PathType<RowType>;
-  footer?(tableData: DataType): React.ReactNode;
+  numerical?: true | NumericalValueOptions<RowType>;
+  render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): ReactNode;
+  footer?(tableData: DataType): ReactNode;
   groupBy?: PathType<RowType>;
-  id?: string;
-  key?: string;
   limitWidth?: "lg" | "sm";
-  monetary?: Monetary<RowType>;
-  render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): React.ReactNode;
   rowSpan?(data: RowType, index: number, arr: RowType[]): number;
-  sorter?: boolean | PathType<RowType> | Sorter<RowType>;
-  title: React.ReactNode | ((data: DataType) => NonNullable<React.ReactNode>);
+  sorter?: PathValueType<RowType> | Sorter<RowType>;
+  title:
+    | Exclude<ReactNode, number | boolean | null | undefined>
+    | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
   filterColumn?: FilterColumn<RowType>;
   pinnable?: boolean;
   actionButtons?: ActionButton[];
-  isColGroup?: boolean;
-}
-
-export interface TableColumnStructure<RowType extends BaseData, DataType extends RowType[] = RowType[]>
-  extends BaseColumnStructure<RowType, DataType> {
-  colGroup?: ColGroup<RowType, DataType>[];
-}
-
-export interface ColGroup<RowType extends BaseData, DataType extends RowType[] = RowType[]>
-  extends BaseColumnStructure<RowType, DataType> {
+  colGroup?: ColGroupDefinition<RowType, DataType>[];
+  isColGroup?: true;
   hasColGroupFooter?: boolean;
 }
 
-export interface MonetaryObject<RowType extends BaseData = BaseData> {
-  path: PathType<RowType>;
+type WithDataIndex<RowType extends BaseData, DataType extends RowType[] = RowType[]> = BaseColumnDefinition<
+  RowType,
+  DataType
+> & { dataIndex: PathType<RowType> };
+
+type WithExactlyOne<
+  RowType extends BaseData,
+  DataType extends RowType[] = RowType[],
+  Requires extends keyof BaseColumnDefinition<RowType, DataType> = "numerical" | "render",
+> = RequireExactlyOne<BaseColumnDefinition<RowType, DataType>, Requires>;
+
+export type ColumnDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> =
+  | WithDataIndex<RowType, DataType>
+  | WithExactlyOne<RowType, DataType, "numerical" | "render" | "colGroup">;
+
+export type ColGroupDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> = Omit<
+  WithDataIndex<RowType, DataType> | WithExactlyOne<RowType, DataType, "numerical" | "render">,
+  "colGroup"
+> & { colGroup?: never };
+
+export interface NumericalObject<RowType extends BaseData = BaseData> {
+  path?: true | PathType<RowType>;
   decimalPlaces?: number;
   minDecimalPlaces?: number;
   maxDecimalPlaces?: number;
+  currency?: true | string;
 }
 
-export type Monetary<RowType extends BaseData = BaseData> = PathType<RowType> | boolean | MonetaryObject<RowType>;
+export type NumericalValueOptions<RowType extends BaseData = BaseData> =
+  | true
+  | PathType<RowType>
+  | NumericalObject<RowType>;
 
 export interface ActionButton extends Omit<IconButtonProps, "size"> {
   key: string;
-  icon: React.ReactNode;
-  onClick: () => void;
+  icon: ReactNode;
+  onClick(): void;
 }
 
 export type FilterTypes = typeof FILTER_TYPES[number] | undefined | null;
 
 export interface FilterOptions<RowType extends BaseData> {
-  path: PathType<RowType> | true;
+  path?: PathValueType<RowType>;
   type?: FilterTypes;
 }
 
@@ -72,12 +91,12 @@ export interface Operator {
   };
 }
 
-export type FilterColumn<RowType extends BaseData> = FilterOptions<RowType> | PathType<RowType> | true;
+export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 
 export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
   id: string;
   type: NonNullable<FilterTypes>;
-  path: Exclude<FilterOptions<RowType>["path"], true>;
+  path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
   value: string | number | Date | boolean | null;
   operator: OperatorValues;
 }
@@ -124,7 +143,7 @@ export interface TableProps<RowType extends BaseData = BaseData, DataType extend
   searchTerm?: string;
   tableData: DataType;
   tableProps?: MUITableProps;
-  tableStructure: TableColumnStructure<RowType, DataType>[];
+  tableStructure: ColumnDefinition<RowType, DataType>[];
   rowsSelectable?: boolean;
   onSelectedRowsChange?(rows: RowType[]): void;
   selectGroupBy?: string;

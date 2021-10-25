@@ -1,5 +1,4 @@
 import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
-import clsx from "clsx";
 import React, { PropsWithChildren, useCallback, useContext, useMemo, useRef, useState } from "react";
 import Filter from "./Filter";
 import HeaderCell from "./HeaderCell.component";
@@ -9,10 +8,7 @@ import type { BaseData } from "./table.types";
 interface HeaderRowProps {}
 
 const useStyles = makeStyles(
-  (theme) => ({
-    borderRight: {
-      borderRight: `1px solid ${theme.palette.divider}`,
-    },
+  () => ({
     filterContainer: {
       zIndex: 2,
     },
@@ -22,8 +18,7 @@ const useStyles = makeStyles(
 
 const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<HeaderRowProps>) => {
   const classes = useStyles(props);
-  const { tableStructure, filteredTableStructure, hiddenColumns } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+  const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, DataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
 
@@ -57,20 +52,16 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(props: 
       </TableRow>
       {hasColGroups && (
         <TableRow>
-          {filteredTableStructure.map(({ colGroup, ...containerStructure }, structIndex) =>
+          {filteredTableStructure.map(({ colGroup, ...containerStructure }) =>
             colGroup && !hiddenColumns[containerStructure.key]
-              ? colGroup.map((colGroupStructure, colGroupIndex) => (
+              ? colGroup.map((colGroupStructure) => (
                   <HeaderCell
                     key={colGroupStructure.key}
                     id={colGroupStructure.key}
                     structure={colGroupStructure}
                     onFilterClick={handleFilterClick}
-                    colGroupHeader
-                    className={clsx({
-                      [classes.borderRight]:
-                        structIndex !== tableStructure.length - 1 && colGroupIndex === colGroup.length - 1,
-                    })}
                     style={topHeaderOffsetStyle()}
+                    colGroupHeader
                   />
                 ))
               : null,

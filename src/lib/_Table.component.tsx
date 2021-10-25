@@ -4,7 +4,6 @@ import {
   makeStyles,
   Table as MUITable,
   TableBody,
-  TableCell,
   TableContainer,
   TableFooter,
   TablePagination,
@@ -16,22 +15,17 @@ import TablePaginationActions from "@material-ui/core/TablePagination/TablePagin
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import get from "lodash.get";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
+import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData, ColGroupDefinition, ColumnDefinition, TableProps } from "./table.types";
+import TableCell from "./TableCell.component";
 import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
 
 const useStyles = makeStyles(
   (theme) => ({
     alternateRowColour: {
       backgroundColor: alpha(theme.palette.error.dark, 0.9),
-    },
-    columnCell: {
-      transition: theme.transitions.create("width", {
-        duration: theme.transitions.duration.shorter,
-        easing: theme.transitions.easing.easeInOut,
-      }),
     },
     dataLoading: {
       "& > tbody": {
@@ -45,66 +39,6 @@ const useStyles = makeStyles(
     },
     footerButtons: {
       display: "flex",
-    },
-    hiddenColumnCell: {
-      contentVisibility: "hidden",
-      maxWidth: 0,
-      padding: 0,
-      cursor: "pointer",
-      transition: theme.transitions.create("border-right-width", {
-        duration: theme.transitions.duration.shortest,
-        easing: theme.transitions.easing.easeInOut,
-      }),
-      "&:last-child": {
-        borderLeft: `3px solid ${theme.palette.divider}`,
-        "&:hover": {
-          borderLeftWidth: 5,
-        },
-      },
-      "&:not(:last-child)": {
-        "&:not(:hover)": {
-          borderRightWidth: 3,
-        },
-        "&:hover": {
-          borderRightWidth: 5,
-        },
-      },
-    },
-    hideColumnsSwitch: {
-      paddingLeft: theme.spacing(2.5),
-      "& > .MuiFormControlLabel-label": {
-        whiteSpace: "nowrap",
-      },
-    },
-    limitedWidthLg: {
-      "& > *": {
-        maxWidth: "20em",
-        display: "block",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      },
-    },
-    limitedWidthSm: {
-      "& > *": {
-        maxWidth: "6em",
-        display: "block",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      },
-    },
-    pinnedColumnCell: {
-      position: "sticky",
-      left: 0,
-      right: 0,
-      zIndex: 3,
-      background: theme.palette.common.white,
-      borderLeft: `1px solid ${theme.palette.divider}`,
-      borderRight: `1px solid ${theme.palette.divider}`,
-      "&.MuiTableCell-head": {
-        zIndex: 4,
-      },
     },
     rowHover: {
       cursor: "pointer",
@@ -194,12 +128,13 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
     [update],
   );
 
-  const onHover = useCallback(
-    (hoverRow: EventTarget & HTMLTableRowElement) => {
-      hoverRow.classList.add(classes.rowHover);
-      if (!hoverRow.parentNode) return;
-      const hoverRowIndex = Array.from(hoverRow.parentNode.children).indexOf(hoverRow);
-      for (let row = hoverRow.previousSibling as Element; row; row = row.previousSibling as Element) {
+  const onHover = useCallback<MouseEventHandler<HTMLTableRowElement>>(
+    (e) => {
+      if (!rowClick) return;
+      e.currentTarget.classList.add(classes.rowHover);
+      if (!e.currentTarget.parentNode) return;
+      const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
+      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
         if (!row.parentNode) continue;
         const rowIndex = Array.from(row.parentNode.children).indexOf(row);
         const rowsBetween = hoverRowIndex - rowIndex;
@@ -209,17 +144,18 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
         });
       }
     },
-    [classes.rowHover],
+    [classes.rowHover, rowClick],
   );
 
-  const onUnHover = useCallback(
-    (hoverRow: EventTarget & HTMLTableRowElement) => {
-      hoverRow.classList.remove(classes.rowHover);
-      for (let row = hoverRow.previousSibling as Element; row; row = row.previousSibling as Element) {
+  const onUnHover = useCallback<React.MouseEventHandler<HTMLTableRowElement>>(
+    (e) => {
+      if (!rowClick) return;
+      e.currentTarget.classList.remove(classes.rowHover);
+      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
         row.querySelectorAll("td[rowspan]").forEach((cell) => cell.classList.remove(classes.rowHover));
       }
     },
-    [classes.rowHover],
+    [classes.rowHover, rowClick],
   );
 
   const groupBy = useCallback((groupByKey: string, data: RowType, index: number, arr: RowType[]) => {
@@ -330,8 +266,8 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
                 <TableRow
                   key={rowId}
                   data-testid="tableRow"
-                  onMouseOver={(e) => rowClick && onHover(e.currentTarget)}
-                  onMouseOut={(e) => rowClick && onUnHover(e.currentTarget)}
+                  onMouseOver={onHover}
+                  onMouseOut={onUnHover}
                   className={clsx({
                     [classes.alternateRowColour]: Boolean(isAlternateColour),
                     [classes.disabledRow]: Boolean(isDisabledRow),
@@ -350,15 +286,9 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
                         <TableCell
                           key={struct.key}
                           onClick={(e) => handleRowClick(data, e, rowId, dataIndex, rowSpan)}
-                          className={clsx([
-                            classes.columnCell,
-                            {
-                              [classes.hiddenColumnCell]: Boolean(hiddenColumns[struct.key!]),
-                              [classes.pinnedColumnCell]: pinnedColumn === struct.key,
-                              [classes.limitedWidthSm]: Boolean(struct.limitWidth == "sm"),
-                              [classes.limitedWidthLg]: Boolean(struct.limitWidth == "lg"),
-                            },
-                          ])}
+                          hidden={Boolean(hiddenColumns[struct.key])}
+                          pinned={pinnedColumn === struct.key}
+                          maxWidth={struct.limitWidth}
                           rowSpan={rowSpan}
                         >
                           {struct.limitWidth ? (

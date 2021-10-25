@@ -54,7 +54,14 @@ function App() {
         </Box>
         <Box>
           <TableContainer>
-            <Table tableData={data} tableStructure={STRUCTURE} onChange={changeServerSide ? handleChange : undefined} />
+            <Table
+              tableData={data}
+              tableStructure={STRUCTURE}
+              onChange={changeServerSide ? handleChange : undefined}
+              rowClick={console.log}
+              rowsSelectable
+              // onSelectedRowsChange={console.log}
+            />
           </TableContainer>
         </Box>
       </MuiPickersUtilsProvider>

@@ -1,4 +1,4 @@
-import { IconButton, makeStyles, TableCell, TableSortLabel, Tooltip } from "@material-ui/core";
+import { IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
 import AcUnit from "@material-ui/icons/AcUnit";
 import FilterList from "@material-ui/icons/FilterList";
 import Visibility from "@material-ui/icons/Visibility";
@@ -7,6 +7,7 @@ import clsx from "clsx";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
+import TableCell from "./TableCell.component";
 import { getPath } from "./utils";
 
 interface Props<RowType extends BaseData, DataType extends RowType[]> {
@@ -22,11 +23,7 @@ interface Props<RowType extends BaseData, DataType extends RowType[]> {
 const useStyles = makeStyles(
   (theme) =>
     createStyles({
-      columnCell: {
-        transition: theme.transitions.create("width", {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
+      tableCell: {
         "&:hover $filterIconButton": {
           opacity: 1,
         },
@@ -35,6 +32,17 @@ const useStyles = makeStyles(
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        whiteSpace: "pre",
+      },
+      columnCellButtonGroup: {
+        display: "flex",
+        alignItems: "center",
+        "& > *:last-child": {
+          marginRight: theme.spacing(1),
+        },
+        "& svg": {
+          fontSize: "1rem",
+        },
       },
       columnCellInner: {
         display: "flex",
@@ -43,24 +51,8 @@ const useStyles = makeStyles(
           width: "100%",
         },
       },
-      columnCellButtonGroup: {
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        paddingRight: theme.spacing(1),
-        "& svg": {
-          fontSize: "1rem",
-        },
-      },
-      columnFilterInput: {
-        "& > input": {
-          ...theme.typography.caption,
-          "&::placeholder": {
-            ...theme.typography.caption,
-            opacity: 1,
-            color: theme.palette.text.hint,
-          },
-        },
+      columnCellSortLabel: {
+        whiteSpace: "inherit",
       },
       filterIconButton: {
         opacity: 0.2,
@@ -69,44 +61,8 @@ const useStyles = makeStyles(
           easing: theme.transitions.easing.easeInOut,
         }),
       },
-      hiddenColumnCell: {
-        contentVisibility: "hidden",
-        maxWidth: 0,
-        padding: 0,
-        cursor: "pointer",
-        transition: theme.transitions.create("border-right-width", {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-        "&:last-child": {
-          borderLeft: `3px solid ${theme.palette.divider}`,
-          "&:hover": {
-            borderLeftWidth: 5,
-          },
-        },
-        "&:not(:last-child)": {
-          "&:not(:hover)": {
-            borderRightWidth: 3,
-          },
-          "&:hover": {
-            borderRightWidth: 5,
-          },
-        },
-      },
       stickyColGroupHeader: {
         left: "unset",
-      },
-      pinnedColumnCell: {
-        position: "sticky",
-        left: 0,
-        right: 0,
-        zIndex: 3,
-        background: theme.palette.common.white,
-        borderLeft: `1px solid ${theme.palette.divider}`,
-        borderRight: `1px solid ${theme.palette.divider}`,
-        "&.MuiTableCell-head": {
-          zIndex: 4,
-        },
       },
     }),
   { name: "HeaderCellComponent" },
@@ -190,17 +146,8 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
   );
 
   const headerClasses = useMemo(
-    () =>
-      clsx([
-        className,
-        classes.columnCell,
-        {
-          [classes.stickyColGroupHeader]: colGroupHeader && pinnedColumn !== id,
-          [classes.hiddenColumnCell]: Boolean(hidden),
-          [classes.pinnedColumnCell]: pinnedColumn === id,
-        },
-      ]),
-    [className, classes, colGroupHeader, hidden, id, pinnedColumn],
+    () => clsx(classes.tableCell, className, { [classes.stickyColGroupHeader]: colGroupHeader && pinnedColumn !== id }),
+    [className, classes, colGroupHeader, id, pinnedColumn],
   );
 
   const handleFilterClick = useCallback(() => onFilterClick(tableCellRef.current!), [onFilterClick]);
@@ -209,12 +156,15 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     <Fragment key={id}>
       <Tooltip title={hidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
         <TableCell
+          onClick={handleUnhide}
           ref={tableCellRef}
-          style={style}
-          className={headerClasses}
+          hidden={Boolean(hidden)}
+          pinned={pinnedColumn === id}
           colSpan={colSpan}
           rowSpan={rowSpan}
-          onClick={handleUnhide}
+          align="center"
+          className={headerClasses}
+          style={style}
         >
           <div className={classes.columnCellInner}>
             <div className={classes.columnCellButtonGroup}>
@@ -248,6 +198,8 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
             <div className={classes.columnCellBody}>
               {structure.sorter ? (
                 <TableSortLabel
+                  onClick={handleSort}
+                  className={classes.columnCellSortLabel}
                   active={
                     sort.direction &&
                     (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
@@ -257,14 +209,11 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
                       ? sort.direction
                       : undefined
                   }
-                  onClick={handleSort}
                 >
                   {headerTitle}
                 </TableSortLabel>
-              ) : typeof structure.title === "function" ? (
-                structure.title(allTableData)
               ) : (
-                structure.title
+                headerTitle
               )}
             </div>
             <div />

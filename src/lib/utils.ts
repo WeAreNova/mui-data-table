@@ -19,7 +19,9 @@ export function findIndexFrom<T>(
   predicate: (value: T, index: number, array: T[]) => boolean,
   fromIndex?: number,
 ) {
-  return array.slice(fromIndex).findIndex(predicate);
+  const index = array.slice(fromIndex).findIndex(predicate);
+  if (!fromIndex || index === -1) return index;
+  return index + fromIndex;
 }
 
 export function findLastIndexFrom<T>(
@@ -27,7 +29,9 @@ export function findLastIndexFrom<T>(
   predicate: (value: T, index: number, array: T[]) => boolean,
   fromIndex?: number,
 ) {
-  return array.slice(fromIndex).reverse().findIndex(predicate);
+  const index = array.slice(fromIndex).reverse().findIndex(predicate);
+  if (!fromIndex || index === -1) return index;
+  return array.length - 1 - index + fromIndex;
 }
 
 function isNil<T>(value: T | null | undefined): value is null | undefined {

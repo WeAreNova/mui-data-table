@@ -43,7 +43,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "fullName",
     title: "Full Name",
-    dataIndex: "fullName",
     render: (record) => `${record.forenames} ${record.surname}`,
     sorter: true,
     filterColumn: true,
@@ -59,6 +58,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "contactNumber",
+    groupBy: "email",
     title: "Contact Number",
     dataIndex: "personalDetails.contactNumber",
     sorter: true,
@@ -67,6 +67,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "address",
+    groupBy: "email",
     title: "Address",
     render: (record, isCSVExport) => {
       return record.personalDetails
@@ -99,6 +100,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "role",
+    groupBy: "email",
     title: "Role",
     dataIndex: "role",
     sorter: true,
@@ -106,6 +108,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "registrationDate",
+    groupBy: "email",
     title: "Registration Date",
     dataIndex: "registrationDateFormatted",
     sorter: "registrationDate",
@@ -114,10 +117,12 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "balances",
+    groupBy: "email",
     title: "Cash Balance",
     colGroup: [
       {
         key: "balances.total",
+        groupBy: "email",
         title: "Total",
         dataIndex: "balances.total",
         sorter: true,
@@ -129,6 +134,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
       },
       {
         key: "balances.invested",
+        groupBy: "email",
         title: "Invested",
         dataIndex: "balances.invested",
         sorter: true,
@@ -140,6 +146,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
       },
       {
         key: "balances.available",
+        groupBy: "email",
         title: "Available",
         dataIndex: "balances.available",
         sorter: true,
@@ -153,6 +160,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "emailConfirmed",
+    groupBy: "email",
     title: "Email Confirmed",
     dataIndex: "isConfirmed",
     sorter: true,
@@ -162,10 +170,10 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
 ];
 
 const data = (() => {
-  return faker.datatype.array(faker.datatype.number({ min: 10, max: 100 })).map<User>(() => {
+  return faker.datatype.array(faker.datatype.number({ min: 10, max: 100 })).flatMap<User>(() => {
     const totalBalance = faker.datatype.number({ min: 0, max: 10_000_000 });
     const investedBalance = faker.datatype.number({ min: 0, max: totalBalance });
-    return {
+    const value = {
       email: faker.internet.email(),
       title: faker.name.prefix(),
       forenames: faker.name.firstName(),
@@ -195,6 +203,7 @@ const data = (() => {
         available: totalBalance - investedBalance,
       },
     };
+    return [value, value];
   });
 })();
 

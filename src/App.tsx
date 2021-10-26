@@ -58,7 +58,7 @@ function App() {
               tableData={data}
               tableStructure={STRUCTURE}
               onChange={changeServerSide ? handleChange : undefined}
-              rowClick={console.log}
+              rowClick={(...args) => console.log(args)}
               rowsSelectable
               // onSelectedRowsChange={console.log}
             />

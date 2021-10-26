@@ -8,13 +8,14 @@ import {
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
-import React, { ChangeEvent, ChangeEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
+import React, { ChangeEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
 
-export type Option = { label: string; value: string };
+export type SelectFieldOption = { label: string; value: string };
+export type SimpleSelectChangeHandler<T extends SelectFieldOption> = (value: T | null) => void;
 
-interface SimpleSelectProps<T extends Option> extends Omit<SelectProps, "onChange"> {
+interface SimpleSelectProps<T extends SelectFieldOption> extends Omit<SelectProps, "onChange"> {
   options: T[];
-  onChange: (e: ChangeEvent<{ name?: string; value: unknown }>, value: T | null) => void;
+  onChange: SimpleSelectChangeHandler<T>;
 }
 
 const useStyles = makeStyles(
@@ -27,37 +28,26 @@ const useStyles = makeStyles(
   { name: "SimpleSelectFieldComponent" },
 );
 
-const getOption = (value: string, label: string, isAccuratePointer: boolean) => {
-  if (!isAccuratePointer)
-    return (
-      <Typography key={value} variant="caption" component="option">
-        {label}
-      </Typography>
-    );
-  return (
-    <MenuItem key={value} value={value}>
-      <Typography variant="caption">{value === "" ? <em>{label}</em> : label}</Typography>
-    </MenuItem>
-  );
-};
-
-const SimpleSelectField = <T extends Option>({
+const SimpleSelectField = <T extends SelectFieldOption>({
   placeholder,
   options,
   onChange,
   className,
-  value,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
-  const defaultValue = useMemo(() => value || "", [value]);
+  const value = useMemo(() => selectProps.value || "", [selectProps.value]);
+  const allOptions = useMemo(
+    () => [...(placeholder ? [{ label: placeholder, value: "" }] : []), ...options],
+    [options, placeholder],
+  );
 
   const handleChange = useCallback<ChangeEventHandler<{ name?: string; value: unknown }>>(
     (e) => {
       const value = e.target.value === "" ? null : e.target.value;
-      onChange(e, options.find((o) => o.value === value) ?? null);
+      onChange(options.find((o) => o.value === value) ?? null);
     },
     [onChange, options],
   );
@@ -66,18 +56,23 @@ const SimpleSelectField = <T extends Option>({
     <FormControl className={className}>
       <Select
         {...selectProps}
-        defaultValue={defaultValue}
+        value={value}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}
         className={classes.select}
       >
-        {placeholder && getOption("", placeholder, isAccuratePointer)}
-        {options.map((option) => {
-          const value = typeof option === "string" ? option : option.value;
-          const label = typeof option === "string" ? option : option.label;
-          return getOption(value, label, isAccuratePointer);
-        })}
+        {allOptions.map(({ label, value }) =>
+          !isAccuratePointer ? (
+            <Typography key={value} value={value} variant="caption" component="option">
+              {label}
+            </Typography>
+          ) : (
+            <MenuItem key={value} value={value}>
+              <Typography variant="caption">{label}</Typography>
+            </MenuItem>
+          ),
+        )}
       </Select>
     </FormControl>
   );

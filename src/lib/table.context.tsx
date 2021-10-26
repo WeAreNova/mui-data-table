@@ -13,7 +13,7 @@ import type {
   Sort,
   TableProps,
 } from "./table.types";
-import { exportTableToCSV, getFilteredData, getPagedData, getSortedData } from "./utils";
+import { exportTableToCSV, getFilteredData, getPagedData, getRowId, getSortedData } from "./utils";
 
 const DYNAMIC_STATE = [
   "sort",
@@ -268,7 +268,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
           .slice(dataArrayIndex + 1)
           .filter((value) => get(data, tableState.selectGroupBy!) === get(value, tableState.selectGroupBy!));
         extraRows.forEach((row, extraRowIndex) => {
-          const extraRowId = row.id || row._id || dataArrayIndex + (extraRowIndex + 1);
+          const extraRowId = getRowId(row, dataArrayIndex + (extraRowIndex + 1));
           if (updatedSelectedRows[extraRowId]) {
             delete updatedSelectedRows[extraRowId];
           } else {
@@ -288,7 +288,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       return update.selectedRows({});
     }
     update.selectedRows(
-      tableData.reduce((prev, value, rowIndex) => ({ ...prev, [value.id || value._id || rowIndex]: value }), {}),
+      tableData.reduce((prev, value, rowIndex) => ({ ...prev, [getRowId(value, rowIndex)]: value }), {}),
     );
   }, [noRowsSelected, tableData, update]);
 

@@ -171,7 +171,7 @@ export const numberFormatter = (
     ...options,
   }).format(value);
 
-export const getRowId = <T extends BaseData>(data: T, arrayIndex: number) => String(data.id || data._id || arrayIndex);
+export const getRowId = <T extends BaseData>(data: T, index: number) => String(data.id || data._id || index);
 
 export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
   struct: ColumnDefinition<T, DataType> | ColGroupDefinition<T, DataType>,

@@ -4,7 +4,7 @@ import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
-import SimpleSelect, { Option } from "./SimpleSelectField.component";
+import SimpleSelect, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
   ? string
@@ -21,7 +21,7 @@ interface ValueFieldProps<T extends ActiveFilter | NullableActiveFilter, V exten
   onChange(value: V | null): void;
 }
 
-const BOOLEAN_OPTIONS: Option[] = ["true", "false"].map((value) => ({ value, label: value }));
+const BOOLEAN_OPTIONS: SelectFieldOption[] = ["true", "false"].map((value) => ({ value, label: value }));
 const COMMON_PROPS = {
   name: "value",
   placeholder: "Value",
@@ -46,10 +46,9 @@ const ValueField = <
     [filter.value, hasError],
   );
 
-  const handleSelectChange = useCallback(
-    (_e, selected: Option | null) => setFilterValue(selected ? selected.value === "true" : null),
-    [],
-  );
+  const handleSelectChange = useCallback((selected: SelectFieldOption | null) => {
+    setFilterValue(selected ? selected.value === "true" : null);
+  }, []);
   const handleDateChange = useCallback(
     (value: MaterialUiPickersDate | null) => setFilterValue((value && dateUtils.date(value)?.toDate()) ?? null),
     [dateUtils],

@@ -3,12 +3,12 @@ import Close from "@material-ui/icons/Close";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { BaseData } from "..";
+import { BaseData, FilterValue } from "..";
 import TableContext, { TableState } from "../table.context";
 import type { ActiveFilter, FilterColumn, FilterTypes, NullableActiveFilter } from "../table.types";
 import { getPath } from "../utils";
 import { OPERATORS } from "./filter.consts";
-import SimpleSelectField from "./SimpleSelectField.component";
+import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
 
 interface Props {
@@ -101,6 +101,8 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     [allTableData, tableStructure],
   );
 
+  const operatorOptions = useMemo(() => getOperatorOptions(values.type), [values.type]);
+
   const handleRemove = useCallback(() => {
     onRemove(value);
   }, [onRemove, value]);
@@ -128,6 +130,29 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     }
   }, [debouncedSubmit, values]);
 
+  const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof columns[number]>>((selected) => {
+    setValues((currValues) => ({
+      ...currValues,
+      path: selected?.value ?? null,
+      type: selected?.type ?? null,
+      value: "",
+    }));
+  }, []);
+
+  const handleOperatorChange = useCallback<SimpleSelectChangeHandler<typeof operatorOptions[number]>>((selected) => {
+    setValues((currValues) => ({
+      ...currValues,
+      operator: selected?.value ?? null,
+    }));
+  }, []);
+
+  const handleValueChange = useCallback((value: FilterValue) => {
+    setValues((currValues) => ({
+      ...currValues,
+      value,
+    }));
+  }, []);
+
   return (
     <form data-testid={name} className={classes.root}>
       <div>
@@ -146,14 +171,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
             error={errors.path}
             placeholder="Column"
             variant="standard"
-            onChange={(_e, selected) =>
-              setValues((currValues) => ({
-                ...currValues,
-                path: selected?.value ?? null,
-                type: selected?.type ?? null,
-                value: "",
-              }))
-            }
+            onChange={handleColumnChange}
           />
         </div>
         <div className={clsx([classes.field, classes.operatorField])}>
@@ -161,29 +179,16 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <SimpleSelectField
             name="operator"
             value={values.operator}
-            options={getOperatorOptions(values.type)}
+            options={operatorOptions}
             error={errors.operator}
             placeholder="Operator"
             variant="standard"
-            onChange={(_e, selected) => {
-              setValues((currValues) => ({
-                ...currValues,
-                operator: selected?.value ?? null,
-              }));
-            }}
+            onChange={handleOperatorChange}
           />
         </div>
         {!values.operator?.includes("exists") && (
           <div className={classes.field}>
-            <ValueField
-              value={values}
-              onChange={(value) =>
-                setValues({
-                  ...values,
-                  value,
-                })
-              }
-            />
+            <ValueField value={values} onChange={handleValueChange} />
           </div>
         )}
       </div>

@@ -93,11 +93,13 @@ export interface Operator {
 
 export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 
+export type FilterValue = string | number | Date | boolean | null;
+
 export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
   id: string;
   type: NonNullable<FilterTypes>;
   path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
-  value: string | number | Date | boolean | null;
+  value: FilterValue;
   operator: OperatorValues;
 }
 
@@ -136,7 +138,7 @@ export interface TableProps<RowType extends BaseData = BaseData, DataType extend
     changeObject: OnChangeObject,
     isExport: T,
   ) => T extends true ? DataType | Promise<DataType> : any;
-  rowClick?(data: RowType, e: React.MouseEvent<HTMLTableRowElement, MouseEvent>): void;
+  rowClick?(data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
   rowOptions?: RowOptions;
   rowsPerPageOptions?: TablePaginationProps["rowsPerPageOptions"];
   rowsPerPageDefault?: number;

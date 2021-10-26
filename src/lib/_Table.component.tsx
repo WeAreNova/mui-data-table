@@ -94,7 +94,6 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
   ...props
 }: PropsWithChildren<TableProps<RowType, DataType>>) => {
   const classes = useStyles(props);
-
   const {
     allTableData,
     tableData,
@@ -196,7 +195,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
   const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
 
   const handleRowClick = useCallback(
-    (data, e, rowId, idx, rowSpan = 1) => {
+    (data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, rowId: string, idx: number, rowSpan = 1) => {
       e.stopPropagation();
       if (loading) return;
       if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
@@ -209,7 +208,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
         if (rowSpan > 1) {
           const extraRows = [...tableData].splice(idx + 1, rowSpan - 1);
           extraRows.forEach((row, extraRowIndex) => {
-            const extraRowId = row.id || row._id || idx + (extraRowIndex + 1);
+            const extraRowId = getRowId(row, idx + (extraRowIndex + 1));
             if (updatedSelectedRows[extraRowId]) {
               delete updatedSelectedRows[extraRowId];
             } else {
@@ -223,23 +222,20 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
         const updatedSelectedRows = { ...selectedRows };
         const lastIndex = findLastIndexFrom(
           tableData,
-          (value, index) =>
-            Object.keys(selectedRows).some((currentId) => currentId === (value.id || value._id || index.toString())),
+          (value, index) => Object.keys(selectedRows).some((currentId) => currentId === getRowId(value, index)),
           idx,
         );
         const indexOfSelected =
-          findLastIndexFrom(tableData, (value, index) => rowId === (value.id || value._id || index)) + (rowSpan - 1);
+          findLastIndexFrom(tableData, (value, index) => rowId === getRowId(value, index)) + (rowSpan - 1);
         const allIncludes = tableData.slice(lastIndex + 1, indexOfSelected + 1);
         allIncludes.forEach((row) => {
-          const currentId = row.id || row._id || idx;
+          const currentId = getRowId(row, idx);
           updatedSelectedRows[currentId] = row;
         });
         update.selectedRows(updatedSelectedRows);
         return;
       }
-      if (rowClick) {
-        rowClick(data, e);
-      }
+      rowClick?.(data, e);
     },
     [isMacOS, loading, tableData, rowClick, rowsSelectable, selectedRows, update],
   );

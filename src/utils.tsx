@@ -43,6 +43,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "fullName",
     title: "Full Name",
+    dataIndex: "forenames",
     render: (record) => `${record.forenames} ${record.surname}`,
     sorter: true,
     filterColumn: true,
@@ -174,6 +175,7 @@ const data = (() => {
     const totalBalance = faker.datatype.number({ min: 0, max: 10_000_000 });
     const investedBalance = faker.datatype.number({ min: 0, max: totalBalance });
     const value = {
+      id: faker.datatype.uuid(),
       email: faker.internet.email(),
       title: faker.name.prefix(),
       forenames: faker.name.firstName(),
@@ -203,7 +205,7 @@ const data = (() => {
         available: totalBalance - investedBalance,
       },
     };
-    return [value, value];
+    return [value, { ...value, id: faker.datatype.uuid() }];
   });
 })();
 

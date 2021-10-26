@@ -29,16 +29,17 @@ export function findLastIndexFrom<T>(
   predicate: (value: T, index: number, array: T[]) => boolean,
   fromIndex?: number,
 ) {
-  const index = array.slice(fromIndex).reverse().findIndex(predicate);
-  if (!fromIndex || index === -1) return index;
-  return array.length - 1 - index + fromIndex;
+  const reversedIndex = array.slice(fromIndex).reverse().findIndex(predicate);
+  if (reversedIndex === -1) return reversedIndex;
+  const index = array.length - 1 - reversedIndex;
+  return fromIndex ? index + fromIndex : index;
 }
 
 function isNil<T>(value: T | null | undefined): value is null | undefined {
   return value === null || value === undefined;
 }
 
-export const getFilterTypeConvertors = (value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) => {
+export function getFilterTypeConvertors(value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) {
   const convertors = {
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
@@ -49,16 +50,17 @@ export const getFilterTypeConvertors = (value: ActiveFilter["value"], utils: Ret
     (prev, [key, convertor]) => ({ ...prev, [key]: () => (isNil(value) ? null : convertor()) }),
     {} as typeof convertors,
   );
-};
+}
 
-const getStringRegexMatch = (value: string, searchValue: string, isContains: boolean) =>
-  new RegExp(`${isContains ? ".*" : "^"}${searchValue}${isContains ? ".*" : "$"}`, "i").test(value);
+function getStringRegexMatch(value: string, searchValue: string, isContains: boolean) {
+  return new RegExp(`${isContains ? ".*" : "^"}${searchValue}${isContains ? ".*" : "$"}`, "i").test(value);
+}
 
-const getMatch = <RowType extends BaseData>(
+function getMatch<RowType extends BaseData>(
   value: RowType[keyof RowType],
   filter: ActiveFilter,
   utils: ReturnType<typeof useUtils>,
-): boolean => {
+): boolean {
   const filterValue = getFilterTypeConvertors(filter.value, utils)[filter.type]();
   const currValue = getFilterTypeConvertors(value, utils)[filter.type]();
   if (!filter.operator.includes("exists") && (isNil(filterValue) || isNil(currValue))) return false;
@@ -99,13 +101,13 @@ const getMatch = <RowType extends BaseData>(
         return utils.isBefore(currValue, utils.endOfDay(filterValue)) || utils.isSameDay(currValue, filterValue);
       return currValue! <= filterValue!;
   }
-};
+}
 
-export const getFilteredData = <RowType extends BaseData>(
+export function getFilteredData<RowType extends BaseData>(
   data: RowType[],
   filters: ActiveFilters<RowType>,
   utils: ReturnType<typeof useUtils>,
-) => {
+) {
   if (!filters.length) return data;
   return [...data].filter((row) =>
     // * `filters.every` will change to `filters.some` for the 'OR' case
@@ -114,12 +116,12 @@ export const getFilteredData = <RowType extends BaseData>(
       return getMatch(currValue, filter, utils);
     }),
   );
-};
-export const getSortedData = <RowType extends BaseData>(
+}
+export function getSortedData<RowType extends BaseData>(
   data: RowType[],
   sort: Sort,
   tableStructure?: ColumnDefinition<RowType>[],
-) => {
+) {
   if (!sort.key || !sort.direction) return data;
 
   const sortColumn = tableStructure
@@ -137,48 +139,48 @@ export const getSortedData = <RowType extends BaseData>(
     ? sortColumn.sorter
     : sortColumn.dataIndex;
   return orderBy([...data], sortKey, sort.direction);
-};
-export const getPagedData = <RowType extends BaseData>(
-  data: RowType[],
-  pagination: { limit?: number; page: number },
-) => {
+}
+export function getPagedData<RowType extends BaseData>(data: RowType[], pagination: { limit?: number; page: number }) {
   const page = pagination.page ?? data.length;
   return pagination.limit ? data.slice(page * pagination.limit, page * pagination.limit + pagination.limit) : data;
-};
+}
 
-export const getPath = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+export function getPath<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
   struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
-): string => {
+): string {
   const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
   if (path === true || path === undefined) return struct.dataIndex!;
   return path;
-};
+}
 
-export const numberFormatter = (
+export function numberFormatter(
   value: number,
   {
     currency = true,
     decimalPlaces,
     ...options
   }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number },
-) =>
-  new Intl.NumberFormat(window.navigator.language, {
+) {
+  return new Intl.NumberFormat(window.navigator.language, {
     style: currency ? "currency" : undefined,
     currency: typeof currency === "string" ? currency : currency ? "GBP" : undefined,
     minimumFractionDigits: decimalPlaces ?? 2,
     maximumFractionDigits: decimalPlaces ?? 2,
     ...options,
   }).format(value);
+}
 
-export const getRowId = <T extends BaseData>(data: T, index: number) => String(data.id || data._id || index);
+export function getRowId<T extends BaseData>(data: T, index: number) {
+  return String(data.id || data._id || index);
+}
 
-export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
+export function getValue<T extends BaseData, DataType extends T[] = T[]>(
   struct: ColumnDefinition<T, DataType> | ColGroupDefinition<T, DataType>,
   data: T,
   rowId: string,
   dataArrayIndex: number,
-): ReactNode | string | number => {
+): ReactNode | string | number {
   if (struct.numerical) {
     const {
       path,
@@ -201,16 +203,13 @@ export const getValue = <T extends BaseData, DataType extends T[] = T[]>(
   }
   if (struct.render) return struct.render(data, false, rowId, dataArrayIndex);
   return get(data, struct.dataIndex! as string) as string;
-};
+}
 
-export const exportTableToCSV = async <
+export async function exportTableToCSV<
   RowType extends BaseData,
   DataType extends RowType[] = RowType[],
   TableColumn extends ColumnDefinition<RowType, DataType> = ColumnDefinition<RowType, DataType>,
->(
-  tableData: DataType,
-  tableStructure: TableColumn[] = [],
-) => {
+>(tableData: DataType, tableStructure: TableColumn[] = []) {
   const getTitle = (c: TableColumn | ColGroupDefinition<RowType, DataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
@@ -231,4 +230,4 @@ export const exportTableToCSV = async <
     }),
   );
   return [csvHeaders, ...csvRows].join("\n");
-};
+}

@@ -86,7 +86,9 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
                   <address>
                     {[addressLineOne, addressLineTwo, city, country, postcode].filter(Boolean).map((line, iIndex) => (
                       <Fragment key={iIndex}>
-                        {line}
+                        {line?.split(" ").map((word) => (
+                          <>{word}&nbsp;</>
+                        ))}
                         <br />
                       </Fragment>
                     ))}
@@ -189,7 +191,7 @@ const data = (() => {
         : {
             dob: faker.date.past(),
             contactNumber: faker.phone.phoneNumber(),
-            addressHistory: new Array(faker.datatype.number({ min: 1, max: 5 })).map<Address>(() => ({
+            addressHistory: faker.datatype.array(faker.datatype.number({ min: 1, max: 5 })).map<Address>(() => ({
               addressLineOne: faker.address.streetAddress(),
               addressLineTwo: faker.address.secondaryAddress(),
               city: faker.address.city(),
@@ -205,7 +207,8 @@ const data = (() => {
         available: totalBalance - investedBalance,
       },
     };
-    return [value, { ...value, id: faker.datatype.uuid() }];
+    return value;
+    // return [value, { ...value, id: faker.datatype.uuid() }];
   });
 })();
 

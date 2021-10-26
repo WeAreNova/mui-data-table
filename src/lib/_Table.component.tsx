@@ -50,8 +50,9 @@ const useStyles = makeStyles(
     selectedRowsFooter: {
       display: "flex",
       alignItems: "center",
+      justifyContent: "flex-end",
       "& > *": {
-        paddingRight: theme.spacing(2.5),
+        marginRight: theme.spacing(2.5),
       },
     },
     table: {
@@ -200,6 +201,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
       if (loading) return;
       if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
         const updatedSelectedRows = { ...selectedRows };
+        const setAsSelected = !updatedSelectedRows[rowId];
         if (updatedSelectedRows[rowId]) {
           delete updatedSelectedRows[rowId];
         } else {
@@ -209,11 +211,11 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
           const extraRows = [...tableData].splice(idx + 1, rowSpan - 1);
           extraRows.forEach((row, extraRowIndex) => {
             const extraRowId = getRowId(row, idx + (extraRowIndex + 1));
-            if (updatedSelectedRows[extraRowId]) {
-              delete updatedSelectedRows[extraRowId];
-            } else {
+            if (setAsSelected) {
               updatedSelectedRows[extraRowId] = row;
+              return;
             }
+            delete updatedSelectedRows[extraRowId];
           });
         }
         return update.selectedRows(updatedSelectedRows);
@@ -222,7 +224,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
         const updatedSelectedRows = { ...selectedRows };
         const lastIndex = findLastIndexFrom(
           tableData,
-          (value, index) => Object.keys(selectedRows).some((currentId) => currentId === getRowId(value, index)),
+          (value, index) => Boolean(selectedRows[getRowId(value, index)]),
           idx,
         );
         const indexOfSelected =
@@ -232,8 +234,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
           const currentId = getRowId(row, idx);
           updatedSelectedRows[currentId] = row;
         });
-        update.selectedRows(updatedSelectedRows);
-        return;
+        return update.selectedRows(updatedSelectedRows);
       }
       rowClick?.(data, e);
     },
@@ -387,12 +388,18 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
               </Typography>
               <Tooltip
                 title={
-                  <Typography variant="caption" color="textSecondary">
-                    To select a single row, hold down {isMacOS ? '"cmd"' : '"ctrl"'} and click on the desired row.
+                  <Typography variant="caption" color="inherit">
+                    Use&nbsp;
+                    <strong>
+                      <kbd>{isMacOS ? "cmd" : "ctrl"}</kbd>&nbsp;+&nbsp;<kbd>click</kbd>
+                    </strong>{" "}
+                    to select a single row.
                     <br />
-                    <br />
-                    To select all rows between the last selected upto (and including) the one clicked, hold down
-                    &quot;shift&quot; and click on the desired row.
+                    Use&nbsp;
+                    <strong>
+                      <kbd>shift</kbd>&nbsp;+&nbsp;<kbd>click</kbd>
+                    </strong>{" "}
+                    to select multiple rows.
                   </Typography>
                 }
               >

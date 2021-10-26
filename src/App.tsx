@@ -60,7 +60,6 @@ function App() {
               onChange={changeServerSide ? handleChange : undefined}
               rowClick={(...args) => console.log(args)}
               rowsSelectable
-              // onSelectedRowsChange={console.log}
             />
           </TableContainer>
         </Box>

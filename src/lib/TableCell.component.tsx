@@ -93,7 +93,7 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
       ]),
     [className, classes, hidden, maxWidth, pinned],
   );
-  return <MUITableCell {...props} ref={ref} className={cellClasses} />;
+  return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
 });
 
 export default TableCell;

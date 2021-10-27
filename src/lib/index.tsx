@@ -3,26 +3,11 @@ import { TableProvider } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import _Table from "./_Table.component";
 
-const Table = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+const DataTable = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, DataType>>,
 ) => {
-  const {
-    allProps,
-    onChange,
-    onSelectedRowsChange,
-    tableData,
-    tableStructure,
-    hideColumnsOption,
-    enableHiddenColumns,
-    rowsSelectable,
-    selectGroupBy,
-    defaultSort,
-    disablePagination,
-    rowsPerPageDefault,
-    csvFilename,
-    count,
-  } = useMemo(() => {
-    const allProps = {
+  const allProps = useMemo(
+    () => ({
       hideColumnsOption: false,
       enableHiddenColumns: false,
       rowsSelectable: false,
@@ -30,49 +15,20 @@ const Table = <RowType extends BaseData, DataType extends RowType[] = RowType[]>
       rowsPerPageDefault: 25,
       csvFilename: "TableExport",
       ...props,
-    };
-    return { allProps, ...allProps };
-  }, [props]);
-
-  const tableState = useMemo(
-    () => ({
-      onChange,
-      onSelectedRowsChange,
-      tableData,
-      tableStructure,
-      hideColumnsOption,
-      enableHiddenColumns,
-      rowsSelectable,
-      selectGroupBy,
-      defaultSort,
-      disablePagination,
-      rowsPerPageDefault,
-      csvFilename,
-      count,
     }),
-    [
-      onChange,
-      onSelectedRowsChange,
-      tableData,
-      tableStructure,
-      hideColumnsOption,
-      enableHiddenColumns,
-      rowsSelectable,
-      selectGroupBy,
-      defaultSort,
-      disablePagination,
-      rowsPerPageDefault,
-      csvFilename,
-      count,
-    ],
+    [props],
   );
-
   return (
-    <TableProvider value={tableState}>
-      <_Table {...allProps} />
+    <TableProvider value={allProps}>
+      <_Table
+        tableProps={props.tableProps}
+        rowsPerPageOptions={props.rowsPerPageOptions}
+        exportToCSVOption={props.exportToCSVOption}
+        disablePagination={props.disablePagination}
+      />
     </TableProvider>
   );
 };
 
 export * from "./table.types";
-export default Table;
+export default DataTable;

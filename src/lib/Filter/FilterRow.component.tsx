@@ -52,7 +52,7 @@ const useStyles = makeStyles(
         flex: 0.5,
       },
     }),
-  { name: "FilterRowComponent" },
+  { name: "DataTable-FilterRow" },
 );
 
 export const EMPTY_FILTER = {

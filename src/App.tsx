@@ -13,7 +13,7 @@ import Brightness4 from "@material-ui/icons/Brightness4";
 import Brightness7 from "@material-ui/icons/Brightness7";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import React, { useCallback, useEffect, useState } from "react";
-import Table, { OnChangeObject } from "./lib";
+import DataTable, { OnChangeObject } from "./lib";
 import { getData, STRUCTURE, User } from "./utils";
 
 function App() {
@@ -54,11 +54,11 @@ function App() {
         </Box>
         <Box>
           <TableContainer>
-            <Table
+            <DataTable
               tableData={data}
               tableStructure={STRUCTURE}
               onChange={changeServerSide ? handleChange : undefined}
-              rowClick={(...args) => console.log(args)}
+              rowClick={(data) => console.log(data)}
               rowsSelectable
             />
           </TableContainer>

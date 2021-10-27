@@ -25,7 +25,7 @@ const useStyles = makeStyles(
         ...theme.typography.caption,
       },
     }),
-  { name: "SimpleSelectFieldComponent" },
+  { name: "DataTable-SimpleSelectField" },
 );
 
 const SimpleSelectField = <T extends SelectFieldOption>({

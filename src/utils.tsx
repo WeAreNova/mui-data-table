@@ -52,6 +52,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "email",
     title: "Email",
+    limitWidth: "sm",
     dataIndex: "email",
     sorter: true,
     filterColumn: true,
@@ -70,36 +71,38 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     key: "address",
     groupBy: "email",
     title: "Address",
-    render: (record, isCSVExport) => {
-      return record.personalDetails
-        ? isCSVExport
-          ? record.personalDetails.addressHistory
-              .map(({ addressLineOne, addressLineTwo, city, country, postcode }) => {
-                const lineTwo = addressLineTwo ? ` ${addressLineTwo}` : "";
-                return `${addressLineOne} ${lineTwo} ${city} ${country} ${postcode}`;
-              })
-              .join("\n")
-          : record.personalDetails.addressHistory.map(
-              ({ addressLineOne, addressLineTwo, city, country, postcode }, oIndex) => (
-                <Fragment key={oIndex}>
-                  {oIndex > 0 && <hr />}
-                  <address>
-                    {[addressLineOne, addressLineTwo, city, country, postcode].filter(Boolean).map((line, iIndex) => (
-                      <Fragment key={iIndex}>
-                        {line?.split(" ").map((word) => (
-                          <>{word}&nbsp;</>
-                        ))}
-                        <br />
-                      </Fragment>
-                    ))}
-                  </address>
-                </Fragment>
-              ),
-            )
-        : null;
-    },
     sorter: "personalDetails.addressHistory.addressLineOne",
     filterColumn: "personalDetails.addressHistory.addressLineOne",
+    render: (record, isCSVExport) => {
+      if (!record.personalDetails) return null;
+      if (isCSVExport)
+        record.personalDetails.addressHistory
+          .map(({ addressLineOne, addressLineTwo, city, country, postcode }) => {
+            const lineTwo = addressLineTwo ? ` ${addressLineTwo}` : "";
+            return `${addressLineOne} ${lineTwo} ${city} ${country} ${postcode}`;
+          })
+          .join("\n");
+      return record.personalDetails.addressHistory.map(
+        ({ addressLineOne, addressLineTwo, city, country, postcode }, addressIndex) => {
+          const addressArr = [addressLineOne, addressLineTwo, city, country, postcode];
+          return (
+            <Fragment key={addressArr.join()}>
+              {addressIndex > 0 && <hr />}
+              <address>
+                {addressArr.filter(Boolean).map((line, addressLineIndex) => (
+                  <Fragment key={addressLineIndex}>
+                    {line?.split(" ").map((word, wordIndex) => (
+                      <Fragment key={wordIndex}>{word}&nbsp;</Fragment>
+                    ))}
+                    <br />
+                  </Fragment>
+                ))}
+              </address>
+            </Fragment>
+          );
+        },
+      );
+    },
   },
   {
     key: "role",
@@ -191,7 +194,7 @@ const data = (() => {
         : {
             dob: faker.date.past(),
             contactNumber: faker.phone.phoneNumber(),
-            addressHistory: faker.datatype.array(faker.datatype.number({ min: 1, max: 5 })).map<Address>(() => ({
+            addressHistory: faker.datatype.array(faker.datatype.number({ min: 1, max: 3 })).map<Address>(() => ({
               addressLineOne: faker.address.streetAddress(),
               addressLineTwo: faker.address.secondaryAddress(),
               city: faker.address.city(),

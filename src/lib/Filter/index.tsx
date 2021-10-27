@@ -25,7 +25,7 @@ const useStyles = makeStyles(
         backgroundColor: "inherit",
       },
     }),
-  { name: "TableFilter" },
+  { name: "DataTable-Filter" },
 );
 
 const Filter: React.FC = (props) => {

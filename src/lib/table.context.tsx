@@ -8,6 +8,7 @@ import type {
   ActiveFilter,
   ActiveFilters,
   BaseData,
+  ColGroupDefinition,
   ColumnDefinition,
   OnChangeObject,
   Sort,
@@ -53,6 +54,8 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
     | "rowsSelectable"
     | "selectGroupBy"
     | "rowsPerPageDefault"
+    | "rowOptions"
+    | "rowClick"
   > {
   sort: Sort;
   rowsPerPage: number | undefined;
@@ -72,7 +75,28 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   allTableData: DataType;
   update: Update;
   filteredTableStructure: ColumnDefinition<RowType, DataType>[];
+  flattenedTableStructure: Array<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>;
+  isMacOS: boolean;
 }
+
+export type TableContextValue<RowType extends BaseData, DataType extends RowType[]> = Pick<
+  TableProps<RowType, DataType>,
+  | "count"
+  | "csvFilename"
+  | "disablePagination"
+  | "enableHiddenColumns"
+  | "hideColumnsOption"
+  | "onChange"
+  | "rowClick"
+  | "rowOptions"
+  | "rowsPerPageDefault"
+  | "tableData"
+  | "tableStructure"
+  | "rowsSelectable"
+  | "onSelectedRowsChange"
+  | "selectGroupBy"
+  | "defaultSort"
+>;
 
 type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reducer<
   BaseTableState<RowType, DataType>,
@@ -81,12 +105,6 @@ type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reduce
 
 const TableContext = React.createContext<TableState<any, any>>({} as TableState);
 TableContext.displayName = "TableContext";
-
-export const TableContextTypes = {
-  SET: "SET",
-  UPDATE: "UPDATE",
-  CLEAR: "CLEAR",
-} as const;
 
 const reducer: TableReducer<any, any> = (state, action) =>
   typeof action === "function"
@@ -106,22 +124,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   value: { defaultSort, rowsPerPageDefault, csvFilename, count, ...value },
   ...props
 }: PropsWithChildren<{
-  value: Pick<
-    TableProps<RowType, DataType>,
-    | "tableData"
-    | "tableStructure"
-    | "onChange"
-    | "onSelectedRowsChange"
-    | "selectGroupBy"
-    | "hideColumnsOption"
-    | "enableHiddenColumns"
-    | "rowsSelectable"
-    | "defaultSort"
-    | "rowsPerPageDefault"
-    | "disablePagination"
-    | "csvFilename"
-    | "count"
-  >;
+  value: TableContextValue<RowType, DataType>;
 }>) => {
   const pickersUtils = useUtils();
   const stored = useMemo(() => {
@@ -150,6 +153,8 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     };
   }, [defaultSort, rowsPerPageDefault]);
 
+  const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
+
   const tableState = useMemo(
     () => ({
       ...value,
@@ -160,8 +165,9 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       hiddenColumns: {},
       pinnedColumn: "",
       selectedRows: {},
+      isMacOS,
     }),
-    [stored, value],
+    [isMacOS, stored, value],
   );
 
   const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);
@@ -224,14 +230,17 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     handleChange?.(onChangeObject);
   }, [handleChange, onChangeObject]);
 
-  const tableData = useMemo(() => {
-    if (tableState.onChange) return tableState.tableData;
+  const [tableData, tableCount] = useMemo(() => {
+    const numberCount = count && Number(count);
+    if (tableState.onChange) return [tableState.tableData, numberCount || tableState.tableData.length];
     const filteredData = getFilteredData(tableState.tableData, state.activeFilters, pickersUtils);
     const sortedData = getSortedData(filteredData, state.sort, tableState.tableStructure);
-    return tableState.disablePagination
+    const pagedData = tableState.disablePagination
       ? sortedData
       : getPagedData(sortedData, { limit: state.rowsPerPage, page: state.page });
+    return [pagedData, numberCount || filteredData.length];
   }, [
+    count,
     pickersUtils,
     state.activeFilters,
     state.page,
@@ -292,8 +301,8 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     );
   }, [noRowsSelected, tableData, update]);
 
-  const filteredTableStructure = useMemo(() => {
-    return [
+  const filteredTableStructure = useMemo<ColumnDefinition<RowType, DataType>[]>(
+    () => [
       ...(!tableState.rowsSelectable
         ? []
         : [
@@ -319,22 +328,33 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
             },
           ]),
       ...tableState.tableStructure,
-    ];
-  }, [
-    handleSelectAll,
-    handleSelectedChange,
-    noRowsSelected,
-    tableData.length,
-    state.selectedRows,
-    tableState.rowsSelectable,
-    tableState.selectGroupBy,
-    tableState.tableStructure,
-  ]);
+    ],
+    [
+      handleSelectAll,
+      handleSelectedChange,
+      noRowsSelected,
+      tableData.length,
+      state.selectedRows,
+      tableState.rowsSelectable,
+      tableState.selectGroupBy,
+      tableState.tableStructure,
+    ],
+  );
 
-  const tableCount = useMemo(() => {
-    if (count) return Number(count);
-    return tableState.tableData.length;
-  }, [count, tableState.tableData.length]);
+  const flattenedTableStructure = useMemo(
+    () =>
+      filteredTableStructure.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>(
+        (struct) =>
+          !struct.colGroup || state.hiddenColumns[struct.key]
+            ? [struct]
+            : struct.colGroup.map((colGroup) => ({
+                ...colGroup,
+                isColGroup: true,
+                hasColGroupFooter: Boolean(struct.footer),
+              })),
+      ),
+    [filteredTableStructure, state.hiddenColumns],
+  );
 
   const providerValue = useMemo<TableState>(
     () =>
@@ -346,9 +366,20 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
         count: tableCount,
         exportToCSV,
         filteredTableStructure,
+        flattenedTableStructure,
         update,
       } as unknown as TableState),
-    [state, handleChange, tableData, tableState.tableData, tableCount, exportToCSV, filteredTableStructure, update],
+    [
+      state,
+      handleChange,
+      tableData,
+      tableState.tableData,
+      tableCount,
+      exportToCSV,
+      filteredTableStructure,
+      flattenedTableStructure,
+      update,
+    ],
   );
 
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;

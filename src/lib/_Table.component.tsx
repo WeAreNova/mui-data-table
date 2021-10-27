@@ -1,5 +1,4 @@
 import {
-  alpha,
   Button,
   makeStyles,
   Table as MUITable,
@@ -14,38 +13,27 @@ import {
 import TablePaginationActions from "@material-ui/core/TablePagination/TablePaginationActions";
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
-import get from "lodash.get";
-import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
+import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
+import BodyRow from "./BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
-import { BaseData, ColGroupDefinition, ColumnDefinition, TableProps } from "./table.types";
+import { BaseData, TableProps } from "./table.types";
 import TableCell from "./TableCell.component";
-import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
+import { getRowId } from "./utils";
+
+interface _TableProps
+  extends Pick<TableProps, "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"> {}
 
 const useStyles = makeStyles(
   (theme) => ({
-    alternateRowColour: {
-      backgroundColor: alpha(theme.palette.error.dark, 0.9),
-    },
     dataLoading: {
       "& > tbody": {
         opacity: 0.4,
         backgroundColor: theme.palette.action.hover,
       },
     },
-    disabledRow: {
-      backgroundColor: theme.palette.action.disabledBackground,
-      opacity: theme.palette.action.disabledOpacity,
-    },
     footerButtons: {
       display: "flex",
-    },
-    rowHover: {
-      cursor: "pointer",
-      backgroundColor: theme.palette.action.hover,
-    },
-    selectedRow: {
-      backgroundColor: theme.palette.action.selected,
     },
     selectedRowsFooter: {
       display: "flex",
@@ -82,23 +70,22 @@ const useStyles = makeStyles(
       },
     },
   }),
-  { name: "TableComponent" },
+  { name: "DataTable" },
 );
 
 const _Table = <RowType extends BaseData, DataType extends RowType[]>({
   tableProps = {},
-  rowOptions = {},
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
   disablePagination = false,
-  rowClick,
   ...props
-}: PropsWithChildren<TableProps<RowType, DataType>>) => {
+}: PropsWithChildren<_TableProps>) => {
   const classes = useStyles(props);
   const {
     allTableData,
     tableData,
     filteredTableStructure,
+    flattenedTableStructure,
     enableHiddenColumns,
     rowsSelectable,
     rowsPerPage,
@@ -106,11 +93,11 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
     selectedRows,
     onSelectedRowsChange,
     hiddenColumns,
-    pinnedColumn,
     update,
     loading,
     exportToCSV,
     count,
+    isMacOS,
   } = useContext<TableState<RowType, DataType>>(TableContext);
 
   const allColumnsVisible = useMemo(() => {
@@ -128,117 +115,13 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
     [update],
   );
 
-  const onHover = useCallback<MouseEventHandler<HTMLTableRowElement>>(
-    (e) => {
-      if (!rowClick) return;
-      e.currentTarget.classList.add(classes.rowHover);
-      if (!e.currentTarget.parentNode) return;
-      const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
-        if (!row.parentNode) continue;
-        const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-        const rowsBetween = hoverRowIndex - rowIndex;
-        row.querySelectorAll("td[rowspan]").forEach((cell) => {
-          const rowSpan = Number(cell.getAttribute("rowspan"));
-          if (rowSpan > rowsBetween) cell.classList.add(classes.rowHover);
-        });
-      }
-    },
-    [classes.rowHover, rowClick],
-  );
-
-  const onUnHover = useCallback<React.MouseEventHandler<HTMLTableRowElement>>(
-    (e) => {
-      if (!rowClick) return;
-      e.currentTarget.classList.remove(classes.rowHover);
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
-        row.querySelectorAll("td[rowspan]").forEach((cell) => cell.classList.remove(classes.rowHover));
-      }
-    },
-    [classes.rowHover, rowClick],
-  );
-
-  const groupBy = useCallback((groupByKey: string, data: RowType, index: number, arr: RowType[]) => {
-    const value = get(data, groupByKey);
-    const previousValue = get(arr[index - 1], groupByKey);
-    if (value && previousValue && value === previousValue) {
-      // if previous row has same group by value, this row merges with the row above
-      return 0;
-    }
-    if (value) {
-      // go forward until we find a different value, then span all the rows in between
-      const endIndex = findIndexFrom(arr, (v) => get(v, groupByKey) !== value, index);
-      return endIndex > -1 ? endIndex - index : arr.length - index;
-    }
-    return 1;
-  }, []);
-
-  const cellColumns = useMemo(
-    () =>
-      filteredTableStructure.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>(
-        (struct) =>
-          !struct.colGroup || hiddenColumns[struct.key]
-            ? [struct]
-            : struct.colGroup.map((colGroup) => ({
-                ...colGroup,
-                isColGroup: true,
-                hasColGroupFooter: Boolean(struct.footer),
-              })),
-      ),
-    [filteredTableStructure, hiddenColumns],
-  );
   const hasColGroupFooter = useMemo(
     () => filteredTableStructure.some((struct) => Boolean(struct.colGroup && struct.footer)),
     [filteredTableStructure],
   );
-  const hasFooter = useMemo(() => cellColumns.some((struct) => Boolean(struct.footer)), [cellColumns]);
-
-  const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
-
-  const handleRowClick = useCallback(
-    (data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, rowId: string, idx: number, rowSpan = 1) => {
-      e.stopPropagation();
-      if (loading) return;
-      if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
-        const updatedSelectedRows = { ...selectedRows };
-        const setAsSelected = !updatedSelectedRows[rowId];
-        if (updatedSelectedRows[rowId]) {
-          delete updatedSelectedRows[rowId];
-        } else {
-          updatedSelectedRows[rowId] = data;
-        }
-        if (rowSpan > 1) {
-          const extraRows = [...tableData].splice(idx + 1, rowSpan - 1);
-          extraRows.forEach((row, extraRowIndex) => {
-            const extraRowId = getRowId(row, idx + (extraRowIndex + 1));
-            if (setAsSelected) {
-              updatedSelectedRows[extraRowId] = row;
-              return;
-            }
-            delete updatedSelectedRows[extraRowId];
-          });
-        }
-        return update.selectedRows(updatedSelectedRows);
-      }
-      if (rowsSelectable && e.shiftKey) {
-        const updatedSelectedRows = { ...selectedRows };
-        const lastIndex = findLastIndexFrom(
-          tableData,
-          (value, index) => Boolean(selectedRows[getRowId(value, index)]),
-          idx,
-        );
-        const indexOfSelected =
-          findLastIndexFrom(tableData, (value, index) => rowId === getRowId(value, index)) + (rowSpan - 1);
-        const allIncludes = tableData.slice(lastIndex + 1, indexOfSelected + 1);
-        allIncludes.forEach((row) => {
-          const currentId = getRowId(row, idx);
-          updatedSelectedRows[currentId] = row;
-        });
-        return update.selectedRows(updatedSelectedRows);
-      }
-      rowClick?.(data, e);
-    },
-    [isMacOS, loading, tableData, rowClick, rowsSelectable, selectedRows, update],
+  const hasFooter = useMemo(
+    () => flattenedTableStructure.some((struct) => Boolean(struct.footer)),
+    [flattenedTableStructure],
   );
 
   useEffect(() => {
@@ -255,59 +138,15 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
         >
           <HeaderRow />
           <TableBody>
-            {tableData.map((data, dataIndex, arr) => {
-              const isAlternateColour = rowOptions.alternateRowColour && rowOptions.alternateRowColour(data);
-              const isDisabledRow = rowOptions.rowDisabled && rowOptions.rowDisabled(data);
-              const rowId = getRowId(data, dataIndex);
-              return (
-                <TableRow
-                  key={rowId}
-                  data-testid="tableRow"
-                  onMouseOver={onHover}
-                  onMouseOut={onUnHover}
-                  className={clsx({
-                    [classes.alternateRowColour]: Boolean(isAlternateColour),
-                    [classes.disabledRow]: Boolean(isDisabledRow),
-                    [classes.selectedRow]: rowsSelectable && Boolean(selectedRows[rowId]),
-                  })}
-                >
-                  {cellColumns.map((struct) => {
-                    const value = getValue(struct, data, String(rowId), dataIndex);
-                    const rowSpan = struct.rowSpan
-                      ? struct.rowSpan(data, dataIndex, arr)
-                      : struct.groupBy
-                      ? groupBy(struct.groupBy as string, data, dataIndex, arr)
-                      : 1;
-                    return (
-                      Boolean(rowSpan) && (
-                        <TableCell
-                          key={struct.key}
-                          onClick={(e) => handleRowClick(data, e, rowId, dataIndex, rowSpan)}
-                          hidden={Boolean(hiddenColumns[struct.key])}
-                          pinned={pinnedColumn === struct.key}
-                          maxWidth={struct.limitWidth}
-                          rowSpan={rowSpan}
-                        >
-                          {struct.limitWidth ? (
-                            <Tooltip title={typeof value === "string" && value.length > 20 ? value : ""}>
-                              <span>{value}</span>
-                            </Tooltip>
-                          ) : (
-                            value
-                          )}
-                        </TableCell>
-                      )
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
+            {tableData.map((data, dataIndex) => (
+              <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
+            ))}
           </TableBody>
           {(hasFooter || hasColGroupFooter) && (
             <TableFooter>
               {hasFooter && (
                 <TableRow>
-                  {cellColumns.map((struct) => (
+                  {flattenedTableStructure.map((struct) => (
                     <TableCell
                       key={struct.key}
                       rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
@@ -350,13 +189,13 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
                 variant="text"
                 disabled={allColumnsVisible}
               >
-                Show all Columns
+                Show all
               </Button>
             )}
           </div>
         </div>
         <div>
-          {disablePagination ? null : (
+          {!disablePagination && (
             <TablePagination
               className={classes.tablePagination}
               rowsPerPageOptions={rowsPerPageOptions}
@@ -373,7 +212,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
               component="div"
             />
           )}
-          {!rowsSelectable ? null : (
+          {rowsSelectable && (
             <div className={classes.selectedRowsFooter}>
               <Button
                 onClick={() => update.selectedRows({})}

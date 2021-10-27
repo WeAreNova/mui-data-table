@@ -13,7 +13,7 @@ const useStyles = makeStyles(
       zIndex: 2,
     },
   }),
-  { name: "HeaderRowComponent" },
+  { name: "DataTable-HeaderRow" },
 );
 
 const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<HeaderRowProps>) => {

@@ -65,7 +65,7 @@ const useStyles = makeStyles(
         left: "unset",
       },
     }),
-  { name: "HeaderCellComponent" },
+  { name: "DataTable-HeaderCell" },
 );
 
 const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowType[]>({

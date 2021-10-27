@@ -142,7 +142,6 @@ export interface TableProps<RowType extends BaseData = BaseData, DataType extend
   rowOptions?: RowOptions;
   rowsPerPageOptions?: TablePaginationProps["rowsPerPageOptions"];
   rowsPerPageDefault?: number;
-  searchTerm?: string;
   tableData: DataType;
   tableProps?: MUITableProps;
   tableStructure: ColumnDefinition<RowType, DataType>[];

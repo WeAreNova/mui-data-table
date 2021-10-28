@@ -85,7 +85,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
 }: PropsWithChildren<Props>) => {
   const classes = useStyles(props);
   const { tableStructure, allTableData } = useContext<TableState<RowType, DataType>>(TableContext);
-  const [values, setValues] = useState({ ...EMPTY_FILTER, ...value });
+  const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
 
   const columns = useMemo(
@@ -101,7 +101,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     [allTableData, tableStructure],
   );
 
-  const operatorOptions = useMemo(() => getOperatorOptions(values.type), [values.type]);
+  const operatorOptions = useMemo(() => getOperatorOptions(filter.type), [filter.type]);
 
   const handleRemove = useCallback(() => {
     onRemove(value);
@@ -119,19 +119,23 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
 
   useEffect(() => {
     const errs = {
-      path: !values.path,
-      operator: !values.operator,
-      value: !values.operator?.includes("exists") && typeof values.value !== "boolean" && !values.value,
+      path: !filter.path,
+      operator: !filter.operator,
+      value:
+        !filter.operator?.includes("exists") &&
+        typeof filter.value !== "boolean" &&
+        typeof filter.value !== "number" &&
+        !filter.value,
     };
     const hasError = Object.values(errs).some((v) => v);
     setErrors(errs);
     if (!hasError) {
-      debouncedSubmit(values as ActiveFilter);
+      debouncedSubmit(filter as ActiveFilter);
     }
-  }, [debouncedSubmit, values]);
+  }, [debouncedSubmit, filter]);
 
   const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof columns[number]>>((selected) => {
-    setValues((currValues) => ({
+    setFilter((currValues) => ({
       ...currValues,
       path: selected?.value ?? null,
       type: selected?.type ?? null,
@@ -140,14 +144,14 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   }, []);
 
   const handleOperatorChange = useCallback<SimpleSelectChangeHandler<typeof operatorOptions[number]>>((selected) => {
-    setValues((currValues) => ({
+    setFilter((currValues) => ({
       ...currValues,
       operator: selected?.value ?? null,
     }));
   }, []);
 
   const handleValueChange = useCallback((value: FilterValue) => {
-    setValues((currValues) => ({
+    setFilter((currValues) => ({
       ...currValues,
       value,
     }));
@@ -166,7 +170,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <Typography variant="caption">Column</Typography>
           <SimpleSelectField
             name="path"
-            value={values.path}
+            value={filter.path}
             options={columns}
             error={errors.path}
             placeholder="Column"
@@ -178,7 +182,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <Typography variant="caption">Operator</Typography>
           <SimpleSelectField
             name="operator"
-            value={values.operator}
+            value={filter.operator}
             options={operatorOptions}
             error={errors.operator}
             placeholder="Operator"
@@ -186,9 +190,9 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
             onChange={handleOperatorChange}
           />
         </div>
-        {!values.operator?.includes("exists") && (
+        {!filter.operator?.includes("exists") && (
           <div className={classes.field}>
-            <ValueField value={values} onChange={handleValueChange} />
+            <ValueField value={filter} onChange={handleValueChange} />
           </div>
         )}
       </div>

@@ -14,7 +14,14 @@ import type {
   Sort,
   TableProps,
 } from "./table.types";
-import { exportTableToCSV, getFilteredData, getPagedData, getRowId, getSortedData } from "./utils";
+import {
+  exportTableToCSV,
+  getFilteredData,
+  getPagedData,
+  getRowId,
+  getSortedData,
+  getTableCellAlignment,
+} from "./utils";
 
 const DYNAMIC_STATE = [
   "sort",
@@ -308,6 +315,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
         : [
             {
               key: "selectCheckbox",
+              align: "center",
               groupBy: tableState.selectGroupBy,
               title: (
                 <Checkbox
@@ -325,19 +333,33 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
                   />
                 );
               },
-            },
+            } as const,
           ]),
-      ...tableState.tableStructure,
+      ...tableState.tableStructure.map((structure) =>
+        structure.colGroup
+          ? ({
+              ...structure,
+              align: "center",
+              colGroup: structure.colGroup.map((colGroupStructure) => ({
+                ...colGroupStructure,
+                align: getTableCellAlignment(colGroupStructure, tableData?.[0]),
+              })),
+            } as const)
+          : {
+              ...structure,
+              align: getTableCellAlignment(structure, tableData?.[0]),
+            },
+      ),
     ],
     [
-      handleSelectAll,
-      handleSelectedChange,
-      noRowsSelected,
-      tableData.length,
-      state.selectedRows,
       tableState.rowsSelectable,
       tableState.selectGroupBy,
       tableState.tableStructure,
+      handleSelectAll,
+      noRowsSelected,
+      tableData,
+      state.selectedRows,
+      handleSelectedChange,
     ],
   );
 
@@ -346,7 +368,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       filteredTableStructure.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>(
         (struct) =>
           !struct.colGroup || state.hiddenColumns[struct.key]
-            ? [struct]
+            ? struct
             : struct.colGroup.map((colGroup) => ({
                 ...colGroup,
                 isColGroup: true,

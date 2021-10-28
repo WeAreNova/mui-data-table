@@ -28,6 +28,33 @@ const useStyles = makeStyles(
           opacity: 1,
         },
       },
+      alignCenter: {
+        "& > div:nth-child(1)": {
+          order: 2,
+          textAlign: "center",
+        },
+        "& > div:nth-child(2)": {
+          order: 1,
+        },
+        "& > div:nth-child(3)": {
+          order: 3,
+        },
+      },
+      alignRight: {
+        "& > div:nth-child(1)": {
+          order: 3,
+          textAlign: "right",
+          "&  $columnCellSortLabel": {
+            flexDirection: "row-reverse",
+          },
+        },
+        "& > div:nth-child(2)": {
+          order: 2,
+        },
+        "& > div:nth-child(3)": {
+          order: 1,
+        },
+      },
       columnCellBody: {
         display: "flex",
         alignItems: "center",
@@ -37,9 +64,6 @@ const useStyles = makeStyles(
       columnCellButtonGroup: {
         display: "flex",
         alignItems: "center",
-        "& > *:last-child": {
-          marginRight: theme.spacing(1),
-        },
         "& svg": {
           fontSize: "1rem",
         },
@@ -53,6 +77,9 @@ const useStyles = makeStyles(
       },
       columnCellSortLabel: {
         whiteSpace: "inherit",
+        "& > svg.MuiTableSortLabel-icon": {
+          opacity: 0.2,
+        },
       },
       filterIconButton: {
         opacity: 0.2,
@@ -162,11 +189,37 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
           pinned={pinnedColumn === id}
           colSpan={colSpan}
           rowSpan={rowSpan}
-          align="center"
+          align={structure.align}
           className={headerClasses}
           style={style}
         >
-          <div className={classes.columnCellInner}>
+          <div
+            className={clsx(classes.columnCellInner, {
+              [classes.alignRight]: structure.align === "right",
+              [classes.alignCenter]: structure.align === "center",
+            })}
+          >
+            <div className={classes.columnCellBody}>
+              {structure.sorter ? (
+                <TableSortLabel
+                  onClick={handleSort}
+                  className={classes.columnCellSortLabel}
+                  active={
+                    sort.direction &&
+                    (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
+                  }
+                  direction={
+                    sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
+                      ? sort.direction
+                      : undefined
+                  }
+                >
+                  {headerTitle}
+                </TableSortLabel>
+              ) : (
+                headerTitle
+              )}
+            </div>
             <div className={classes.columnCellButtonGroup}>
               {enableHiddenColumns && (
                 <IconButton onClick={handleHiddenColumnsChange} size="small">
@@ -193,27 +246,6 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
                 >
                   <FilterList />
                 </IconButton>
-              )}
-            </div>
-            <div className={classes.columnCellBody}>
-              {structure.sorter ? (
-                <TableSortLabel
-                  onClick={handleSort}
-                  className={classes.columnCellSortLabel}
-                  active={
-                    sort.direction &&
-                    (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
-                  }
-                  direction={
-                    sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
-                      ? sort.direction
-                      : undefined
-                  }
-                >
-                  {headerTitle}
-                </TableSortLabel>
-              ) : (
-                headerTitle
               )}
             </div>
             <div />

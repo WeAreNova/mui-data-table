@@ -15,9 +15,12 @@ export type PathValueType<T extends BaseData> = PathType<T> | true | undefined;
 
 export type Sorter<T> = (ab: T, ba: T) => number;
 
+export type TableCellAlign = "left" | "center" | "right";
+
 interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
   key: string;
   dataIndex?: PathType<RowType>;
+  align?: TableCellAlign;
   numerical?: true | NumericalValueOptions<RowType>;
   render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): ReactNode;
   footer?(tableData: DataType): ReactNode;

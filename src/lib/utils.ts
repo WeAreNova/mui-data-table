@@ -12,6 +12,7 @@ import type {
   PathValueType,
   Sort,
   Sorter,
+  TableCellAlign,
 } from "./table.types";
 
 export function findIndexFrom<T>(
@@ -203,6 +204,17 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
   }
   if (struct.render) return struct.render(data, false, rowId, dataArrayIndex);
   return get(data, struct.dataIndex! as string) as string;
+}
+
+export function getTableCellAlignment<T extends BaseData>(
+  structure: ColumnDefinition<T> | ColGroupDefinition<T>,
+  data?: T,
+  index = 0,
+): TableCellAlign {
+  if (structure.align) return structure.align;
+  if (structure.numerical) return "right";
+  const renderedValue = data && getValue(structure, data, getRowId(data, index), index);
+  return typeof renderedValue === "number" ? "right" : "left";
 }
 
 export async function exportTableToCSV<

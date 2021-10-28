@@ -2,7 +2,7 @@ import { Tooltip } from "@material-ui/core";
 import get from "lodash.get";
 import React, { PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import TableContext, { TableState } from "./table.context";
-import { BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
+import type { BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
 import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
 
@@ -101,6 +101,7 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
       pinned={pinnedColumn === structure.key}
       maxWidth={structure.limitWidth}
       rowSpan={rowSpan}
+      align={structure.align}
     >
       {structure.limitWidth ? (
         <Tooltip title={tooltipTitle}>

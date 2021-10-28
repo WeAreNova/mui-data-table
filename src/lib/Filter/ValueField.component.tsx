@@ -103,7 +103,12 @@ const ValueField = <
   useEffect(() => {
     (() => {
       if (filterValue === filter.value) return;
-      if (!filter.operator?.includes("exists") && typeof filterValue !== "boolean" && !filterValue) {
+      if (
+        !filter.operator?.includes("exists") &&
+        typeof filterValue !== "boolean" &&
+        typeof filterValue !== "number" &&
+        !filterValue
+      ) {
         return setHasError(true);
       }
       setHasError(false);

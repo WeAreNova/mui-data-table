@@ -1,6 +1,6 @@
 import { alpha, createStyles, makeStyles, TableRow } from "@material-ui/core";
 import clsx from "clsx";
-import { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
+import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import BodyCell from "./BodyCell.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData } from "./table.types";

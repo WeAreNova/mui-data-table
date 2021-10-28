@@ -1,0 +1,58 @@
+name: Build and Publish
+on:
+  workflow_dispatch:
+    inputs:
+      version-increment:
+        description: version update
+        default: patch
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Increment Version
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Nova Bot"
+          npm version ${{ github.event.inputs.version-increment }}
+          git push origin main
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.run_id }}
+          path: |
+            package.json
+            package-lock.json
+            *.md
+            lib/
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ github.run_id }}
+
+      - name: Publish
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_AUTH_TOKEN}
+          npm publish --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

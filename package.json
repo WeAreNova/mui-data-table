@@ -1,16 +1,15 @@
 {
-  "name": "@we-are-nova/mui-data-table",
+  "name": "@wearenova/mui-data-table",
   "version": "1.0.0",
   "description": "An extensive data-table with sorting, multi-column filtering, pagination and more with server-side data fetching support.",
   "source": "src/index.tsx",
-  "main": "dist/index.js",
-  "module": "dist/module.js",
-  "types": "dist/types.d.ts",
+  "types": "lib/types",
+  "module": "lib/index.js",
+  "main": "lib/index.c.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript",
+    "prepublish": "npm run build"
   },
   "author": "",
   "license": "ISC",
@@ -47,14 +46,16 @@
   "dependencies": {
     "js-file-download": "^0.4.12",
     "lodash.get": "^4.4.2",
-    "lodash.orderby": "^4.6.0",
-    "lodash.uniqueid": "^4.0.1"
+    "lodash.orderby": "^4.6.0"
   },
   "devDependencies": {
     "@date-io/moment": "^2.11.0",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/pickers": "^3.3.10",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -68,6 +69,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.31",
     "@types/react-dom": "^17.0.10",
+    "@types/rollup-plugin-progress": "^1.1.1",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "eslint": "^7.32.0",
@@ -79,6 +81,10 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
+    "rollup": "^2.58.3",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-progress": "^1.1.2",
+    "tslib": "^2.3.1",
     "type-fest": "^2.5.1",
     "typescript": "^4.4.4",
     "web-vitals": "^1.0.1"

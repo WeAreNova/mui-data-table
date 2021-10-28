@@ -10,7 +10,6 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import TablePaginationActions from "@material-ui/core/TablePagination/TablePaginationActions";
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
@@ -208,7 +207,6 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
               }}
               onPageChange={(_e, newPage) => onPageChange(newPage)}
               onRowsPerPageChange={onRowsPerPageChange}
-              ActionsComponent={TablePaginationActions}
               component="div"
             />
           )}

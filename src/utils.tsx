@@ -1,5 +1,5 @@
 import faker from "faker";
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import { ColumnDefinition, OnChangeObject } from "./lib";
 
 interface Address {

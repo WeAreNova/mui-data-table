@@ -1,4 +1,4 @@
-import { PropsWithChildren, useMemo } from "react";
+import React, { PropsWithChildren, useMemo } from "react";
 import { TableProvider } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import _Table from "./_Table.component";

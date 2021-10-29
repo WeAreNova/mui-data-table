@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  build:
+  build_and_publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -18,36 +18,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "14"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Build
         run: |
           npm ci
           npm run build
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ github.run_id }}
-          path: |
-            package.json
-            package-lock.json
-            *.md
-            lib/
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ github.run_id }}
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-          registry-url: "https://registry.npmjs.org"
 
       - name: Publish
         run: npm publish --access public

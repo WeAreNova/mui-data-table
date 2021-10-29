@@ -1,5 +1,4 @@
 import commonjsPlugin from "@rollup/plugin-commonjs";
-import nodeResolvePlugin from "@rollup/plugin-node-resolve";
 import typeScriptPlugin from "@rollup/plugin-typescript";
 import { defineConfig } from "rollup";
 import peerDepsExternalPlugin from "rollup-plugin-peer-deps-external";
@@ -8,6 +7,7 @@ import packageJSON from "./package.json";
 
 export default defineConfig({
   input: "./src/lib/index.tsx",
+  external: ["dot-prop", "js-file-download", "natural-orderby"],
   output: [
     {
       file: packageJSON.module,
@@ -24,7 +24,6 @@ export default defineConfig({
   plugins: [
     peerDepsExternalPlugin(),
     progressPlugin(),
-    nodeResolvePlugin(),
     commonjsPlugin(),
     typeScriptPlugin({ tsconfig: "./tsconfig.build.json" }),
   ],

@@ -19,13 +19,6 @@ jobs:
         with:
           node-version: "14"
 
-      - name: Increment Version
-        run: |
-          git config user.email "action@github.com"
-          git config user.name "Nova Bot"
-          npm version ${{ github.event.inputs.version-increment }}
-          git push origin main
-
       - name: Build
         run: |
           npm ci
@@ -60,3 +53,10 @@ jobs:
         run: npm publish --dry-run --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Push Version Change
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Nova Bot"
+          npm version ${{ github.event.inputs.version-increment }}
+          git push origin main

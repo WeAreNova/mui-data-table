@@ -21,7 +21,10 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Increment Version
-        run: npm version ${{ github.event.inputs.version-increment }}
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Nova Bot"
+          npm version ${{ github.event.inputs.version-increment }}
 
       - name: Build
         run: |
@@ -34,7 +37,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
       - name: Push Version Change
-        run: |
-          git config user.email "action@github.com"
-          git config user.name "Nova Bot"
-          git push origin main
+        run: git push origin main

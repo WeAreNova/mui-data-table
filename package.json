@@ -10,7 +10,24 @@
     "start": "react-scripts start",
     "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript"
   },
-  "author": "",
+  "author": {
+    "name": "David Parrish",
+    "url": "https://github.com/dvprrsh"
+  },
+  "contributor": [
+    {
+      "name": "David Parrish",
+      "url": "https://github.com/dvprrsh"
+    },
+    {
+      "name": "Lee Lavery",
+      "url": "https://github.com/leelavery"
+    },
+    {
+      "name": "Nova",
+      "url": "https://github.com/WeAreNova"
+    }
+  ],
   "license": "ISC",
   "keywords": [
     "mui",

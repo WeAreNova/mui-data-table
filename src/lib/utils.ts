@@ -1,6 +1,6 @@
 import { useUtils } from "@material-ui/pickers";
-import get from "lodash.get";
-import orderBy from "lodash.orderby";
+import { get } from "dot-prop";
+import { orderBy } from "natural-orderby";
 import type { ReactNode } from "react";
 import type {
   ActiveFilter,
@@ -194,7 +194,7 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
       : {
           path: struct.numerical,
         };
-    const value = get(data, getPath(path, struct));
+    const value = get<any>(data, getPath(path, struct));
     if (isNaN(Number(value))) return "";
     return numberFormatter(value, {
       currency,
@@ -203,7 +203,7 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
     });
   }
   if (struct.render) return struct.render(data, false, rowId, dataArrayIndex);
-  return get(data, struct.dataIndex! as string) as string;
+  return get(data, struct.dataIndex!);
 }
 
 export function getTableCellAlignment<T extends BaseData>(

@@ -1,5 +1,5 @@
 import { Tooltip } from "@material-ui/core";
-import get from "lodash.get";
+import { get } from "dot-prop";
 import React, { PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import TableContext, { TableState } from "./table.context";
 import type { BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";

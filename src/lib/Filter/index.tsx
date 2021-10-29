@@ -1,7 +1,6 @@
 import { Button, makeStyles, Paper } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
 import { createStyles } from "@material-ui/styles";
-import { uniqueId } from "lodash";
 import React, { Fragment, useCallback, useContext, useState } from "react";
 import TableContext from "../table.context";
 import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
@@ -27,6 +26,10 @@ const useStyles = makeStyles(
     }),
   { name: "DataTable-Filter" },
 );
+
+function uniqueId() {
+  return `${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+}
 
 const Filter: React.FC = (props) => {
   const classes = useStyles(props);

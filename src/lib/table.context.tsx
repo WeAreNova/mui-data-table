@@ -1,11 +1,9 @@
 import { Checkbox, debounce } from "@material-ui/core";
 import { useUtils } from "@material-ui/pickers";
+import { get } from "dot-prop";
 import fileDownload from "js-file-download";
-import get from "lodash.get";
-import uniqueId from "lodash.uniqueid";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
 import type {
-  ActiveFilter,
   ActiveFilters,
   BaseData,
   ColGroupDefinition,
@@ -153,10 +151,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
           ? { key: parsed.sortKey, direction: parsed.sortDirection }
           : defaultStored.sort,
       rowsPerPage: parsed.limit || defaultStored.rowsPerPage,
-      activeFilters: [...(Array.isArray(filters) ? filters : Object.values<ActiveFilter>(filters))].map((f) => ({
-        ...f,
-        id: f.id || uniqueId(),
-      })),
+      activeFilters: filters,
     };
   }, [defaultSort, rowsPerPageDefault]);
 

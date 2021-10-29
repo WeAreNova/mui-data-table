@@ -50,9 +50,13 @@ jobs:
         with:
           name: ${{ github.run_id }}
 
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+          registry-url: "https://registry.npmjs.org"
+
       - name: Publish
-        run: |
-          npm config set //registry.npmjs.org/:_authToken ${NPM_AUTH_TOKEN}
-          npm publish --ignore-scripts --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

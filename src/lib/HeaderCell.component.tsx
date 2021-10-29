@@ -29,22 +29,26 @@ const useStyles = makeStyles(
         },
       },
       alignCenter: {
-        "& > div:nth-child(1)": {
-          order: 2,
-          textAlign: "center",
-        },
-        "& > div:nth-child(2)": {
-          order: 1,
-        },
-        "& > div:nth-child(3)": {
-          order: 3,
+        "& > div": {
+          flex: 1,
+          width: "100%",
+          "&:nth-child(1)": {
+            order: 2,
+            textAlign: "center",
+          },
+          "&:nth-child(2)": {
+            order: 1,
+          },
+          "&:nth-child(3)": {
+            order: 3,
+          },
         },
       },
       alignRight: {
         "& > div:nth-child(1)": {
           order: 3,
           textAlign: "right",
-          "&  $columnCellSortLabel": {
+          "&  $headerCellSortLabel": {
             flexDirection: "row-reverse",
           },
         },
@@ -55,38 +59,34 @@ const useStyles = makeStyles(
           order: 1,
         },
       },
-      columnCellBody: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        whiteSpace: "pre",
-      },
-      columnCellButtonGroup: {
-        display: "flex",
-        alignItems: "center",
-        "& svg": {
-          fontSize: "1rem",
-        },
-      },
-      columnCellInner: {
-        display: "flex",
-        "& > div": {
-          flex: 1,
-          width: "100%",
-        },
-      },
-      columnCellSortLabel: {
-        whiteSpace: "inherit",
-        "& > svg.MuiTableSortLabel-icon": {
-          opacity: 0.2,
-        },
-      },
       filterIconButton: {
         opacity: 0.2,
         transition: theme.transitions.create(["opacity", "color"], {
           duration: theme.transitions.duration.shorter,
           easing: theme.transitions.easing.easeInOut,
         }),
+      },
+      headerCellBody: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        whiteSpace: "pre",
+      },
+      headerCellButtonGroup: {
+        display: "flex",
+        alignItems: "center",
+        "& svg": {
+          fontSize: "1rem",
+        },
+      },
+      headerCellInner: {
+        display: "flex",
+      },
+      headerCellSortLabel: {
+        whiteSpace: "inherit",
+        "& > svg.MuiTableSortLabel-icon": {
+          opacity: 0.2,
+        },
       },
       stickyColGroupHeader: {
         left: "unset",
@@ -194,16 +194,16 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
           style={style}
         >
           <div
-            className={clsx(classes.columnCellInner, {
+            className={clsx(classes.headerCellInner, {
               [classes.alignRight]: structure.align === "right",
               [classes.alignCenter]: structure.align === "center",
             })}
           >
-            <div className={classes.columnCellBody}>
+            <div className={classes.headerCellBody}>
               {structure.sorter ? (
                 <TableSortLabel
                   onClick={handleSort}
-                  className={classes.columnCellSortLabel}
+                  className={classes.headerCellSortLabel}
                   active={
                     sort.direction &&
                     (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
@@ -220,7 +220,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
                 headerTitle
               )}
             </div>
-            <div className={classes.columnCellButtonGroup}>
+            <div className={classes.headerCellButtonGroup}>
               {enableHiddenColumns && (
                 <IconButton onClick={handleHiddenColumnsChange} size="small">
                   <Visibility />

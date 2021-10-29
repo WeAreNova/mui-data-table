@@ -8,8 +8,7 @@
   "main": "lib/index.c.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript",
-    "prepublish": "npm run build"
+    "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript"
   },
   "author": "",
   "license": "ISC",

@@ -12,8 +12,8 @@ import {
 import Brightness4 from "@material-ui/icons/Brightness4";
 import Brightness7 from "@material-ui/icons/Brightness7";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DataTable, { OnChangeObject } from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
-import DataTable, { OnChangeObject } from "./lib";
 import { getData, STRUCTURE, User } from "./utils";
 
 function App() {

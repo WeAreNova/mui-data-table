@@ -3,7 +3,9 @@
   "version": "1.0.5",
   "private": true,
   "scripts": {
-    "start": "cd dev && react-scripts start",
+    "start:rollup": "rollup --watch --config rollup.config.ts --configPlugin typescript",
+    "start:dev": "npm start -w dev",
+    "start": "npm run start:rollup & npm run start:dev",
     "build": "npx rimraf build/ && rollup --config rollup.config.ts --configPlugin typescript"
   },
   "workspaces": [

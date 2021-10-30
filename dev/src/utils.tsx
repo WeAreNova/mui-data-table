@@ -1,6 +1,6 @@
+import { ColumnDefinition, OnChangeObject } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";
-import { ColumnDefinition, OnChangeObject } from "./lib";
 
 interface Address {
   addressLineOne: string;
@@ -179,7 +179,7 @@ const data = (() => {
   return faker.datatype.array(faker.datatype.number({ min: 10, max: 100 })).flatMap<User>(() => {
     const totalBalance = faker.datatype.number({ min: 0, max: 10_000_000 });
     const investedBalance = faker.datatype.number({ min: 0, max: totalBalance });
-    const value = {
+    return {
       id: faker.datatype.uuid(),
       email: faker.internet.email(),
       title: faker.name.prefix(),
@@ -210,7 +210,6 @@ const data = (() => {
         available: totalBalance - investedBalance,
       },
     };
-    return value;
     // return [value, { ...value, id: faker.datatype.uuid() }];
   });
 })();

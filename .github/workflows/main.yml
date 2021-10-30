@@ -6,9 +6,9 @@ on:
         description: version update
         default: patch
         required: true
-
 jobs:
   build_and_publish:
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

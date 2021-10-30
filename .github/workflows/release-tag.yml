@@ -3,12 +3,10 @@ on:
   push:
     tags:
       - "v*"
-
 jobs:
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-
     steps:
       - name: Setup Node
         uses: actions/setup-node@v2

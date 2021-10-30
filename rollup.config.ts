@@ -1,30 +1,39 @@
 import commonjsPlugin from "@rollup/plugin-commonjs";
 import typeScriptPlugin from "@rollup/plugin-typescript";
+import path from "path";
 import { defineConfig } from "rollup";
+import copyPlugin from "rollup-plugin-copy";
 import peerDepsExternalPlugin from "rollup-plugin-peer-deps-external";
 import progressPlugin from "rollup-plugin-progress";
-import packageJSON from "./package.json";
+import packageJSON from "./lib/package.json";
 
 export default defineConfig({
-  input: "./src/lib/index.tsx",
-  external: ["dot-prop", "js-file-download", "natural-orderby"],
+  input: "lib/src/index.tsx",
+  external: ["dot-prop", "js-file-download", "natural-orderby", "clsx"],
   output: [
     {
-      file: packageJSON.module,
+      file: path.join("build", packageJSON.module),
       format: "esm",
       sourcemap: true,
     },
     {
-      file: packageJSON.main,
+      file: path.join("build", packageJSON.main),
       format: "cjs",
       sourcemap: true,
       exports: "auto",
     },
   ],
   plugins: [
-    peerDepsExternalPlugin(),
+    peerDepsExternalPlugin({ packageJsonPath: "./lib/package.json" }),
     progressPlugin(),
     commonjsPlugin(),
-    typeScriptPlugin({ tsconfig: "./tsconfig.build.json" }),
+    typeScriptPlugin({ tsconfig: "lib/tsconfig.json" }),
+    copyPlugin({
+      targets: [
+        { src: "lib/package*.json", dest: "build" },
+        { src: "README.md", dest: "build" },
+        { src: "LICENSE", dest: "build" },
+      ],
+    }),
   ],
 });

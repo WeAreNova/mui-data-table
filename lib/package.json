@@ -1,15 +1,14 @@
 {
-  "name": "root",
+  "name": "@wearenova/mui-data-table",
   "version": "1.0.5",
-  "private": true,
+  "description": "An extensive data-table with sorting, multi-column filtering, pagination and more with server-side data fetching support.",
+  "source": "src/index.tsx",
+  "types": "lib/index.d.ts",
+  "module": "lib/index.js",
+  "main": "lib/index.c.js",
   "scripts": {
-    "start": "cd dev && react-scripts start",
-    "build": "npx rimraf build/ && rollup --config rollup.config.ts --configPlugin typescript"
+    "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript"
   },
-  "workspaces": [
-    "lib",
-    "dev"
-  ],
   "author": {
     "name": "David Parrish",
     "url": "https://github.com/dvprrsh"
@@ -54,21 +53,20 @@
       "last 1 safari version"
     ]
   },
+  "peerDependencies": {
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/pickers": "^3.3.10",
+    "@material-ui/styles": "^4.11.4",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "dependencies": {
+    "dot-prop": "^6.0.1",
+    "js-file-download": "^0.4.12",
+    "natural-orderby": "^2.0.3"
+  },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@types/node": "^16.11.6",
-    "@typescript-eslint/eslint-plugin": "^5.1.0",
-    "@typescript-eslint/parser": "^5.1.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-react": "^7.26.1",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-sonarjs": "^0.10.0",
-    "rollup": "^2.58.3",
-    "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-progress": "^1.1.2",
-    "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
+    "type-fest": "^2.5.1"
   }
 }

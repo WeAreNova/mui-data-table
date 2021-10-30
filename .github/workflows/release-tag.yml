@@ -1,0 +1,34 @@
+name: Create Release From Tag
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Get Tag
+        id: git-tag
+        run: echo ::set-output name=result::${GITHUB_REF#refs/*/}
+
+      - name: Download Release Artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: release-artifact-${{ steps.git-tag.outputs.result }}
+          workflow: main.yml
+          path: release
+
+      - name: Create Release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          files: release/

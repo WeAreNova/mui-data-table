@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -32,9 +34,25 @@ jobs:
           npm run build
 
       - name: Publish
-        run: npm publish --access public
+        run: npm publish --dry-run --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
+      - name: Get Tag
+        id: git-tag
+        run: echo "::set-output name=result::$(git describe --tags)"
+
+      - name: Upload Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-artifact-${{ steps.git-tag.outputs.result }}
+          path: |
+            package*.json
+            LICENSE
+            README.md
+            lib/**/*
+
       - name: Push Version Change
-        run: git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+        run: git push --tags origin main

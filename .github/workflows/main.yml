@@ -50,16 +50,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: release-artifact-${{ steps.git-tag.outputs.result }}
-          path: |
-            lib/package*.json
-            lib/src/**/*
-            LICENSE
-            README.md
+          path: build/**/*
 
       - name: Push Version Change
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           git add .
-          git commit -m "workspaces `package.json`"
+          git commit --amend --no-edit
           git push --tags origin main

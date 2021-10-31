@@ -59,4 +59,7 @@ jobs:
       - name: Push Version Change
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
-        run: git push --tags origin main
+        run: |
+          git add .
+          git commit -m "workspaces `package.json`"
+          git push --tags origin main

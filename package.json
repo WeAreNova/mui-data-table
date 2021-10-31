@@ -3,10 +3,10 @@
   "version": "1.0.5",
   "private": true,
   "scripts": {
-    "start:rollup": "rollup --watch --config rollup.config.ts --configPlugin typescript",
-    "start:dev": "npm start -w dev",
-    "start": "npm run start:rollup & npm run start:dev",
-    "build": "npx rimraf build/ && rollup --config rollup.config.ts --configPlugin typescript"
+    "start:rollup": "npm run build -- --watch",
+    "start:dev": "wait-on build/lib/index.js && npm start -w dev",
+    "start": "concurrently --names \"rollup,react\" -c \"green,blue\" \"npm run start:rollup\" \"npm run start:dev\"",
+    "build": "npx rimraf build/ && rollup --config rollup.config.ts"
   },
   "workspaces": [
     "lib",
@@ -62,15 +62,16 @@
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
+    "concurrently": "^6.3.0",
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-sonarjs": "^0.10.0",
     "rollup": "^2.58.3",
     "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-progress": "^1.1.2",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "wait-on": "^6.0.0"
   }
 }

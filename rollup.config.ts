@@ -3,13 +3,21 @@ import typeScriptPlugin from "@rollup/plugin-typescript";
 import path from "path";
 import { defineConfig } from "rollup";
 import copyPlugin from "rollup-plugin-copy";
-import peerDepsExternalPlugin from "rollup-plugin-peer-deps-external";
 import progressPlugin from "rollup-plugin-progress";
 import packageJSON from "./lib/package.json";
 
+const EXTERNALS = Object.keys({
+  ...packageJSON.dependencies,
+  ...packageJSON.peerDependencies,
+}).concat(["clsx"]);
+
+const EXTERNALS_REGEX = new RegExp(EXTERNALS.join("|"));
+
+const isExternal = (id) => EXTERNALS_REGEX.test(id);
+
 export default defineConfig({
   input: "lib/src/index.tsx",
-  external: ["dot-prop", "js-file-download", "natural-orderby", "clsx"],
+  external: isExternal,
   output: [
     {
       file: path.join("build", packageJSON.module),
@@ -24,7 +32,6 @@ export default defineConfig({
     },
   ],
   plugins: [
-    peerDepsExternalPlugin({ packageJsonPath: "./lib/package.json" }),
     progressPlugin(),
     commonjsPlugin(),
     typeScriptPlugin({ tsconfig: "lib/tsconfig.json" }),

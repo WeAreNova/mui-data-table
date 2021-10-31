@@ -22,6 +22,8 @@ jobs:
           node-version: "14"
           registry-url: "https://registry.npmjs.org"
 
+      - run: npm i -g npm@8
+
       - name: Increment Version
         run: |
           git config user.email "action@github.com"

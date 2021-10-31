@@ -51,10 +51,10 @@ jobs:
         with:
           name: release-artifact-${{ steps.git-tag.outputs.result }}
           path: |
-            package*.json
+            lib/package*.json
+            lib/src/**/*
             LICENSE
             README.md
-            lib/**/*
 
       - name: Push Version Change
         env:

@@ -47,23 +47,28 @@ const ValueField = <
   );
 
   const handleSelectChange = useCallback((selected: SelectFieldOption | null) => {
-    setFilterValue(selected ? selected.value === "true" : null);
+    if (!selected) return setFilterValue(null);
+    setFilterValue(selected.value === "true");
   }, []);
   const handleDateChange = useCallback(
-    (value: MaterialUiPickersDate | null) => setFilterValue((value && dateUtils.date(value)?.toDate()) ?? null),
+    (value: MaterialUiPickersDate | null) => {
+      const newFilterValue = value && dateUtils.date(value)?.toDate();
+      setFilterValue(newFilterValue ?? null);
+    },
     [dateUtils],
   );
   const handleOtherChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const convertors = filter.type && getFilterTypeConvertors(e?.target?.value, dateUtils);
-      setFilterValue(filter.type ? convertors![filter.type]() : e.target.value);
+      if (!filter.type) return setFilterValue(e.target.value);
+      const convertors = getFilterTypeConvertors(e.target.value, dateUtils);
+      setFilterValue(convertors[filter.type]());
     },
     [dateUtils, filter.type],
   );
 
   const field = useMemo(() => {
     const { defaultValue, ...otherCommonProps } = commonProps;
-    const dateProps = { ...otherCommonProps, defaultValue: defaultValue };
+    const dateProps = { ...otherCommonProps, defaultValue };
     switch (filter.type) {
       case "boolean":
         return (
@@ -100,21 +105,23 @@ const ValueField = <
 
   const debouncedChange = useMemo(() => debounce(onChange, 500), [onChange]);
 
-  useEffect(() => {
-    (() => {
-      if (filterValue === filter.value) return;
-      if (
-        !filter.operator?.includes("exists") &&
-        typeof filterValue !== "boolean" &&
-        typeof filterValue !== "number" &&
-        !filterValue
-      ) {
-        return setHasError(true);
-      }
-      setHasError(false);
-      debouncedChange(filterValue as V | null);
-    })();
+  const handleFilterChange = useCallback(() => {
+    if (filterValue === filter.value) return;
+    if (
+      !filter.operator?.includes("exists") &&
+      typeof filterValue !== "boolean" &&
+      typeof filterValue !== "number" &&
+      !filterValue
+    ) {
+      return setHasError(true);
+    }
+    setHasError(false);
+    debouncedChange(filterValue as V | null);
   }, [debouncedChange, filter.operator, filter.value, filterValue]);
+
+  useEffect(() => {
+    handleFilterChange();
+  }, [handleFilterChange]);
 
   return !specifiable ? null : (
     <>

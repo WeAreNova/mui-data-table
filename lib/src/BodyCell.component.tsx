@@ -26,25 +26,23 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
   const tooltipTitle = useMemo(() => (typeof value === "string" && value.length > 20 ? value : ""), [value]);
 
   const groupBy = useCallback(
-    (groupByKey: string, index: number) => {
-      const value = get(data, groupByKey);
-      if (!value) return 1;
+    (groupByKey: string, idx: number) => {
+      const groupByValue = get(data, groupByKey);
+      if (!groupByValue) return 1;
 
-      const previousValue = get(tableData[index - 1], groupByKey);
-      if (previousValue && value === previousValue) return 0;
+      const previousValue = get(tableData[idx - 1], groupByKey);
+      if (previousValue && groupByValue === previousValue) return 0;
 
-      const endIndex = findIndexFrom(tableData, (v) => get(v, groupByKey) !== value, index);
-      return endIndex > -1 ? endIndex - index : tableData.length - index;
+      const endIndex = findIndexFrom(tableData, (v) => get(v, groupByKey) !== groupByValue, idx);
+      return endIndex > -1 ? endIndex - idx : tableData.length - idx;
     },
     [data, tableData],
   );
 
   const rowSpan = useMemo(() => {
-    return structure.rowSpan
-      ? structure.rowSpan(data, index, tableData)
-      : structure.groupBy
-      ? groupBy(structure.groupBy, index)
-      : 1;
+    if (structure.rowSpan) return structure.rowSpan(data, index, tableData);
+    if (structure.groupBy) return groupBy(structure.groupBy, index);
+    return 1;
   }, [data, groupBy, index, structure, tableData]);
 
   const handleRowClick = useCallback(
@@ -74,13 +72,8 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
       }
       if (rowsSelectable && e.shiftKey) {
         const updatedSelectedRows = { ...selectedRows };
-        const lastIndex = findLastIndexFrom(
-          tableData,
-          (value, index) => Boolean(selectedRows[getRowId(value, index)]),
-          index,
-        );
-        const indexOfSelected =
-          findLastIndexFrom(tableData, (value, index) => rowId === getRowId(value, index)) + (rowSpan - 1);
+        const lastIndex = findLastIndexFrom(tableData, (v, i) => Boolean(selectedRows[getRowId(v, i)]), index);
+        const indexOfSelected = findLastIndexFrom(tableData, (v, i) => rowId === getRowId(v, i)) + (rowSpan - 1);
         const allIncludes = tableData.slice(lastIndex + 1, indexOfSelected + 1);
         allIncludes.forEach((row) => {
           const currentId = getRowId(row, index);

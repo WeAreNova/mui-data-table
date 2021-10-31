@@ -38,7 +38,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
-  const value = useMemo(() => selectProps.value || "", [selectProps.value]);
+  const currValue = useMemo(() => selectProps.value || "", [selectProps.value]);
   const allOptions = useMemo(
     () => [...(placeholder ? [{ label: placeholder, value: "" }] : []), ...options],
     [options, placeholder],
@@ -46,8 +46,8 @@ const SimpleSelectField = <T extends SelectFieldOption>({
 
   const handleChange = useCallback<ChangeEventHandler<{ name?: string; value: unknown }>>(
     (e) => {
-      const value = e.target.value === "" ? null : e.target.value;
-      onChange(options.find((o) => o.value === value) ?? null);
+      const selectedValue = e.target.value === "" ? null : e.target.value;
+      onChange(options.find((o) => o.value === selectedValue) ?? null);
     },
     [onChange, options],
   );
@@ -56,7 +56,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
     <FormControl className={className}>
       <Select
         {...selectProps}
-        value={value}
+        value={currValue}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}

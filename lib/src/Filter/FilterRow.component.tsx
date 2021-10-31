@@ -150,10 +150,10 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     }));
   }, []);
 
-  const handleValueChange = useCallback((value: FilterValue) => {
+  const handleValueChange = useCallback((newValue: FilterValue) => {
     setFilter((currValues) => ({
       ...currValues,
-      value,
+      value: newValue,
     }));
   }, []);
 

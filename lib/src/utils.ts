@@ -228,7 +228,7 @@ export async function exportTableToCSV<
   };
   const flattenedStructure = tableStructure.flatMap((c) => [c, ...(c.colGroup ?? [])]);
   const csvHeaders = flattenedStructure.map(getTitle).join();
-  const csvRows = tableData.flatMap((row, dataIndex) =>
+  const csvRows = tableData.map((row, dataIndex) =>
     flattenedStructure.map((c) => {
       const renderedValue = getValue(c, row, getRowId(row, dataIndex), dataIndex);
       switch (typeof renderedValue) {
@@ -237,7 +237,7 @@ export async function exportTableToCSV<
         case "number":
           return renderedValue;
         default:
-          return `"${renderedValue}""`;
+          return `"${renderedValue}"`;
       }
     }),
   );

@@ -12,11 +12,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get Tag
+        id: git-tag
+        run: echo "::set-output name=result::$(git describe --tags)"
+
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         with:
           args: >
-            -Dsonar.projectVersion=${{ github.run_number }}
+            -Dsonar.projectVersion=${{ steps.git-tag.outputs.result }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

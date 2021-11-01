@@ -181,6 +181,7 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
   data: T,
   rowId: string,
   dataArrayIndex: number,
+  isCSVExport = false,
 ): ReactNode | string | number {
   if (struct.numerical) {
     const {
@@ -202,7 +203,7 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
       maximumFractionDigits: maxDecimalPlaces ?? decimalPlaces,
     });
   }
-  if (struct.render) return struct.render(data, false, rowId, dataArrayIndex);
+  if (struct.render) return struct.render(data, isCSVExport, rowId, dataArrayIndex);
   return get(data, struct.dataIndex!);
 }
 
@@ -230,7 +231,7 @@ export async function exportTableToCSV<
   const csvHeaders = flattenedStructure.map(getTitle).join();
   const csvRows = tableData.map((row, dataIndex) =>
     flattenedStructure.map((c) => {
-      const renderedValue = getValue(c, row, getRowId(row, dataIndex), dataIndex);
+      const renderedValue = getValue(c, row, getRowId(row, dataIndex), dataIndex, true);
       switch (typeof renderedValue) {
         case "object":
           return "Invalid Value";

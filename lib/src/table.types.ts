@@ -17,7 +17,7 @@ export type Sorter<T> = (ab: T, ba: T) => number;
 
 export type TableCellAlign = "left" | "center" | "right";
 
-interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> {
+interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
   key: string;
   dataIndex?: PathType<RowType>;
   align?: TableCellAlign;
@@ -39,14 +39,13 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   hasColGroupFooter?: boolean;
 }
 
-type WithDataIndex<RowType extends BaseData, DataType extends RowType[] = RowType[]> = BaseColumnDefinition<
-  RowType,
-  DataType
-> & { dataIndex: PathType<RowType> };
+type WithDataIndex<RowType extends BaseData, DataType extends RowType[]> = BaseColumnDefinition<RowType, DataType> & {
+  dataIndex: PathType<RowType>;
+};
 
 type WithExactlyOne<
   RowType extends BaseData,
-  DataType extends RowType[] = RowType[],
+  DataType extends RowType[],
   Requires extends keyof BaseColumnDefinition<RowType, DataType> = "numerical" | "render",
 > = RequireExactlyOne<BaseColumnDefinition<RowType, DataType>, Requires>;
 
@@ -64,7 +63,7 @@ export interface NumericalObject<RowType extends BaseData = BaseData> {
   decimalPlaces?: number;
   minDecimalPlaces?: number;
   maxDecimalPlaces?: number;
-  currency?: true | string;
+  currency?: boolean | string;
 }
 
 export type NumericalValueOptions<RowType extends BaseData = BaseData> =
@@ -130,7 +129,7 @@ export interface Sort {
   direction?: "asc" | "desc";
 }
 
-export interface TableProps<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]> {
+export interface TableProps<RowType extends BaseData, DataType extends RowType[]> {
   count?: number;
   csvFilename?: string;
   disablePagination?: boolean;

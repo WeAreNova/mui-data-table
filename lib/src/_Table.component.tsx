@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
+import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
 import BodyRow from "./BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
@@ -19,9 +20,13 @@ import TableContext, { TableState } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import TableCell from "./TableCell.component";
 import { getRowId } from "./utils";
+import { RowsPerPageOptionsPropType } from "./_propTypes";
 
-interface _TableProps
-  extends Pick<TableProps, "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"> {}
+interface _TableProps<RowType extends BaseData, DataType extends RowType[]>
+  extends Pick<
+    TableProps<RowType, DataType>,
+    "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
+  > {}
 
 const useStyles = makeStyles(
   (theme) => ({
@@ -72,13 +77,20 @@ const useStyles = makeStyles(
   { name: "DataTable" },
 );
 
+/**
+ * This is the internal Table component and should not be used directly.
+ * Use the default export from `@wearenova/mui-data-table` instead.
+ *
+ * @component
+ * @package
+ */
 const _Table = <RowType extends BaseData, DataType extends RowType[]>({
   tableProps = {},
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
   disablePagination = false,
   ...props
-}: PropsWithChildren<_TableProps>) => {
+}: PropsWithChildren<_TableProps<RowType, DataType>>) => {
   const classes = useStyles(props);
   const {
     allTableData,
@@ -248,6 +260,12 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
       </div>
     </>
   );
+};
+_Table.propTypes = {
+  tableProps: PropTypes.object,
+  rowsPerPageOptions: RowsPerPageOptionsPropType,
+  exportToCSVOption: PropTypes.bool,
+  disablePagination: PropTypes.bool,
 };
 
 export default _Table;

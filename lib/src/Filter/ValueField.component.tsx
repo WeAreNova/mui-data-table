@@ -1,9 +1,11 @@
 import { debounce, TextField, Typography } from "@material-ui/core";
 import { DatePicker, useUtils } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
+import { FilterValuePropTypes } from "./filter.consts";
 import SimpleSelect, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
@@ -29,6 +31,17 @@ const COMMON_PROPS = {
   variant: "standard",
 } as const;
 
+/**
+ * The ValueField is a component that works out what field is needed for the current filter.
+ * It renders one of the following:
+ * - a `string` `TextField`
+ * - a `number` `TextField`
+ * - a `SimpleSelectField`
+ * - a `DatePicker`
+ *
+ * @component
+ * @package
+ */
 const ValueField = <
   T extends ActiveFilter | NullableActiveFilter,
   V extends FilterValueType<T["type"]> = FilterValueType<T["type"]>,
@@ -129,6 +142,10 @@ const ValueField = <
       {field}
     </>
   );
+};
+ValueField.propTypes = {
+  value: FilterValuePropTypes.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default ValueField;

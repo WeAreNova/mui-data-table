@@ -64,7 +64,8 @@
   "dependencies": {
     "dot-prop": "^6.0.1",
     "js-file-download": "^0.4.12",
-    "natural-orderby": "^2.0.3"
+    "natural-orderby": "^2.0.3",
+    "prop-types": "^15.5.7"
   },
   "devDependencies": {
     "type-fest": "^2.5.1"

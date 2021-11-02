@@ -8,6 +8,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
+import PropTypes from "prop-types";
 import React, { ChangeEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
 
 export type SelectFieldOption = { label: string; value: string };
@@ -28,6 +29,12 @@ const useStyles = makeStyles(
   { name: "DataTable-SimpleSelectField" },
 );
 
+/**
+ * The SimpleSelectField is used to render a basic select field without autocomplete
+ * but switches to a native select field if the device pointer is **not** a cursor.
+ *
+ * @component
+ */
 const SimpleSelectField = <T extends SelectFieldOption>({
   placeholder,
   options,
@@ -76,6 +83,15 @@ const SimpleSelectField = <T extends SelectFieldOption>({
       </Select>
     </FormControl>
   );
+};
+SimpleSelectField.propTypes = {
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+    }).isRequired,
+  ).isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default SimpleSelectField;

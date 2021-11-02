@@ -2,12 +2,13 @@ import { debounce, IconButton, makeStyles, Typography } from "@material-ui/core"
 import Close from "@material-ui/icons/Close";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
+import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BaseData, FilterValue } from "..";
 import TableContext, { TableState } from "../table.context";
 import type { ActiveFilter, FilterColumn, FilterTypes, NullableActiveFilter } from "../table.types";
 import { getPath } from "../utils";
-import { OPERATORS } from "./filter.consts";
+import { FilterValuePropTypes, OPERATORS } from "./filter.consts";
 import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
 
@@ -16,7 +17,7 @@ interface Props {
   last: boolean;
   onSubmit(value: ActiveFilter): any;
   onRemove(value: ActiveFilter | NullableActiveFilter): any;
-  name?: string;
+  name: string;
 }
 
 const useStyles = makeStyles(
@@ -75,6 +76,12 @@ const getOperatorOptions = (type: Exclude<FilterTypes, undefined | null> | null)
     }),
   );
 
+/**
+ * The FilterRow is a row in the Filter component which manages the state of a single filter.
+ *
+ * @component
+ * @package
+ */
 const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   value,
   last,
@@ -198,6 +205,13 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
       </div>
     </form>
   );
+};
+FilterRow.propTypes = {
+  value: FilterValuePropTypes.isRequired,
+  last: PropTypes.bool.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
 };
 
 export default FilterRow;

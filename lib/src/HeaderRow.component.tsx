@@ -5,8 +5,6 @@ import HeaderCell from "./HeaderCell.component";
 import TableContext, { TableState } from "./table.context";
 import type { BaseData } from "./table.types";
 
-interface HeaderRowProps {}
-
 const useStyles = makeStyles(
   () => ({
     filterContainer: {
@@ -16,7 +14,15 @@ const useStyles = makeStyles(
   { name: "DataTable-HeaderRow" },
 );
 
-const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<HeaderRowProps>) => {
+/**
+ * The HeaderRow component is used to render the table header, handle its state and manage other components used in the table header.
+ *
+ * @component
+ * @package
+ */
+const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
+  props: PropsWithChildren<Record<string, never>>,
+) => {
   const classes = useStyles(props);
   const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, DataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);

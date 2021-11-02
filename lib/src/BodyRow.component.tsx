@@ -1,10 +1,12 @@
 import { alpha, createStyles, makeStyles, TableRow } from "@material-ui/core";
 import clsx from "clsx";
+import PropTypes from "prop-types";
 import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import BodyCell from "./BodyCell.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData } from "./table.types";
 import { getRowId } from "./utils";
+import { RowDataPropType } from "./_propTypes";
 
 interface BodyRowProps<RowType extends BaseData> {
   index: number;
@@ -32,6 +34,13 @@ const useStyles = makeStyles(
   { name: "DataTable-BodyRow" },
 );
 
+/**
+ * The BodyRow component is a single row in the table body and is responsible for managing the state
+ * and callbacks for a row.
+ *
+ * @component
+ * @package
+ */
 const BodyRow = <RowType extends BaseData, DataType extends RowType[]>({
   index,
   data,
@@ -106,6 +115,10 @@ const BodyRow = <RowType extends BaseData, DataType extends RowType[]>({
       ))}
     </TableRow>
   );
+};
+BodyRow.propTypes = {
+  index: PropTypes.number.isRequired,
+  data: RowDataPropType.isRequired,
 };
 
 export default BodyRow;

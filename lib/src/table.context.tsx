@@ -125,6 +125,11 @@ const reducer: TableReducer<any, any> = (state, action) =>
         ),
       };
 
+/**
+ * Internal Table Context
+ *
+ * @package
+ */
 export const TableProvider = <RowType extends BaseData, DataType extends RowType[]>({
   value: { defaultSort, rowsPerPageDefault, csvFilename, count, ...value },
   ...props

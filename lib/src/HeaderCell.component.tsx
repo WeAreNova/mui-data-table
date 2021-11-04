@@ -4,11 +4,13 @@ import FilterList from "@material-ui/icons/FilterList";
 import Visibility from "@material-ui/icons/Visibility";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
+import PropTypes from "prop-types";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
 import { getPath } from "./utils";
+import { ColumnDefinitionPropType } from "./_propTypes";
 
 interface Props<RowType extends BaseData, DataType extends RowType[]> {
   id: string;
@@ -95,6 +97,13 @@ const useStyles = makeStyles(
   { name: "DataTable-HeaderCell" },
 );
 
+/**
+ * The HeaderCell component is a wrapper around the custom TableCell component which manages all the state for a single header cell
+ * as well as handle the rendering of the header title.
+ *
+ * @component
+ * @package
+ */
 const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowType[]>({
   id,
   structure,
@@ -254,6 +263,15 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
       </Tooltip>
     </Fragment>
   );
+};
+HeaderCell.propTypes = {
+  id: PropTypes.string.isRequired,
+  structure: ColumnDefinitionPropType.isRequired,
+  onFilterClick: PropTypes.func.isRequired,
+  hasColGroups: PropTypes.bool,
+  colGroupHeader: PropTypes.bool,
+  className: PropTypes.string,
+  style: PropTypes.object,
 };
 
 export default HeaderCell;

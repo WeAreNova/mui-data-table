@@ -31,6 +31,12 @@ function uniqueId() {
   return `${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
 }
 
+/**
+ * The Filter component handles all the state and logic for the table filters.
+ *
+ * @component
+ * @package
+ */
 const Filter: React.FC = (props) => {
   const classes = useStyles(props);
   const { activeFilters, update } = useContext(TableContext);

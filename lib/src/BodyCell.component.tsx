@@ -1,10 +1,12 @@
 import { Tooltip } from "@material-ui/core";
 import { get } from "dot-prop";
+import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import TableContext, { TableState } from "./table.context";
 import type { BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
 import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
+import { ColumnDefinitionPropType, RowDataPropType } from "./_propTypes";
 
 interface BodyCellProps<RowType extends BaseData, DataType extends RowType[]> {
   index: number;
@@ -13,6 +15,13 @@ interface BodyCellProps<RowType extends BaseData, DataType extends RowType[]> {
   data: RowType;
 }
 
+/**
+ * The BodyCell component is a wrapper around the custom TableCell component which manages the rendering of the
+ * cell content, its state, its grouping and row click events.
+ *
+ * @component
+ * @package
+ */
 const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
   index,
   rowId,
@@ -105,6 +114,12 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
       )}
     </TableCell>
   );
+};
+(BodyCell as React.FC).propTypes = {
+  index: PropTypes.number.isRequired,
+  rowId: PropTypes.string.isRequired,
+  structure: ColumnDefinitionPropType.isRequired,
+  data: RowDataPropType.isRequired,
 };
 
 export default BodyCell;

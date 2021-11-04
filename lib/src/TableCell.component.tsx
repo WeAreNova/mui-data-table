@@ -1,5 +1,6 @@
 import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@material-ui/core";
 import clsx from "clsx";
+import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
 interface Props extends TableCellProps {
@@ -74,6 +75,11 @@ const useStyles = makeStyles(
   { name: "TableCellComponent" },
 );
 
+/**
+ * Enhanced TableCell component with additional styles
+ *
+ * @component
+ */
 const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
   { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
   ref,
@@ -95,5 +101,10 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
   );
   return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
 });
+TableCell.propTypes = {
+  hidden: PropTypes.bool,
+  pinned: PropTypes.bool,
+  maxWidth: PropTypes.oneOf(["lg", "sm"]),
+};
 
 export default TableCell;

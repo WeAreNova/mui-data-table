@@ -34,7 +34,7 @@ export default defineConfig({
   plugins: [
     progressPlugin(),
     commonjsPlugin(),
-    typeScriptPlugin({ tsconfig: "lib/tsconfig.json" }),
+    typeScriptPlugin({ tsconfig: "lib/tsconfig.json", exclude: ["lib/src/_propTypes.ts"] }),
     copyPlugin({
       targets: [
         { src: "lib/package*.json", dest: "build" },

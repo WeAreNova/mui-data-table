@@ -6,6 +6,7 @@ import { BASE_OPERATORS, FILTER_TYPES } from "./Filter/filter.consts";
 
 export interface BaseData {
   id?: string | null;
+  _id?: string | null;
   [key: string]: any;
 }
 
@@ -18,24 +19,86 @@ export type Sorter<T> = (ab: T, ba: T) => number;
 export type TableCellAlign = "left" | "center" | "right";
 
 interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+  /**
+   * The unique identifier for the column.
+   */
   key: string;
+  /**
+   * The dot-notation path to the data which is to be displayed.
+   */
   dataIndex?: PathType<RowType>;
+  /**
+   * The content alignment of the column.
+   */
   align?: TableCellAlign;
+  /**
+   * Helper field for rendering and formatting the data as a numerical value.
+   */
   numerical?: true | NumericalValueOptions<RowType>;
+  /**
+   * A function which allows for custom rendering of the data.
+   *
+   * @param data the current row of data
+   * @param isCSVExport whether the render method is being called for CSV export
+   * @param rowId the unique identifier for the row in the table
+   * @param dataArrayIndex the index of the row in the data array
+   */
   render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): ReactNode;
+  /**
+   * A function which allows creating a footer for the column.
+   *
+   * @param tableData all the table's data
+   */
   footer?(tableData: DataType): ReactNode;
+  /**
+   * A dot-notation path that indicates that this cell should group with adjacent rows which have the same value as this.
+   */
   groupBy?: PathType<RowType>;
+  /**
+   * Field to limit the width of the column.
+   */
   limitWidth?: "lg" | "sm";
+  /**
+   * A function that allows for specifying a custom row span.
+   *
+   * @param data the current row of data
+   * @param index the index of the row in the data array
+   * @param arr all the table's data
+   */
   rowSpan?(data: RowType, index: number, arr: RowType[]): number;
+  /**
+   * Helper field for handling the sorting of the data.
+   */
   sorter?: PathValueType<RowType> | Sorter<RowType>;
+  /**
+   * The title of the column.
+   */
   title:
     | Exclude<ReactNode, number | boolean | null | undefined>
     | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+  /**
+   * A helper field which specifies how to filter data for this column.
+   */
   filterColumn?: FilterColumn<RowType>;
+  /**
+   * Indicates whether the column is pinnable.
+   */
   pinnable?: boolean;
+  /**
+   * Custom actions to be displayed in the column header.
+   */
   actionButtons?: ActionButton[];
+  /**
+   * An array of `ColGroupDefinition` objects which define the nested columns of this column.
+   */
   colGroup?: ColGroupDefinition<RowType, DataType>[];
+  /**
+   * @private internal use only
+   */
   isColGroup?: true;
+  /**
+   * @private internal use only
+   */
   hasColGroupFooter?: boolean;
 }
 

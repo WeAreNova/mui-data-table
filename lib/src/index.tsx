@@ -10,7 +10,7 @@ import _Table from "./_Table.component";
  *
  * @component
  */
-const DataTable = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+export const DataTable = <RowType extends BaseData, DataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, DataType>>,
 ) => {
   const allProps = useMemo(

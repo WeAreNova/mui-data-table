@@ -264,7 +264,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    */
   rowsSelectable?: boolean;
   /**
-   * A function invoked when a row is selected.
+   * A function invoked when a row is selected or deselected.
    *
    * @param rows the selected rows.
    */

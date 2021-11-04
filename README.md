@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/WeAreNova"><img src="docs/assets/favicon.png" height="90px"></a>
+  <a href="https://github.com/WeAreNova"><img src="https://github.com/WeAreNova/mui-data-table/raw/main/docs/assets/favicon.png" height="90px"></a>
 </p>
 <h1 align="center">
   MUI Data Table

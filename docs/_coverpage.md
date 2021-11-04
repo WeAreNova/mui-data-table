@@ -6,4 +6,4 @@
 
 <a href="https://github.com/WeAreNova/mui-data-table" target="_blank" rel="noopener noreferrer">GitHub</a>
 <a href="https://www.npmjs.com/package/@wearenova/mui-data-table" target="_blank" rel="noopener noreferrer">NPM</a>
-[Getting Started](#introduction)
+[Getting Started](/getting-started)

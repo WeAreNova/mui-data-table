@@ -193,25 +193,88 @@ export interface Sort {
 }
 
 export interface TableProps<RowType extends BaseData, DataType extends RowType[]> {
+  /**
+   * Custom number of rows after filtering.
+   */
   count?: number;
+  /**
+   * Custom filename for the CSV export file.
+   */
   csvFilename?: string;
+  /**
+   * Disables pagination and shows all rows.
+   */
   disablePagination?: boolean;
+  /**
+   * Enables hiding columns.
+   */
   enableHiddenColumns?: boolean;
+  /**
+   * Enables the export to CSV option.
+   */
   exportToCSVOption?: boolean;
-  hideColumnsOption?: boolean;
+  /**
+   * A function which is invoked when the table options are changed.
+   *
+   * Should return the fetched data when it is a CSV export. This is because you may want to return different data if it is during the CSV export.
+   * e.g. you may want to export all data as CSV rather than the current page.
+   *
+   * @param changeObject the object containing the selected filters, pagination and other options.
+   * @param isExport whether the function is being invoked during CSV export.
+   *
+   * @returns the fetched data.
+   */
   onChange?: <T extends boolean>(
     changeObject: OnChangeObject,
     isExport: T,
   ) => T extends true ? DataType | Promise<DataType> : any;
+  /**
+   * A function invoked when a row is clicked.
+   *
+   * @param data the data of the row.
+   * @param e the mouse event.
+   */
   rowClick?(data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
+  /**
+   * Options specific to row customisation.
+   */
   rowOptions?: RowOptions;
+  /**
+   * The table pagination options.
+   */
   rowsPerPageOptions?: TablePaginationProps["rowsPerPageOptions"];
+  /**
+   * The default number of rows per page.
+   */
   rowsPerPageDefault?: number;
+  /**
+   * The table data.
+   */
   tableData: DataType;
+  /**
+   * The MUI table props.
+   */
   tableProps?: MUITableProps;
+  /**
+   * The table's structure.
+   */
   tableStructure: ColumnDefinition<RowType, DataType>[];
+  /**
+   * Enables row selection.
+   */
   rowsSelectable?: boolean;
+  /**
+   * A function invoked when a row is selected.
+   *
+   * @param rows the selected rows.
+   */
   onSelectedRowsChange?(rows: RowType[]): void;
+  /**
+   * The key to group rows by when selecting a grouped row.
+   */
   selectGroupBy?: string;
+  /**
+   * The default sort options.
+   */
   defaultSort?: Sort;
 }

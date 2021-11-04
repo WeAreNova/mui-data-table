@@ -15,7 +15,6 @@ export const DataTable = <RowType extends BaseData, DataType extends RowType[] =
 ) => {
   const allProps = useMemo(
     () => ({
-      hideColumnsOption: false,
       enableHiddenColumns: false,
       rowsSelectable: false,
       defaultSort: { key: null, direction: undefined },
@@ -42,7 +41,6 @@ export const DataTable = <RowType extends BaseData, DataType extends RowType[] =
   disablePagination: PropTypes.bool,
   enableHiddenColumns: PropTypes.bool,
   exportToCSVOption: PropTypes.bool,
-  hideColumnsOption: PropTypes.bool,
   onChange: PropTypes.func,
   rowClick: PropTypes.func,
   rowOptions: PropTypes.exact({

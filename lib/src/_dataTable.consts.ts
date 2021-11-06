@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import { Operator } from "../table.types";
+import { Operator } from "./table.types";
 
-export const FILTER_TYPES = ["string", "number", "boolean", "date"] as const;
+export const DATA_TYPES = ["string", "number", "boolean", "date"] as const;
 
 export const BASE_OPERATORS = [
   {
@@ -74,7 +74,7 @@ export const BASE_OPERATORS = [
 
 export const OPERATORS = BASE_OPERATORS as ReadonlyArray<Operator>;
 
-export const FilterTypePropTypes = PropTypes.oneOf([...FILTER_TYPES, null, undefined]);
+export const FilterTypePropTypes = PropTypes.oneOf([...DATA_TYPES, null, undefined]);
 
 export const FilterValuePropTypes = PropTypes.shape({
   id: PropTypes.string.isRequired,

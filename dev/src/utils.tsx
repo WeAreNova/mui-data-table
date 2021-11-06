@@ -54,6 +54,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     title: "Email",
     limitWidth: "sm",
     dataIndex: "email",
+    editable: true,
     sorter: true,
     filterColumn: true,
     pinnable: true,
@@ -63,6 +64,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     groupBy: "email",
     title: "Contact Number",
     dataIndex: "personalDetails.contactNumber",
+    editable: true,
     sorter: true,
     filterColumn: true,
     pinnable: true,
@@ -109,16 +111,19 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     groupBy: "email",
     title: "Role",
     dataIndex: "role",
+    editable: true,
     sorter: true,
     filterColumn: true,
   },
   {
     key: "registrationDate",
+    dataType: "date",
     groupBy: "email",
     title: "Registration Date",
     dataIndex: "registrationDateFormatted",
     sorter: "registrationDate",
-    filterColumn: { path: "registrationDate", type: "date" },
+    filterColumn: "registrationDate",
+    editable: "registrationDate",
     pinnable: true,
   },
   {
@@ -128,49 +133,48 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     colGroup: [
       {
         key: "balances.total",
+        dataType: "number",
         groupBy: "email",
         title: "Total",
         dataIndex: "balances.total",
         sorter: true,
-        numerical: {
-          path: true,
-          decimalPlaces: 2,
-        },
-        filterColumn: { path: true, type: "number" },
+        numerical: { path: true, decimalPlaces: 2 },
+        filterColumn: true,
+        editable: true,
       },
       {
         key: "balances.invested",
+        dataType: "number",
         groupBy: "email",
         title: "Invested",
         dataIndex: "balances.invested",
         sorter: true,
-        numerical: {
-          path: true,
-          decimalPlaces: 2,
-        },
-        filterColumn: { path: true, type: "number" },
+        numerical: { path: true, decimalPlaces: 2 },
+        filterColumn: true,
+        editable: true,
       },
       {
         key: "balances.available",
+        dataType: "number",
         groupBy: "email",
         title: "Available",
         dataIndex: "balances.available",
         sorter: true,
-        numerical: {
-          path: true,
-          decimalPlaces: 2,
-        },
-        filterColumn: { path: true, type: "number" },
+        numerical: { path: true, decimalPlaces: 2 },
+        filterColumn: true,
+        editable: true,
       },
     ],
   },
   {
     key: "emailConfirmed",
+    dataType: "boolean",
     groupBy: "email",
     title: "Email Confirmed",
     dataIndex: "isConfirmed",
     sorter: true,
-    filterColumn: { path: true, type: "boolean" },
+    filterColumn: true,
+    editable: true,
     render: (record) => (typeof record.isConfirmed === "undefined" ? null : String(record.isConfirmed)),
   },
 ];
@@ -179,6 +183,7 @@ const data = (() => {
   return faker.datatype.array(faker.datatype.number({ min: 10, max: 100 })).flatMap<User>(() => {
     const totalBalance = faker.datatype.number({ min: 0, max: 10_000_000 });
     const investedBalance = faker.datatype.number({ min: 0, max: totalBalance });
+    const registrationDate = faker.date.past();
     return {
       id: faker.datatype.uuid(),
       email: faker.internet.email(),
@@ -187,7 +192,8 @@ const data = (() => {
       surname: faker.name.lastName(),
       password: faker.internet.password(),
       isConfirmed: faker.datatype.boolean(),
-      registrationDate: faker.date.past(),
+      registrationDate,
+      registrationDateFormatted: registrationDate.toLocaleDateString(),
       role: faker.random.arrayElement(USER_ROLES),
       personalDetails: !faker.datatype.boolean()
         ? undefined

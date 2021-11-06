@@ -30,6 +30,7 @@ const DYNAMIC_STATE = [
   "pinnedColumn",
   "selectedRows",
   "loading",
+  "tableData",
 ] as const;
 
 type DynamicState = Pick<BaseTableState, typeof DYNAMIC_STATE[number]>;
@@ -60,6 +61,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
     | "rowsPerPageDefault"
     | "rowOptions"
     | "rowClick"
+    | "onEdit"
   > {
   sort: Sort;
   rowsPerPage: number | undefined;
@@ -70,6 +72,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
   selectedRows: { [rowId: string]: RowType };
   loading: boolean;
   exportToCSV?(): Promise<void>;
+  editable: false | "cells" | "rows";
 }
 
 export interface TableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
@@ -83,23 +86,27 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   isMacOS: boolean;
 }
 
-export type TableContextValue<RowType extends BaseData, DataType extends RowType[]> = Pick<
-  TableProps<RowType, DataType>,
-  | "count"
-  | "csvFilename"
-  | "disablePagination"
-  | "enableHiddenColumns"
-  | "onChange"
-  | "rowClick"
-  | "rowOptions"
-  | "rowsPerPageDefault"
-  | "tableData"
-  | "tableStructure"
-  | "rowsSelectable"
-  | "onSelectedRowsChange"
-  | "selectGroupBy"
-  | "defaultSort"
->;
+export interface TableContextValue<RowType extends BaseData, DataType extends RowType[]>
+  extends Pick<
+    TableProps<RowType, DataType>,
+    | "count"
+    | "csvFilename"
+    | "disablePagination"
+    | "enableHiddenColumns"
+    | "onChange"
+    | "rowClick"
+    | "rowOptions"
+    | "rowsPerPageDefault"
+    | "tableData"
+    | "tableStructure"
+    | "rowsSelectable"
+    | "onSelectedRowsChange"
+    | "selectGroupBy"
+    | "defaultSort"
+    | "onEdit"
+  > {
+  editable: boolean | "cells" | "rows";
+}
 
 type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reducer<
   BaseTableState<RowType, DataType>,
@@ -129,7 +136,7 @@ const reducer: TableReducer<any, any> = (state, action) =>
  * @package
  */
 export const TableProvider = <RowType extends BaseData, DataType extends RowType[]>({
-  value: { defaultSort, rowsPerPageDefault, csvFilename, count, ...value },
+  value: { defaultSort, rowsPerPageDefault, csvFilename, count, editable, ...value },
   ...props
 }: PropsWithChildren<{
   value: TableContextValue<RowType, DataType>;
@@ -164,6 +171,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     () => ({
       ...value,
       ...stored,
+      editable: editable === true ? "cells" : editable,
       loading: false,
       page: 0,
       hideColumns: false,
@@ -172,7 +180,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       selectedRows: {},
       isMacOS,
     }),
-    [isMacOS, stored, value],
+    [editable, isMacOS, stored, value],
   );
 
   const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);

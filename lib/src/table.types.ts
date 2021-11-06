@@ -2,7 +2,7 @@ import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps
 import type React from "react";
 import { ReactNode } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
-import { BASE_OPERATORS, FILTER_TYPES } from "./Filter/filter.consts";
+import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
 
 export interface BaseData {
   id?: string | null;
@@ -18,11 +18,19 @@ export type Sorter<T> = (ab: T, ba: T) => number;
 
 export type TableCellAlign = "left" | "center" | "right";
 
+export type DataTypes = typeof DATA_TYPES[number];
+
+export type NullableDataTypes = DataTypes | undefined | null;
+
 interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
   /**
    * The unique identifier for the column.
    */
   key: string;
+  /**
+   * Data type of the column.
+   */
+  dataType?: DataTypes;
   /**
    * The dot-notation path to the data which is to be displayed.
    */
@@ -80,6 +88,10 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
    * A helper field which specifies how to filter data for this column.
    */
   filterColumn?: FilterColumn<RowType>;
+  /**
+   *  Options for cell editing.
+   */
+  editable?: EditableCell<RowType>;
   /**
    * Indicates whether the column is pinnable.
    */
@@ -140,11 +152,9 @@ export interface ActionButton extends Omit<IconButtonProps, "size"> {
   onClick(): void;
 }
 
-export type FilterTypes = typeof FILTER_TYPES[number] | undefined | null;
-
 export interface FilterOptions<RowType extends BaseData> {
   path?: PathValueType<RowType>;
-  type?: FilterTypes;
+  type?: NullableDataTypes;
 }
 
 export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
@@ -152,9 +162,17 @@ export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
 export interface Operator {
   readonly value: OperatorValues;
   readonly typeLabelMap?: {
-    readonly [key in typeof FILTER_TYPES[number] | "default"]?: string;
+    readonly [key in typeof DATA_TYPES[number] | "default"]?: string;
   };
 }
+
+export interface EditableOptions<RowType extends BaseData> {
+  path: PathValueType<RowType>;
+  type: NullableDataTypes;
+  component?: () => ReactNode;
+}
+
+export type EditableCell<RowType extends BaseData> = PathValueType<RowType> | EditableOptions<RowType>;
 
 export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 
@@ -162,7 +180,7 @@ export type FilterValue = string | number | Date | boolean | null;
 
 export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
   id: string;
-  type: NonNullable<FilterTypes>;
+  type: NonNullable<NullableDataTypes>;
   path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
   value: FilterValue;
   operator: OperatorValues;
@@ -277,4 +295,20 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    * The default sort options.
    */
   defaultSort?: Sort;
+  /**
+   * Enables editing rows/cells.
+   *
+   * @default false when undefined.
+   * @default "cells" when true.
+   */
+  editable?: boolean | "cells" | "rows";
+  /**
+   * A function invoked when a row/cell is edited.
+   *
+   * @param path path to the value updated.
+   * @param value the updated value.
+   * @param rowId the id of the row.
+   * @param dataArrayIndex the index of the row in the tableData array.
+   */
+  onEdit?(path: PathType<RowType>, value: any, rowId: string, dataArrayIndex: number): void;
 }

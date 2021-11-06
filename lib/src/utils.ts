@@ -8,6 +8,7 @@ import type {
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  NullableDataTypes,
   NumericalObject,
   PathValueType,
   Sort,
@@ -222,6 +223,21 @@ export function getSortedData<RowType extends BaseData, DataType extends RowType
 export function getPagedData<RowType extends BaseData>(data: RowType[], pagination: { limit?: number; page: number }) {
   const page = pagination.page ?? data.length;
   return pagination.limit ? data.slice(page * pagination.limit, page * pagination.limit + pagination.limit) : data;
+}
+
+/**
+ * A utility function which returns the specified data type.
+ *
+ * @param value the value of one of the properties in the definition of the table column
+ * @param struct the definition of the table column
+ * @returns the data type
+ */
+export function getDataType<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+  value: PathValueType<RowType> | { type?: NullableDataTypes },
+  struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+) {
+  const dataType = typeof value === "object" ? value.type : struct.dataType;
+  return dataType ?? "string";
 }
 
 /**

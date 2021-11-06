@@ -2,11 +2,12 @@ import { alpha, createStyles, makeStyles, TableRow } from "@material-ui/core";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
+import TableContext, { TableState } from "../table.context";
+import { BaseData } from "../table.types";
+import { getRowId } from "../utils";
+import { RowDataPropType } from "../_propTypes";
+import { BodyContextProvider, BodyState } from "./body.context";
 import BodyCell from "./BodyCell.component";
-import TableContext, { TableState } from "./table.context";
-import { BaseData } from "./table.types";
-import { getRowId } from "./utils";
-import { RowDataPropType } from "./_propTypes";
 
 interface BodyRowProps<RowType extends BaseData> {
   index: number;
@@ -41,14 +42,14 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const BodyRow = <RowType extends BaseData, DataType extends RowType[]>({
+const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   index,
   data,
   ...props
 }: PropsWithChildren<BodyRowProps<RowType>>) => {
   const classes = useStyles(props);
   const { flattenedTableStructure, rowClick, rowOptions, rowsSelectable, selectedRows } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+    useContext<TableState<RowType, AllDataType>>(TableContext);
 
   const rowId = useMemo(() => getRowId(data, index), [data, index]);
   const isAlternateRowColour = useMemo(() => rowOptions?.alternateRowColour?.(data) ?? false, [data, rowOptions]);
@@ -102,6 +103,18 @@ const BodyRow = <RowType extends BaseData, DataType extends RowType[]>({
     [classes.rowHover, rowClick],
   );
 
+  const bodyContextValue = useMemo(
+    () =>
+      ({
+        data,
+        index,
+        rowId,
+      } as Omit<BodyState<RowType, AllDataType>, "structure">),
+    [data, index, rowId],
+  );
+
+  console.log(data);
+
   return (
     <TableRow
       key={rowId}
@@ -111,7 +124,15 @@ const BodyRow = <RowType extends BaseData, DataType extends RowType[]>({
       className={tableRowClasses}
     >
       {flattenedTableStructure.map((struct) => (
-        <BodyCell key={struct.key} index={index} rowId={rowId} structure={struct} data={data} />
+        <BodyContextProvider
+          key={struct.key}
+          value={{
+            ...bodyContextValue,
+            structure: struct,
+          }}
+        >
+          <BodyCell />
+        </BodyContextProvider>
       ))}
     </TableRow>
   );

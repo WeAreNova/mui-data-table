@@ -14,7 +14,7 @@ import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
-import BodyRow from "./BodyRow.component";
+import BodyRow from "./Body/BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData, TableProps } from "./table.types";

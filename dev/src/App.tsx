@@ -59,8 +59,8 @@ function App() {
               tableStructure={STRUCTURE}
               onChange={changeServerSide ? handleChange : undefined}
               rowClick={(data) => console.log(data)}
+              onEdit={(...data) => console.log(...data)}
               exportToCSVOption
-              rowsSelectable
             />
           </TableContainer>
         </Box>

@@ -6,9 +6,9 @@ import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BaseData, FilterValue } from "..";
 import TableContext, { TableState } from "../table.context";
-import type { ActiveFilter, FilterColumn, FilterTypes, NullableActiveFilter } from "../table.types";
-import { getPath } from "../utils";
-import { FilterValuePropTypes, OPERATORS } from "./filter.consts";
+import type { ActiveFilter, NullableActiveFilter, NullableDataTypes } from "../table.types";
+import { getDataType, getPath } from "../utils";
+import { FilterValuePropTypes, OPERATORS } from "../_dataTable.consts";
 import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
 
@@ -63,12 +63,7 @@ export const EMPTY_FILTER = {
   type: null,
 } as const;
 
-const getFilterType = <T extends FilterColumn<any>>(f: T): Exclude<FilterTypes, undefined | null> => {
-  if (typeof f !== "object" || typeof f.type !== "string") return "string";
-  return f.type;
-};
-
-const getOperatorOptions = (type: Exclude<FilterTypes, undefined | null> | null) =>
+const getOperatorOptions = (type: Exclude<NullableDataTypes, undefined | null> | null) =>
   OPERATORS.filter((o) => !o.typeLabelMap || o.typeLabelMap.default || (Boolean(type) && type! in o.typeLabelMap)).map(
     (o) => ({
       label: !o.typeLabelMap ? o.value : (type && o.typeLabelMap[type]) ?? o.typeLabelMap.default!,
@@ -103,7 +98,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
         .map((c) => ({
           label: typeof c.title === "function" ? c.title(allTableData) : c.title,
           value: getPath(c.filterColumn, c),
-          type: getFilterType(c.filterColumn),
+          type: getDataType(c.filterColumn, c),
         })),
     [allTableData, tableStructure],
   );

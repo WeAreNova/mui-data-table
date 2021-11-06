@@ -21,6 +21,9 @@ export const DataTable = <RowType extends BaseData, DataType extends RowType[] =
       rowsPerPageDefault: 25,
       csvFilename: "TableExport",
       ...props,
+      editable:
+        props.editable ||
+        props.tableStructure.some((c) => c.editable || Boolean(c.colGroup?.some((cg) => cg.editable))),
     }),
     [props],
   );

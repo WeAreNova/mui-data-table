@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
-import { FilterValuePropTypes } from "./filter.consts";
+import { FilterValuePropTypes } from "../_dataTable.consts";
 import SimpleSelect, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"

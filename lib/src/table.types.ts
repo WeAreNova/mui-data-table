@@ -1,7 +1,8 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
 import type React from "react";
-import { ReactNode } from "react";
+import { ChangeEventHandler, ReactNode } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
+import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
 import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
 
 export interface BaseData {
@@ -21,6 +22,8 @@ export type TableCellAlign = "left" | "center" | "right";
 export type DataTypes = typeof DATA_TYPES[number];
 
 export type NullableDataTypes = DataTypes | undefined | null;
+
+export type EditDataTypes = NullableDataTypes | "select";
 
 interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
   /**
@@ -166,10 +169,19 @@ export interface Operator {
   };
 }
 
+interface EditComponentProps {
+  defaultValue: unknown;
+  onChange: ChangeEventHandler<unknown>;
+}
+
 export interface EditableOptions<RowType extends BaseData> {
   path: PathValueType<RowType>;
-  type: NullableDataTypes;
-  component?: () => ReactNode;
+  type: EditDataTypes;
+  component?: (props: EditComponentProps) => ReactNode;
+  /**
+   * Options for the select component.
+   */
+  options?: SelectFieldOption[];
 }
 
 export type EditableCell<RowType extends BaseData> = PathValueType<RowType> | EditableOptions<RowType>;

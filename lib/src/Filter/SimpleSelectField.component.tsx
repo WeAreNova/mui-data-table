@@ -45,7 +45,10 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
-  const currValue = useMemo(() => selectProps.value || "", [selectProps.value]);
+  const defaultValue = useMemo(
+    () => selectProps.value || selectProps.defaultValue || "",
+    [selectProps.defaultValue, selectProps.value],
+  );
   const allOptions = useMemo(
     () => [...(placeholder ? [{ label: placeholder, value: "" }] : []), ...options],
     [options, placeholder],
@@ -60,10 +63,10 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   );
 
   return (
-    <FormControl className={className}>
+    <FormControl fullWidth={selectProps.fullWidth} className={className}>
       <Select
         {...selectProps}
-        value={currValue}
+        defaultValue={defaultValue}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}

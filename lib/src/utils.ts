@@ -8,6 +8,7 @@ import type {
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  EditDataTypes,
   NullableDataTypes,
   NumericalObject,
   PathValueType,
@@ -232,8 +233,12 @@ export function getPagedData<RowType extends BaseData>(data: RowType[], paginati
  * @param struct the definition of the table column
  * @returns the data type
  */
-export function getDataType<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
-  value: PathValueType<RowType> | { type?: NullableDataTypes },
+export function getDataType<
+  RowType extends BaseData,
+  DataType extends RowType[] = RowType[],
+  T extends { type?: NullableDataTypes } | { type?: EditDataTypes } = { type?: NullableDataTypes },
+>(
+  value: PathValueType<RowType> | T,
   struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
 ) {
   const dataType = typeof value === "object" ? value.type : struct.dataType;

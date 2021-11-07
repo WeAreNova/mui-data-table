@@ -1,5 +1,8 @@
 import PropTypes from "prop-types";
+import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
 import { Operator } from "./table.types";
+
+export const BOOLEAN_OPTIONS: SelectFieldOption[] = ["true", "false"].map((value) => ({ value, label: value }));
 
 export const DATA_TYPES = ["string", "number", "boolean", "date"] as const;
 

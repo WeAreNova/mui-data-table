@@ -121,13 +121,16 @@ const reducer: TableReducer<any, any> = (state, action) =>
     ? { ...state, ...action(state) }
     : {
         ...state,
-        ...Object.entries(action).reduce<Partial<DynamicState>>(
-          (prev, [key, value]) => ({
+        ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
+          console.log({
+            key,
+            value: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
+          });
+          return {
             ...prev,
             [key]: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
-          }),
-          {} as Partial<DynamicState>,
-        ),
+          };
+        }, {} as Partial<DynamicState>),
       };
 
 /**
@@ -186,7 +189,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);
 
   const update = useMemo(() => {
-    const updateFunction = (value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) => {
+    function updateFunction(value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
       dispatch(
         Object.entries(value).reduce(
           (prev, [key, value]) =>
@@ -194,7 +197,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
           {},
         ),
       );
-    };
+    }
     DYNAMIC_STATE.forEach((curr) => {
       (updateFunction as any)[curr] = (
         arg: BaseTableState[typeof curr] | ((currState: BaseTableState[typeof curr]) => BaseTableState[typeof curr]),

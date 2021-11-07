@@ -1,6 +1,6 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
 import type React from "react";
-import { ChangeEventHandler, ReactNode } from "react";
+import { Dispatch, ReactNode } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
 import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
 import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
@@ -171,7 +171,7 @@ export interface Operator {
 
 interface EditComponentProps {
   defaultValue: unknown;
-  onChange: ChangeEventHandler<unknown>;
+  onChange: Dispatch<unknown>;
 }
 
 export interface EditableOptions<RowType extends BaseData> {

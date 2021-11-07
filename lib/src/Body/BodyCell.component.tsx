@@ -117,7 +117,6 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: P
       e.stopPropagation();
       if (!structure.editable || editMode) return;
       setEditMode(true);
-      console.log("DOUBLE CLICK");
     },
     [editMode, structure.editable],
   );

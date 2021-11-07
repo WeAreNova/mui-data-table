@@ -39,6 +39,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const classes = useStyles(props);
   const { onEdit, update } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const { structure, data, rowId, index } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
+  const [selectOpen, setSelectOpen] = useState(false);
 
   const editPath = useMemo(() => getPath(structure.editable, structure), [structure]);
   const defaultValue = useMemo(() => {
@@ -54,7 +55,6 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   );
 
   const handleEdit = useCallback(() => {
-    // if (onEdit) return onEdit(editPath, editValue, rowId, index);
     if (onEdit) return onEdit(editPath, editValue, rowId, index);
     update.tableData((currTableData) => {
       const newData = [...currTableData];
@@ -64,21 +64,26 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     });
   }, [editPath, editValue, index, onEdit, rowId, update]);
 
+  const handleCancelEdit = useCallback(() => {
+    if (selectOpen) return;
+    cancelEdit();
+  }, [cancelEdit, selectOpen]);
+
   const handleKeyPress = useCallback(
     (e: KeyboardEvent | React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
-          return cancelEdit();
+          return handleCancelEdit();
         case "Tab":
         case "Enter":
           handleEdit();
-          cancelEdit();
+          handleCancelEdit();
           return;
         default:
           return;
       }
     },
-    [cancelEdit, handleEdit],
+    [handleCancelEdit, handleEdit],
   );
 
   useEffect(() => {
@@ -90,17 +95,15 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     setEditValue(defaultValue);
   }, [defaultValue]);
 
+  const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => setEditValue(e.target.value), []);
   const handleSelectChange = useCallback((selected: SelectFieldOption | null) => {
     if (!selected) return setEditValue(null);
     setEditValue(selected.value === "true");
   }, []);
 
-  const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => setEditValue(e.target.value), []);
-
-
   const field = useMemo(() => {
     if (typeof structure.editable === "object" && structure.editable.component) {
-      return structure.editable.component({ ...commonProps, onChange: handleOtherChange });
+      return structure.editable.component({ defaultValue: commonProps.defaultValue, onChange: setEditValue });
     }
     switch (editType) {
       case "boolean":
@@ -111,6 +114,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
             {...commonProps}
             onChange={handleSelectChange}
             options={(structure.editable as EditableOptions<RowType>).options!}
+            onOpen={() => setSelectOpen(true)}
+            onClose={() => setSelectOpen(false)}
           />
         );
       default:
@@ -119,7 +124,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [commonProps, editType, handleOtherChange, handleSelectChange, structure.editable]);
 
   return (
-    <ClickAwayListener onClickAway={cancelEdit}>
+    <ClickAwayListener onClickAway={handleCancelEdit}>
       <div className={classes.fieldContainer}>{field}</div>
     </ClickAwayListener>
   );

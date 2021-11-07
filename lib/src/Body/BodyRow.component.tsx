@@ -113,8 +113,6 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
     [data, index, rowId],
   );
 
-  console.log(data);
-
   return (
     <TableRow
       key={rowId}

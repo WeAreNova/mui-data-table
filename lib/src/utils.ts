@@ -8,6 +8,7 @@ import type {
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  ColumnDefinitionTitle,
   EditDataTypes,
   NullableDataTypes,
   NumericalObject,
@@ -235,14 +236,14 @@ export function getPagedData<RowType extends BaseData>(data: RowType[], paginati
  */
 export function getDataType<
   RowType extends BaseData,
-  DataType extends RowType[] = RowType[],
+  AllDataType extends RowType[],
   T extends { type?: NullableDataTypes } | { type?: EditDataTypes } = { type?: NullableDataTypes },
 >(
   value: PathValueType<RowType> | T,
-  struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
 ) {
-  const dataType = typeof value === "object" ? value.type : struct.dataType;
-  return dataType ?? "string";
+  const dataType = (typeof value === "object" && value.type) || struct.dataType;
+  return (dataType ?? "string") as NonNullable<T["type"]>;
 }
 
 /**
@@ -294,6 +295,17 @@ export function numberFormatter(
  */
 export function getRowId<T extends BaseData>(data: T, index: number) {
   return String(data.id || data._id || index);
+}
+
+/**
+ * A utility function to retrieve the header's title.
+ *
+ * @param title the title property in the column definition
+ * @param data all the table data
+ * @returns the rendered title
+ */
+export function getColumnTitle<T extends BaseData[]>(title: ColumnDefinitionTitle<T>, data: T) {
+  return typeof title === "function" ? title(data) : title;
 }
 
 /**

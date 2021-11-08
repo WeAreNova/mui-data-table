@@ -9,14 +9,18 @@ import type {
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  DataTypes,
   OnChangeObject,
   Sort,
   TableProps,
 } from "./table.types";
 import {
   exportTableToCSV,
+  getColumnTitle,
+  getDataType,
   getFilteredData,
   getPagedData,
+  getPath,
   getRowId,
   getSortedData,
   getTableCellAlignment,
@@ -73,6 +77,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
   selectedRows: { [rowId: string]: RowType };
   loading: boolean;
   exportToCSV?(): Promise<void>;
+  isMacOS: boolean;
   editable: false | "cells" | "rows";
 }
 
@@ -84,7 +89,7 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   update: Update;
   filteredTableStructure: ColumnDefinition<RowType, DataType>[];
   flattenedTableStructure: Array<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>;
-  isMacOS: boolean;
+  filterOptions: Array<{ label: string; value: string; type: DataTypes }>;
 }
 
 export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -121,12 +126,6 @@ const reducer: TableReducer<any, any> = (state, action) =>
     : {
         ...state,
         ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
-          console.log({
-            key,
-            data: state[key as keyof BaseTableState],
-            state,
-            value: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
-          });
           return {
             ...prev,
             [key]: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
@@ -366,6 +365,28 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     [filteredTableStructure, state.hiddenColumns],
   );
 
+  const filterOptions = useMemo(
+    () =>
+      state.tableStructure
+        .flatMap((c) => {
+          const title = getColumnTitle(c.title, state.tableData);
+          return [
+            { ...c, title },
+            ...(c.colGroup?.map((cg) => {
+              const nestedTitle = getColumnTitle(cg.title, state.tableData);
+              return { ...cg, title: `${title} - ${nestedTitle}` };
+            }) || []),
+          ];
+        })
+        .filter((c) => Boolean(c.filterColumn))
+        .map((c) => ({
+          label: c.title,
+          value: getPath(c.filterColumn, c),
+          type: getDataType(c.filterColumn, c),
+        })),
+    [state.tableData, state.tableStructure],
+  );
+
   const providerValue = useMemo<TableState>(
     () =>
       ({
@@ -378,8 +399,19 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
         filteredTableStructure,
         flattenedTableStructure,
         update,
-      } as unknown as TableState),
-    [state, handleChange, tableData, tableCount, exportToCSV, filteredTableStructure, flattenedTableStructure, update],
+        filterOptions,
+      } as TableState),
+    [
+      state,
+      handleChange,
+      tableData,
+      tableCount,
+      exportToCSV,
+      filteredTableStructure,
+      flattenedTableStructure,
+      update,
+      filterOptions,
+    ],
   );
 
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;

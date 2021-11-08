@@ -7,7 +7,6 @@ import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, 
 import { BaseData, FilterValue } from "..";
 import TableContext, { TableState } from "../table.context";
 import type { ActiveFilter, NullableActiveFilter, NullableDataTypes } from "../table.types";
-import { getDataType, getPath } from "../utils";
 import { FilterValuePropTypes, OPERATORS } from "../_dataTable.consts";
 import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
@@ -86,22 +85,9 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   ...props
 }: PropsWithChildren<Props>) => {
   const classes = useStyles(props);
-  const { tableStructure, allTableData } = useContext<TableState<RowType, DataType>>(TableContext);
+  const { filterOptions } = useContext<TableState<RowType, DataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
-
-  const columns = useMemo(
-    () =>
-      tableStructure
-        .flatMap((c) => [c, ...(c.colGroup?.map((cg) => ({ ...cg, title: `${c.title} - ${cg.title}` })) ?? [])])
-        .filter((c) => Boolean(c.filterColumn))
-        .map((c) => ({
-          label: typeof c.title === "function" ? c.title(allTableData) : c.title,
-          value: getPath(c.filterColumn, c),
-          type: getDataType(c.filterColumn, c),
-        })),
-    [allTableData, tableStructure],
-  );
 
   const operatorOptions = useMemo(() => getOperatorOptions(filter.type), [filter.type]);
 
@@ -136,7 +122,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     }
   }, [debouncedSubmit, filter]);
 
-  const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof columns[number]>>((selected) => {
+  const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof filterOptions[number]>>((selected) => {
     setFilter((currValues) => ({
       ...currValues,
       path: selected?.value ?? null,
@@ -173,7 +159,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <SimpleSelectField
             name="path"
             value={filter.path}
-            options={columns}
+            options={filterOptions}
             error={errors.path}
             placeholder="Column"
             variant="standard"

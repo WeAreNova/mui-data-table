@@ -12,7 +12,7 @@ import {
 import Brightness4 from "@material-ui/icons/Brightness4";
 import Brightness7 from "@material-ui/icons/Brightness7";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-import DataTable, { OnChangeObject } from "@wearenova/mui-data-table";
+import DataTable from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
 import { getData, STRUCTURE, User } from "./utils";
 
@@ -31,8 +31,8 @@ function App() {
     window.localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
 
-  const handleChange = useCallback(async (options?: OnChangeObject) => {
-    const res = await getData(options);
+  const handleChange = useCallback(async () => {
+    const res = await getData();
     setData(res);
     return res;
   }, []);

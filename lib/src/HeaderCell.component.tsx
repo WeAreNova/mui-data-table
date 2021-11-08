@@ -9,7 +9,7 @@ import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, u
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getPath } from "./utils";
+import { getColumnTitle, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
 interface Props<RowType extends BaseData, DataType extends RowType[]> {
@@ -119,10 +119,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     useContext<TableState<RowType, DataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
-  const headerTitle = useMemo(
-    () => (typeof structure.title === "function" ? structure.title(allTableData) : structure.title),
-    [structure, allTableData],
-  );
+  const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);
   const hidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
   const colSpan = useMemo(
     () => (structure.colGroup && !hiddenColumns[id] ? structure.colGroup.length : 1),

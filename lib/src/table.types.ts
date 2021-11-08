@@ -25,7 +25,11 @@ export type NullableDataTypes = DataTypes | undefined | null;
 
 export type EditDataTypes = NullableDataTypes | "select";
 
-interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+export type ColumnDefinitionTitle<DataType extends BaseData[]> =
+  | Exclude<ReactNode, number | boolean | null | undefined>
+  | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+
+interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   /**
    * The unique identifier for the column.
    */
@@ -60,7 +64,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
    *
    * @param tableData all the table's data
    */
-  footer?(tableData: DataType): ReactNode;
+  footer?(tableData: AllDataType): ReactNode;
   /**
    * A dot-notation path that indicates that this cell should group with adjacent rows which have the same value as this.
    */
@@ -84,9 +88,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   /**
    * The title of the column.
    */
-  title:
-    | Exclude<ReactNode, number | boolean | null | undefined>
-    | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+  title: ColumnDefinitionTitle<AllDataType>;
   /**
    * A helper field which specifies how to filter data for this column.
    */
@@ -94,7 +96,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   /**
    *  Options for cell editing.
    */
-  editable?: EditableCell<RowType>;
+  editable?: EditableCell<RowType, AllDataType>;
   /**
    * Indicates whether the column is pinnable.
    */
@@ -106,7 +108,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   /**
    * An array of `ColGroupDefinition` objects which define the nested columns of this column.
    */
-  colGroup?: ColGroupDefinition<RowType, DataType>[];
+  colGroup?: ColGroupDefinition<RowType, AllDataType>[];
   /**
    * @private internal use only
    */
@@ -172,19 +174,35 @@ export interface Operator {
 interface EditComponentProps {
   defaultValue: unknown;
   onChange: Dispatch<unknown>;
+  error: boolean;
+  helperText: string | null;
 }
 
-export interface EditableOptions<RowType extends BaseData> {
+export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
   path: PathValueType<RowType>;
-  type: EditDataTypes;
+  type?: EditDataTypes;
+  /**
+   * Custom edit component.
+   */
   component?: (props: EditComponentProps) => ReactNode;
+  /**
+   * Validation for the input value.
+   *
+   * @param value the input value.
+   * @returns the value, post-validation.
+   * @throws an error if the value is invalid.
+   * If you want to display an error message as helper text, throw an error with a message.
+   */
+  validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
   /**
    * Options for the select component.
    */
-  options?: SelectFieldOption[];
+  selectOptions?: SelectFieldOption[];
 }
 
-export type EditableCell<RowType extends BaseData> = PathValueType<RowType> | EditableOptions<RowType>;
+export type EditableCell<RowType extends BaseData, AllDataType extends RowType[]> =
+  | PathValueType<RowType>
+  | EditableOptions<RowType, AllDataType>;
 
 export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 

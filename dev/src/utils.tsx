@@ -1,6 +1,7 @@
-import { ColumnDefinition, OnChangeObject } from "@wearenova/mui-data-table";
+import { ColumnDefinition } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";
+import * as Yup from "yup";
 
 interface Address {
   addressLineOne: string;
@@ -120,10 +121,14 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     dataType: "date",
     groupBy: "email",
     title: "Registration Date",
-    dataIndex: "registrationDateFormatted",
-    sorter: "registrationDate",
-    filterColumn: "registrationDate",
-    editable: "registrationDate",
+    dataIndex: "registrationDate",
+    render: (record) => new Date(record.registrationDate).toLocaleDateString(),
+    sorter: true,
+    filterColumn: true,
+    editable: {
+      path: true,
+      validate: (value) => Yup.date().typeError("Date invalid").required("Required value").validate(value),
+    },
     pinnable: true,
   },
   {
@@ -220,7 +225,7 @@ const data = (() => {
   });
 })();
 
-export const getData = async (options?: OnChangeObject) =>
+export const getData = async () =>
   new Promise<User[]>((resolve) => {
     setTimeout(() => {
       resolve(data);

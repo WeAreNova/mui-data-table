@@ -45,7 +45,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
-  const defaultValue = useMemo(
+  const value = useMemo(
     () => selectProps.value || selectProps.defaultValue || "",
     [selectProps.defaultValue, selectProps.value],
   );
@@ -66,7 +66,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
     <FormControl fullWidth={selectProps.fullWidth} className={className}>
       <Select
         {...selectProps}
-        defaultValue={defaultValue}
+        value={value}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}

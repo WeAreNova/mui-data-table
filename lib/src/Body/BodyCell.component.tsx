@@ -5,7 +5,7 @@ import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, u
 import TableContext, { TableState } from "../table.context";
 import type { BaseData } from "../table.types";
 import TableCell from "../TableCell.component";
-import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
 import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 
@@ -66,6 +66,7 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: P
   const handleRowClick = useCallback(
     (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>) => {
       e.stopPropagation();
+      dispatchTableEvent("cancelEdit");
       if (loading) return;
       if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
         const updatedSelectedRows = { ...selectedRows };
@@ -121,14 +122,16 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: P
     [editMode, structure.editable],
   );
 
+  const handleEditCancel = useCallback(() => setEditMode(false), []);
   const handleEditClick = useCallback<MouseEventHandler<HTMLDivElement>>(
     (e) => {
-      if (structure.editable) e.stopPropagation();
+      if (!structure.editable) return;
+      e.stopPropagation();
+      if (editMode) return;
+      dispatchTableEvent("cancelEdit");
     },
-    [structure.editable],
+    [editMode, structure.editable],
   );
-
-  const handleEditCancel = useCallback(() => setEditMode(false), []);
 
   return (
     <TableCell

@@ -279,10 +279,10 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   /**
    * A function invoked when a row is clicked.
    *
-   * @param data the data of the row.
+   * @param rowData the data of the row.
    * @param e the mouse event.
    */
-  rowClick?(data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
+  rowClick?(rowData: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
   /**
    * Options specific to row customisation.
    */
@@ -335,10 +335,12 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   /**
    * A function invoked when a row/cell is edited.
    *
-   * @param path path to the value updated.
+   * If no function is provided, the row/cell will be updated in place.
+   * Otherwise it will expect the function to update the value.
+   *
+   * @param path the path to the value to be updated.
    * @param value the updated value.
-   * @param rowId the id of the row.
-   * @param dataArrayIndex the index of the row in the tableData array.
+   * @param data the row data.
    */
-  onEdit?(path: PathType<RowType>, value: any, rowId: string, dataArrayIndex: number): void;
+  onEdit?<T>(path: PathType<RowType>, value: T, rowData: RowType): void | Promise<void>;
 }

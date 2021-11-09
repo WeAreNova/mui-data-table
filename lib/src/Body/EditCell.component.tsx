@@ -38,8 +38,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 }: PropsWithChildren<EditCellProps>) => {
   const classes = useStyles(props);
   const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
-  const { structure, data, rowId, index } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
-  const [selectOpen, setSelectOpen] = useState(false);
+  const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
   const [error, setError] = useState<string | null>(null);
   const editType = useMemo(() => getDataType(structure.editable, structure), [structure]);
   const editPath = useMemo(() => getPath(structure.editable, structure), [structure]);
@@ -72,10 +71,11 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     async (value) => {
       try {
         if (typeof structure.editable === "object" && structure.editable.validate) {
-          return await structure.editable.validate(value, { data, allData: allTableData });
+          await structure.editable.validate(value, { data, allData: allTableData });
+          return true;
         }
         if (editType === "number" && isNaN(Number(value))) {
-          throw new Error("Value must be a number");
+          throw new Error("Invalid number");
         }
         if (editType === "date" && isNaN(new Date(value as string | number | Date).getTime())) {
           throw new Error("Invalid date");
@@ -91,19 +91,16 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     [allTableData, data, editType, structure.editable],
   );
 
-  const handleCancelEdit = useCallback(() => {
-    if (selectOpen) return;
-    cancelEdit();
-  }, [cancelEdit, selectOpen]);
-
+  const handleCancelEdit = useCallback(() => cancelEdit(), [cancelEdit]);
   const handleEdit = useCallback(async () => {
     const valid = await validate(editValue);
     if (!valid) return;
-
     if (onEdit) {
-      onEdit(editPath, editValue, rowId, index);
+      await onEdit(editPath, editValue, data);
     } else {
       update.tableData((currTableData) => {
+        const index = currTableData.findIndex((row) => row.id === rowId);
+        if (index === -1) return currTableData;
         const newData = [...currTableData];
         const updatedValue = set({ ...newData[index] }, editPath, editValue);
         newData[index] = { ...updatedValue };
@@ -111,7 +108,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
       });
     }
     cancelEdit();
-  }, [cancelEdit, editPath, editValue, index, onEdit, rowId, update, validate]);
+  }, [cancelEdit, data, editPath, editValue, onEdit, rowId, update, validate]);
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent | React.KeyboardEvent) => {
@@ -129,9 +126,14 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   );
 
   useEffect(() => {
-    document.addEventListener("keyup", handleKeyPress);
-    return () => document.removeEventListener("keyup", handleKeyPress);
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
+
+  useEffect(() => {
+    document.addEventListener("cancelEdit", handleCancelEdit);
+    return () => document.removeEventListener("cancelEdit", handleCancelEdit);
+  }, [handleCancelEdit]);
 
   useEffect(() => {
     setEditValue(defaultValue);
@@ -154,22 +156,21 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         onChange: setEditValue,
       });
     }
-    switch (editType) {
-      case "boolean":
-        return <SimpleSelectField {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
-      case "select":
-        return (
-          <SimpleSelectField
-            {...commonProps}
-            onChange={handleSelectChange}
-            options={(structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!}
-            onOpen={() => setSelectOpen(true)}
-            onClose={() => setSelectOpen(false)}
-          />
-        );
-      default:
-        return <TextField {...commonProps} onChange={handleOtherChange} type={editType} />;
+    if (["boolean", "select"].includes(editType)) {
+      return (
+        <SimpleSelectField
+          {...commonProps}
+          onChange={handleSelectChange}
+          options={
+            editType === "boolean"
+              ? BOOLEAN_OPTIONS
+              : (structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!
+          }
+          disablePortal
+        />
+      );
     }
+    return <TextField {...commonProps} onChange={handleOtherChange} type={editType} />;
   }, [commonProps, editType, handleOtherChange, handleSelectChange, structure.editable]);
 
   return (

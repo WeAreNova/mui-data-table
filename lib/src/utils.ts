@@ -19,6 +19,15 @@ import type {
 } from "./table.types";
 
 /**
+ * A function to dispatch a custom Data Table event.
+ *
+ * @param event the custom event to dispatch.
+ */
+export function dispatchTableEvent(event: "cancelEdit") {
+  return document.dispatchEvent(new CustomEvent(event));
+}
+
+/**
  * A function that returns the index of the first element in the array where predicate is `true`, else `-1`
  *
  * @param array the array in which to find the element

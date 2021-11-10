@@ -294,6 +294,7 @@ const dataTypeOperatorMap: Record<DataTypes, OperatorValues> = {
  *
  * Returns `filterColumn.defaultOperator` if it is defined,
  * else the default operator for the data type.
+ *
  * See {@link dataTypeOperatorMap `dataTypeOperatorMap`} for the default operator for each data type.
  *
  * @param value the value of `filterColumn` property in the definition of the table column.

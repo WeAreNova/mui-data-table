@@ -18,3 +18,6 @@
 
 - [**Features**](/features#features)
   - [CSV Export](/features#csv-export)
+  - [Editing](/features#editing)
+    - [Validation](/features#validation)
+    - [Cell Options](/columns#editing-optional)

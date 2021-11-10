@@ -29,6 +29,12 @@ export type ColumnDefinitionTitle<DataType extends BaseData[]> =
   | Exclude<ReactNode, number | boolean | null | undefined>
   | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
 
+export declare class DataTableErrorType extends Error {
+  readonly isDataTableError: true;
+  readonly dataTableMessage: string;
+  constructor(helperMessage: string, errorMessage?: string);
+}
+
 interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   /**
    * The unique identifier for the column.
@@ -180,6 +186,11 @@ interface EditComponentProps {
 
 export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
   path: PathValueType<RowType>;
+  /**
+   * The data type. Used to determine the type of the input.
+   *
+   * If not specified, the type is inferred from the `dataType` field.
+   */
   type?: EditDataTypes;
   /**
    * Custom edit component.
@@ -190,12 +201,12 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
    *
    * @param value the input value.
    * @returns the value, post-validation.
-   * @throws an error if the value is invalid.
+   * @throws {Error | DataTableErrorType} throws a DataTableError if the value is invalid.
    * If you want to display an error message as helper text, throw an error with a message.
    */
   validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
   /**
-   * Options for the select component.
+   * Options for the select component when `type` is `"select"`
    */
   selectOptions?: SelectFieldOption[];
 }
@@ -341,6 +352,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    * @param path the path to the value to be updated.
    * @param value the updated value.
    * @param data the row data.
+   * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
    */
   onEdit?<T>(path: PathType<RowType>, value: T, rowData: RowType): void | Promise<void>;
 }

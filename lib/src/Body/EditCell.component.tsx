@@ -11,8 +11,8 @@ import React, {
 } from "react";
 import SimpleSelectField, { SelectFieldOption } from "../Filter/SimpleSelectField.component";
 import TableContext, { TableState } from "../table.context";
-import { BaseData, EditableOptions } from "../table.types";
-import { getDataType, getPath } from "../utils";
+import { BaseData, DataTableErrorType, EditableOptions } from "../table.types";
+import { createDTError, getDataType, getPath } from "../utils";
 import { BOOLEAN_OPTIONS } from "../_dataTable.consts";
 import BodyContext, { BodyState } from "./body.context";
 
@@ -74,17 +74,22 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           await structure.editable.validate(value, { data, allData: allTableData });
           return true;
         }
-        if (editType === "number" && isNaN(Number(value))) {
-          throw new Error("Invalid number");
-        }
+        if (editType === "number" && isNaN(Number(value))) throw createDTError("Invalid number");
+        if (editType === "boolean" && !BOOLEAN_OPTIONS.includes(value)) throw createDTError("Invalid boolean");
         if (editType === "date" && isNaN(new Date(value as string | number | Date).getTime())) {
-          throw new Error("Invalid date");
+          throw createDTError("Invalid date");
+        }
+        if (
+          editType === "select" &&
+          !(structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!.some((o) => o.value === value)
+        ) {
+          throw createDTError("Invalid select option");
         }
         setError(null);
         return true;
       } catch (error: any) {
-        const errorMessage = typeof error === "string" ? error : error?.message;
-        if (errorMessage) setError(errorMessage);
+        const errorMessage = error?.dataTableMessage || error?.message;
+        if (errorMessage) setError(errorMessage || "Invalid value");
         return false;
       }
     },
@@ -93,21 +98,27 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   const handleCancelEdit = useCallback(() => cancelEdit(), [cancelEdit]);
   const handleEdit = useCallback(async () => {
-    const valid = await validate(editValue);
-    if (!valid) return;
-    if (onEdit) {
-      await onEdit(editPath, editValue, data);
-    } else {
-      update.tableData((currTableData) => {
-        const index = currTableData.findIndex((row) => row.id === rowId);
-        if (index === -1) return currTableData;
-        const newData = [...currTableData];
-        const updatedValue = set({ ...newData[index] }, editPath, editValue);
-        newData[index] = { ...updatedValue };
-        return newData;
-      });
+    try {
+      const valid = await validate(editValue);
+      if (!valid) return;
+      if (onEdit) {
+        await onEdit(editPath, editValue, data);
+      } else {
+        update.tableData((currTableData) => {
+          const index = currTableData.findIndex((row) => row.id === rowId);
+          if (index === -1) return currTableData;
+          const newData = [...currTableData];
+          const updatedValue = set({ ...newData[index] }, editPath, editValue);
+          newData[index] = { ...updatedValue };
+          return newData;
+        });
+      }
+      cancelEdit();
+    } catch (error: any) {
+      if ((error as DataTableErrorType).isDataTableError) {
+        setError(error?.dataTableMessage || "Invalid value");
+      }
     }
-    cancelEdit();
   }, [cancelEdit, data, editPath, editValue, onEdit, rowId, update, validate]);
 
   const handleKeyPress = useCallback(

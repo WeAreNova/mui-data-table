@@ -2,13 +2,14 @@ import { useUtils } from "@material-ui/pickers";
 import { get } from "dot-prop";
 import { orderBy } from "natural-orderby";
 import type { ReactNode } from "react";
-import type {
+import {
   ActiveFilter,
   ActiveFilters,
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
   ColumnDefinitionTitle,
+  DataTableErrorType,
   EditDataTypes,
   NullableDataTypes,
   NumericalObject,
@@ -25,6 +26,28 @@ import type {
  */
 export function dispatchTableEvent(event: "cancelEdit") {
   return document.dispatchEvent(new CustomEvent(event));
+}
+
+/**
+ * The `DataTableError` class
+ */
+class DataTableError extends Error implements DataTableErrorType {
+  readonly isDataTableError: true = true as const;
+  readonly dataTableMessage: string;
+  constructor(helperMessage: string, errorMessage?: string) {
+    super(errorMessage || helperMessage);
+    this.dataTableMessage = helperMessage;
+  }
+}
+
+/**
+ * A helper function for creating a `DataTableError`.
+ *
+ * @param errorMessage the error message to display.
+ * @returns the `DataTableError`
+ */
+export function createDTError(helperMessage: string, errorMessage?: string): DataTableError {
+  return new DataTableError(helperMessage, errorMessage);
 }
 
 /**

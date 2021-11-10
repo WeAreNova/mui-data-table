@@ -36,8 +36,18 @@ const useStyles = makeStyles(
 const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
   const classes = useStyles(props);
   const { structure, data, rowId, index } = useContext<BodyState<RowType, DataType>>(BodyContext);
-  const { rowClick, hiddenColumns, pinnedColumn, tableData, rowsSelectable, selectedRows, isMacOS, loading, update } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+  const {
+    rowClick,
+    hiddenColumns,
+    pinnedColumn,
+    tableData,
+    rowsSelectable,
+    selectedRows,
+    isMacOS,
+    loading,
+    update,
+    editable: tableEditable,
+  } = useContext<TableState<RowType, DataType>>(TableContext);
   const [editMode, setEditMode] = useState(false);
 
   const value = useMemo(() => getValue(structure, data, rowId, index), [data, index, rowId, structure]);
@@ -108,29 +118,29 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: P
   const bodyCellClasses = useMemo(
     () =>
       clsx({
-        [classes.editable]: structure.editable,
+        [classes.editable]: Boolean(tableEditable && structure.editable),
       }),
-    [classes.editable, structure.editable],
+    [classes.editable, structure.editable, tableEditable],
   );
 
   const handleEdit = useCallback<MouseEventHandler<HTMLDivElement>>(
     (e) => {
       e.stopPropagation();
-      if (!structure.editable || editMode) return;
+      if (!tableEditable || !structure.editable || editMode) return;
       setEditMode(true);
     },
-    [editMode, structure.editable],
+    [editMode, structure.editable, tableEditable],
   );
 
   const handleEditCancel = useCallback(() => setEditMode(false), []);
   const handleEditClick = useCallback<MouseEventHandler<HTMLDivElement>>(
     (e) => {
-      if (!structure.editable) return;
+      if (!tableEditable || !structure.editable) return;
       e.stopPropagation();
       if (editMode) return;
       dispatchTableEvent("cancelEdit");
     },
-    [editMode, structure.editable],
+    [editMode, structure.editable, tableEditable],
   );
 
   return (

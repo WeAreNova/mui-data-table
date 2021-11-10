@@ -22,7 +22,7 @@ export const DataTable = <RowType extends BaseData, DataType extends RowType[] =
       csvFilename: "TableExport",
       ...props,
       editable:
-        props.editable ||
+        props.editable ??
         props.tableStructure.some((c) => c.editable || Boolean(c.colGroup?.some((cg) => cg.editable))),
     }),
     [props],
@@ -65,4 +65,5 @@ export const DataTable = <RowType extends BaseData, DataType extends RowType[] =
 };
 
 export * from "./table.types";
+export { createDTError } from "./utils";
 export default DataTable;

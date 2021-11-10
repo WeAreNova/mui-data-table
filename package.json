@@ -3,6 +3,7 @@
   "version": "1.2.2",
   "private": true,
   "scripts": {
+    "prestart": "rimraf build/",
     "start:rollup": "npm run build -- --watch",
     "start:dev": "wait-on build/lib/index.js && npm start -w dev",
     "start": "concurrently --names \"rollup,react\" -c \"green,blue\" \"npm run start:rollup\" \"npm run start:dev\"",

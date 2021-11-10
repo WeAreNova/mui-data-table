@@ -75,7 +75,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           return true;
         }
         if (editType === "number" && isNaN(Number(value))) throw createDTError("Invalid number");
-        if (editType === "boolean" && !BOOLEAN_OPTIONS.includes(value)) throw createDTError("Invalid boolean");
+        if (editType === "boolean" && typeof value !== "boolean") throw createDTError("Invalid boolean value");
         if (editType === "date" && isNaN(new Date(value as string | number | Date).getTime())) {
           throw createDTError("Invalid date");
         }

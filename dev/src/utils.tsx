@@ -14,9 +14,9 @@ interface Address {
 }
 
 interface PersonalDetails {
-  dob: Date;
-  contactNumber: string;
-  addressHistory: Address[];
+  dob?: Date;
+  contactNumber?: string;
+  addressHistory?: Address[];
 }
 
 const USER_ROLES = ["publicUser", "readOnlyUser", "user", "readOnlyAdmin", "admin"] as const;
@@ -77,7 +77,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     sorter: "personalDetails.addressHistory.addressLineOne",
     filterColumn: "personalDetails.addressHistory.addressLineOne",
     render: (record, isCSVExport) => {
-      if (!record.personalDetails) return null;
+      if (!record.personalDetails?.addressHistory) return null;
       if (isCSVExport)
         record.personalDetails.addressHistory
           .map(({ addressLineOne, addressLineTwo, city, country, postcode }) => {

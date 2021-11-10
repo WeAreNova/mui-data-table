@@ -6,7 +6,7 @@ import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo,
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
 import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
-import SimpleSelect, { SelectFieldOption } from "./SimpleSelectField.component";
+import SimpleSelectField, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
   ? string
@@ -81,7 +81,7 @@ const ValueField = <
   const field = useMemo(() => {
     switch (filter.type) {
       case "boolean":
-        return <SimpleSelect {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
+        return <SimpleSelectField {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
       case "date":
         return (
           <DatePicker

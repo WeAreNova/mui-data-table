@@ -1,6 +1,6 @@
 import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
 import React, { PropsWithChildren, useCallback, useContext, useMemo, useRef, useState } from "react";
-import Filter from "./Filter";
+import Filter, { InitialFilterValues } from "./Filter";
 import HeaderCell from "./HeaderCell.component";
 import TableContext, { TableState } from "./table.context";
 import type { BaseData } from "./table.types";
@@ -27,6 +27,7 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
   const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, DataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
+  const [initialFilter, setInitialFilter] = useState<InitialFilterValues<RowType> | null>(null);
 
   const topHeaderOffsetStyle = useCallback(
     () => ({ top: (topHeaderRef.current && topHeaderRef.current.offsetHeight) ?? undefined }),
@@ -38,10 +39,10 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
     [filteredTableStructure],
   );
 
-  const handleFilterClick = useCallback(
-    (target: HTMLTableCellElement) => setAnchorEl((a) => (a === target ? null : target)),
-    [],
-  );
+  const handleFilterClick = useCallback((target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>) => {
+    setAnchorEl((a) => (a === target ? null : target));
+    setInitialFilter(initialFilter);
+  }, []);
 
   return (
     <TableHead>
@@ -83,7 +84,7 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
       >
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
-            <Filter />
+            <Filter initialFilter={initialFilter} />
           </Grow>
         )}
       </Popper>

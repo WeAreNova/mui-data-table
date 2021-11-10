@@ -13,6 +13,7 @@ import {
   EditDataTypes,
   NullableDataTypes,
   NumericalObject,
+  PathType,
   PathValueType,
   Sort,
   Sorter,
@@ -288,7 +289,7 @@ export function getDataType<
 export function getPath<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
   struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
-): string {
+): PathType<RowType> {
   const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
   if (path === true || path === undefined) return struct.dataIndex!;
   return path;

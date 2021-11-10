@@ -97,7 +97,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
           ),
         )}
       </Select>
-      <FormHelperText>{helperText}</FormHelperText>
+      {Boolean(helperText) && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   );
 };

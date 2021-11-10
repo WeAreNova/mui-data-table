@@ -1,10 +1,16 @@
 import { Button, makeStyles, Paper } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
 import { createStyles } from "@material-ui/styles";
-import React, { Fragment, useCallback, useContext, useState } from "react";
-import TableContext from "../table.context";
+import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
+import TableContext, { TableState } from "../table.context";
 import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
+
+export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type">;
+
+interface FilterProps<RowType extends BaseData> {
+  initialFilter: InitialFilterValues<RowType> | null;
+}
 
 const useStyles = makeStyles(
   (theme) =>
@@ -31,21 +37,28 @@ function uniqueId() {
   return `${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
 }
 
+function getInitialFilter(initialFilter?: InitialFilterValues<any> | null) {
+  return { id: uniqueId(), ...EMPTY_FILTER, ...(initialFilter || {}) };
+}
+
 /**
  * The Filter component handles all the state and logic for the table filters.
  *
  * @component
  * @package
  */
-const Filter: React.FC = (props) => {
+const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
+  initialFilter = {} as InitialFilterValues<RowType>,
+  ...props
+}: PropsWithChildren<FilterProps<RowType>>) => {
   const classes = useStyles(props);
-  const { activeFilters, update } = useContext(TableContext);
+  const { activeFilters, update } = useContext<TableState<RowType, AllTableData>>(TableContext);
   const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>
-    activeFilters.length ? activeFilters : [{ id: uniqueId(), ...EMPTY_FILTER }],
+    activeFilters.length ? activeFilters : [getInitialFilter(initialFilter)],
   );
 
   const handleAddBlankFilter = useCallback(
-    () => setFiltersArray((currFiltersArray) => [...currFiltersArray, { id: uniqueId(), ...EMPTY_FILTER }]),
+    () => setFiltersArray((currFiltersArray) => [...currFiltersArray, getInitialFilter()]),
     [],
   );
 
@@ -58,7 +71,7 @@ const Filter: React.FC = (props) => {
       }
       setFiltersArray((currFiltersArray) => {
         const updatedArray = removePredicate(currFiltersArray);
-        return updatedArray.length ? updatedArray : [{ id: uniqueId(), ...EMPTY_FILTER }];
+        return updatedArray.length ? updatedArray : [getInitialFilter()];
       });
     },
     [update],
@@ -80,6 +93,12 @@ const Filter: React.FC = (props) => {
     },
     [update],
   );
+
+  useEffect(() => {
+    if (!activeFilters.length) {
+      setFiltersArray([getInitialFilter(initialFilter)]);
+    }
+  }, [activeFilters.length, initialFilter]);
 
   return (
     <Paper className={classes.root}>

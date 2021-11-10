@@ -6,16 +6,17 @@ import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
+import { InitialFilterValues } from "./Filter";
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getColumnTitle, getPath } from "./utils";
+import { getColumnTitle, getDataType, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
-interface Props<RowType extends BaseData, DataType extends RowType[]> {
+interface HeaderCellProps<RowType extends BaseData, DataType extends RowType[]> {
   id: string;
   structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>;
-  onFilterClick(target: HTMLTableCellElement): void;
+  onFilterClick(target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
   className?: string;
@@ -113,7 +114,7 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
   className,
   style,
   ...props
-}: PropsWithChildren<Props<RowType, DataType>>) => {
+}: PropsWithChildren<HeaderCellProps<RowType, DataType>>) => {
   const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update } =
     useContext<TableState<RowType, DataType>>(TableContext);
@@ -183,7 +184,12 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [className, classes, colGroupHeader, id, pinnedColumn],
   );
 
-  const handleFilterClick = useCallback(() => onFilterClick(tableCellRef.current!), [onFilterClick]);
+  const handleFilterClick = useCallback(
+    () =>
+      filterPath &&
+      onFilterClick(tableCellRef.current!, { path: filterPath, type: getDataType(structure.filterColumn, structure) }),
+    [filterPath, onFilterClick, structure],
+  );
 
   return (
     <Fragment key={id}>

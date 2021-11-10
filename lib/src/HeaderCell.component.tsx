@@ -10,7 +10,7 @@ import { InitialFilterValues } from "./Filter";
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getColumnTitle, getDataType, getPath } from "./utils";
+import { getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, DataType extends RowType[]> {
@@ -184,12 +184,15 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [className, classes, colGroupHeader, id, pinnedColumn],
   );
 
-  const handleFilterClick = useCallback(
-    () =>
-      filterPath &&
-      onFilterClick(tableCellRef.current!, { path: filterPath, type: getDataType(structure.filterColumn, structure) }),
-    [filterPath, onFilterClick, structure],
-  );
+  const handleFilterClick = useCallback(() => {
+    if (!filterPath) return;
+    const filterType = getDataType(structure.filterColumn, structure);
+    onFilterClick(tableCellRef.current!, {
+      path: filterPath,
+      type: filterType,
+      operator: getDefaultOperator(structure.filterColumn, filterType),
+    });
+  }, [filterPath, onFilterClick, structure]);
 
   return (
     <Fragment key={id}>

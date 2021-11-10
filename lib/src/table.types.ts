@@ -163,12 +163,16 @@ export interface ActionButton extends Omit<IconButtonProps, "size"> {
   onClick(): void;
 }
 
+export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
+
 export interface FilterOptions<RowType extends BaseData> {
   path?: PathValueType<RowType>;
   type?: NullableDataTypes;
+  /**
+   * The default operator.
+   */
+  defaultOperator?: OperatorValues;
 }
-
-export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
 
 export interface Operator {
   readonly value: OperatorValues;
@@ -219,10 +223,10 @@ export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | Fi
 
 export type FilterValue = string | number | Date | boolean | null;
 
-export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
+export interface ActiveFilter<RowType extends BaseData = any> {
   id: string;
   type: NonNullable<NullableDataTypes>;
-  path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
+  path: PathType<RowType>;
   value: FilterValue;
   operator: OperatorValues;
 }

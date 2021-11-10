@@ -127,6 +127,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
       ...currValues,
       path: selected?.value ?? null,
       type: selected?.type ?? null,
+      operator: selected?.defaultOperator ?? null,
       value: "",
     }));
   }, []);

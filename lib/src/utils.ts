@@ -10,9 +10,12 @@ import {
   ColumnDefinition,
   ColumnDefinitionTitle,
   DataTableErrorType,
+  DataTypes,
   EditDataTypes,
+  FilterColumn,
   NullableDataTypes,
   NumericalObject,
+  OperatorValues,
   PathType,
   PathValueType,
   Sort,
@@ -277,6 +280,33 @@ export function getDataType<
 ) {
   const dataType = (typeof value === "object" && value.type) || struct.dataType;
   return (dataType ?? "string") as NonNullable<T["type"]>;
+}
+
+const dataTypeOperatorMap: Record<DataTypes, OperatorValues> = {
+  string: "~",
+  number: "=",
+  boolean: "=",
+  date: "=",
+} as const;
+
+/**
+ * A utility function which returns the default operator for the filter.
+ *
+ * Returns `filterColumn.defaultOperator` if it is defined,
+ * else the default operator for the data type.
+ * See {@link dataTypeOperatorMap `dataTypeOperatorMap`} for the default operator for each data type.
+ *
+ * @param value the value of `filterColumn` property in the definition of the table column.
+ * @param dataType the specified data type for the filter.
+ * @returns the default operator for the filter.
+ */
+export function getDefaultOperator<RowType extends BaseData>(
+  value: FilterColumn<RowType>,
+  dataType: DataTypes,
+): OperatorValues {
+  const specifiedDefaultOperator = typeof value === "object" && value.defaultOperator;
+  if (specifiedDefaultOperator) return specifiedDefaultOperator;
+  return dataTypeOperatorMap[dataType] || "=";
 }
 
 /**

@@ -11,6 +11,7 @@ import type {
   ColumnDefinition,
   DataTypes,
   OnChangeObject,
+  OperatorValues,
   Sort,
   TableProps,
 } from "./table.types";
@@ -18,6 +19,7 @@ import {
   exportTableToCSV,
   getColumnTitle,
   getDataType,
+  getDefaultOperator,
   getFilteredData,
   getPagedData,
   getPath,
@@ -89,7 +91,7 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   update: Update;
   filteredTableStructure: ColumnDefinition<RowType, DataType>[];
   flattenedTableStructure: Array<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>;
-  filterOptions: Array<{ label: string; value: string; type: DataTypes }>;
+  filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
 }
 
 export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -379,11 +381,15 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
           ];
         })
         .filter((c) => Boolean(c.filterColumn))
-        .map((c) => ({
-          label: c.title,
-          value: getPath(c.filterColumn, c),
-          type: getDataType(c.filterColumn, c),
-        })),
+        .map((c) => {
+          const type = getDataType(c.filterColumn, c);
+          return {
+            label: c.title,
+            value: getPath(c.filterColumn, c),
+            type,
+            defaultOperator: getDefaultOperator(c.filterColumn, type),
+          };
+        }),
     [state.tableData, state.tableStructure],
   );
 

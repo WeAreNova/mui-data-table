@@ -6,7 +6,7 @@ import TableContext, { TableState } from "../table.context";
 import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
 
-export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type">;
+export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type" | "operator">;
 
 interface FilterProps<RowType extends BaseData> {
   initialFilter: InitialFilterValues<RowType> | null;

@@ -40,8 +40,11 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
   );
 
   const handleFilterClick = useCallback((target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>) => {
-    setAnchorEl((a) => (a === target ? null : target));
-    setInitialFilter(initialFilter);
+    setAnchorEl((a) => {
+      const newAnchorEl = a === target ? null : target;
+      if (newAnchorEl) setInitialFilter(initialFilter);
+      return newAnchorEl;
+    });
   }, []);
 
   return (

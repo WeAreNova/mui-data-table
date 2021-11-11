@@ -33,8 +33,10 @@ const useStyles = makeStyles(
   { name: "DataTable-Filter" },
 );
 
+let filterId = 0;
 function uniqueId() {
-  return `${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+  const id = ++filterId;
+  return Date.now() + "_" + id;
 }
 
 function getInitialFilter(initialFilter?: InitialFilterValues<any> | null) {

@@ -222,11 +222,16 @@ The value can be one of:
 ```ts
 interface FilterOptions<RowType extends BaseData> {
   path: true | string; // `true` uses the value of `dataIndex`
-  type?: "string" | "number" | "boolean" | "date" | undefined | null; // defaults to `"string"`
+  type?: "string" | "number" | "boolean" | "date" | undefined | null; // defaults to the value of the `dataType` field or `"string"` if `dataType` is not specified
+  defaultOperator?: "exists" | "!exists" | "~" | "!~" | "=" | "!=" | ">" | ">=" | "<" | "<="; // See below for the meanings of these values
 }
 ```
 
 ?> If the value is `true` or a string, then the filter type defaults to `"string"`
+
+?> `defaultOperator` is optional and can be used if there is a common use-case for a field.
+For example, `registrationDate` may commonly be queried with the `>` operator e.g. to find the most recently registered users.
+See [Filter Operators](#filter-operators) for further details on the operators.
 
 ```ts
 interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
@@ -234,6 +239,83 @@ interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType
   filterColumn?: true | string | FilterOptions<RowType>;
   ....
 }
+```
+
+##### Filter Operators
+
+Below are all the different operators for the filter, along with their `typeLabelMap` which defines which operators are available for which type(s) and the labels for each type.
+
+> When there is a `default` field in the `typeLabelMap`, that means the operator is enabled for all data types with the value being the default label.
+
+```ts
+[
+  {
+    value: "exists",
+    typeLabelMap: {
+      default: "exists",
+    },
+  },
+  {
+    value: "!exists",
+    typeLabelMap: {
+      default: "does not exist",
+    },
+  },
+  {
+    value: "~",
+    typeLabelMap: {
+      string: "contains",
+    },
+  },
+  {
+    value: "!~",
+    typeLabelMap: {
+      string: "does not contain",
+    },
+  },
+  {
+    value: "=",
+    typeLabelMap: {
+      default: "is",
+      number: "=",
+    },
+  },
+  {
+    value: "!=",
+    typeLabelMap: {
+      default: "is not",
+      number: "≠",
+    },
+  },
+  {
+    value: ">",
+    typeLabelMap: {
+      date: "is after",
+      number: ">",
+    },
+  },
+  {
+    value: ">=",
+    typeLabelMap: {
+      date: "is on or after",
+      number: "≥",
+    },
+  },
+  {
+    value: "<",
+    typeLabelMap: {
+      date: "is before",
+      number: "<",
+    },
+  },
+  {
+    value: "<=",
+    typeLabelMap: {
+      date: "is on or before",
+      number: "≤",
+    },
+  },
+];
 ```
 
 #### Editing - Optional

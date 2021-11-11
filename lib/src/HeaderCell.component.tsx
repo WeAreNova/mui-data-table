@@ -5,12 +5,12 @@ import Visibility from "@material-ui/icons/Visibility";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
+import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
 import { InitialFilterValues } from "./Filter";
 import TableContext, { TableState } from "./table.context";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
+import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, DataType extends RowType[]> {
@@ -184,15 +184,20 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [className, classes, colGroupHeader, id, pinnedColumn],
   );
 
-  const handleFilterClick = useCallback(() => {
-    if (!filterPath) return;
-    const filterType = getDataType(structure.filterColumn, structure);
-    onFilterClick(tableCellRef.current!, {
-      path: filterPath,
-      type: filterType,
-      operator: getDefaultOperator(structure.filterColumn, filterType),
-    });
-  }, [filterPath, onFilterClick, structure]);
+  const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    (e) => {
+      if (!filterPath) return;
+      e.stopPropagation();
+      dispatchTableEvent("cancelEdit");
+      const filterType = getDataType(structure.filterColumn, structure);
+      onFilterClick(tableCellRef.current!, {
+        path: filterPath,
+        type: filterType,
+        operator: getDefaultOperator(structure.filterColumn, filterType),
+      });
+    },
+    [filterPath, onFilterClick, structure],
+  );
 
   return (
     <Fragment key={id}>

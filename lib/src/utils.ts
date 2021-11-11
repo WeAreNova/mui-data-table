@@ -23,13 +23,16 @@ import {
   TableCellAlign,
 } from "./table.types";
 
+const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
+
 /**
  * A function to dispatch a custom Data Table event.
  *
  * @param event the custom event to dispatch.
  */
-export function dispatchTableEvent(event: "cancelEdit") {
-  return document.dispatchEvent(new CustomEvent(event));
+export function dispatchTableEvent(event?: typeof TABLE_EVENTS[number]) {
+  if (event && event !== "*") return document.dispatchEvent(new CustomEvent(event));
+  TABLE_EVENTS.forEach((e) => document.dispatchEvent(new CustomEvent(e)));
 }
 
 /**

@@ -1,5 +1,5 @@
 import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
-import React, { PropsWithChildren, useCallback, useContext, useMemo, useRef, useState } from "react";
+import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Filter, { InitialFilterValues } from "./Filter";
 import HeaderCell from "./HeaderCell.component";
 import TableContext, { TableState } from "./table.context";
@@ -40,12 +40,19 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
   );
 
   const handleFilterClick = useCallback((target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>) => {
-    setAnchorEl((a) => {
-      const newAnchorEl = a === target ? null : target;
+    setAnchorEl((currentTarget) => {
+      const newAnchorEl = currentTarget === target ? null : target;
       if (newAnchorEl) setInitialFilter(initialFilter);
       return newAnchorEl;
     });
   }, []);
+
+  const handleFilterClose = useCallback(() => setAnchorEl(null), []);
+
+  useEffect(() => {
+    document.addEventListener("closeFilter", handleFilterClose);
+    return () => document.removeEventListener("closeFilter", handleFilterClose);
+  }, [handleFilterClose]);
 
   return (
     <TableHead>
@@ -87,7 +94,7 @@ const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
       >
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
-            <Filter initialFilter={initialFilter} />
+            <Filter initialFilter={initialFilter} onClose={handleFilterClose} />
           </Grow>
         )}
       </Popper>

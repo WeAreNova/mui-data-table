@@ -1,4 +1,4 @@
-import { Button, makeStyles, Paper } from "@material-ui/core";
+import { Button, ClickAwayListener, makeStyles, Paper } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
 import { createStyles } from "@material-ui/styles";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
@@ -10,6 +10,7 @@ export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<Ro
 
 interface FilterProps<RowType extends BaseData> {
   initialFilter: InitialFilterValues<RowType> | null;
+  onClose(): void;
 }
 
 const useStyles = makeStyles(
@@ -51,6 +52,7 @@ function getInitialFilter(initialFilter?: InitialFilterValues<any> | null) {
  */
 const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   initialFilter = {} as InitialFilterValues<RowType>,
+  onClose,
   ...props
 }: PropsWithChildren<FilterProps<RowType>>) => {
   const classes = useStyles(props);
@@ -103,34 +105,36 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   }, [activeFilters.length, initialFilter]);
 
   return (
-    <Paper className={classes.root}>
-      <div>
-        {filtersArray.map((filter, index) => (
-          <Fragment key={filter.id}>
-            {Boolean(index) && <br />}
-            <FilterRow
-              name={`filter-${index}`}
-              value={filter}
-              last={filtersArray.length === 1}
-              onSubmit={handleFilterSubmit}
-              onRemove={handleRemoveFilter}
-            />
-          </Fragment>
-        ))}
-      </div>
-      <div className={classes.filterFooter}>
-        <Button
-          onClick={handleAddBlankFilter}
-          data-testid="addFilter"
-          startIcon={<Add />}
-          size="small"
-          variant="text"
-          color="inherit"
-        >
-          Add filter
-        </Button>
-      </div>
-    </Paper>
+    <ClickAwayListener onClickAway={onClose}>
+      <Paper className={classes.root}>
+        <div>
+          {filtersArray.map((filter, index) => (
+            <Fragment key={filter.id}>
+              {Boolean(index) && <br />}
+              <FilterRow
+                name={`filter-${index}`}
+                value={filter}
+                last={filtersArray.length === 1}
+                onSubmit={handleFilterSubmit}
+                onRemove={handleRemoveFilter}
+              />
+            </Fragment>
+          ))}
+        </div>
+        <div className={classes.filterFooter}>
+          <Button
+            onClick={handleAddBlankFilter}
+            data-testid="addFilter"
+            startIcon={<Add />}
+            size="small"
+            variant="text"
+            color="inherit"
+          >
+            Add filter
+          </Button>
+        </div>
+      </Paper>
+    </ClickAwayListener>
   );
 };
 

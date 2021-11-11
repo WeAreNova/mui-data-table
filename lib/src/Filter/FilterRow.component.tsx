@@ -76,7 +76,7 @@ const getOperatorOptions = (type: Exclude<NullableDataTypes, undefined | null> |
  * @component
  * @package
  */
-const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
+const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   value,
   last,
   onSubmit,
@@ -85,7 +85,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   ...props
 }: PropsWithChildren<Props>) => {
   const classes = useStyles(props);
-  const { filterOptions } = useContext<TableState<RowType, DataType>>(TableContext);
+  const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
 

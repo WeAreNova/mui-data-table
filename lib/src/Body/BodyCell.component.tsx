@@ -33,9 +33,9 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
+const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
   const classes = useStyles(props);
-  const { structure, data, rowId, index } = useContext<BodyState<RowType, DataType>>(BodyContext);
+  const { structure, data, rowId, index } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
   const {
     rowClick,
     hiddenColumns,
@@ -47,7 +47,7 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: P
     loading,
     update,
     editable: tableEditable,
-  } = useContext<TableState<RowType, DataType>>(TableContext);
+  } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const [editMode, setEditMode] = useState(false);
 
   const value = useMemo(() => getValue(structure, data, rowId, index), [data, index, rowId, structure]);

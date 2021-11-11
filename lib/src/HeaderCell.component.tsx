@@ -13,9 +13,9 @@ import TableCell from "./TableCell.component";
 import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
-interface HeaderCellProps<RowType extends BaseData, DataType extends RowType[]> {
+interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;
-  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>;
+  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
   onFilterClick(target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
@@ -105,7 +105,7 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowType[]>({
+const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>({
   id,
   structure,
   onFilterClick,
@@ -114,10 +114,10 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
   className,
   style,
   ...props
-}: PropsWithChildren<HeaderCellProps<RowType, DataType>>) => {
+}: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+    useContext<TableState<RowType, AllDataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);

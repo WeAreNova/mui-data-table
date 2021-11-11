@@ -20,11 +20,11 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const HeaderRow = <RowType extends BaseData, DataType extends RowType[]>(
+const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
   props: PropsWithChildren<Record<string, never>>,
 ) => {
   const classes = useStyles(props);
-  const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, DataType>>(TableContext);
+  const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
   const [initialFilter, setInitialFilter] = useState<InitialFilterValues<RowType> | null>(null);

@@ -228,15 +228,15 @@ export function getFilteredData<RowType extends BaseData>(
  * @param tableStructure the complete structure definition of the table
  * @returns the sorted data
  */
-export function getSortedData<RowType extends BaseData, DataType extends RowType[]>(
+export function getSortedData<RowType extends BaseData, AllDataType extends RowType[]>(
   data: RowType[],
   sort: Sort,
-  tableStructure?: ColumnDefinition<RowType, DataType>[],
+  tableStructure?: ColumnDefinition<RowType, AllDataType>[],
 ): RowType[] {
   if (!sort.key || !sort.direction) return data;
 
   const sortColumn = tableStructure
-    ?.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>((c) => [
+    ?.flatMap<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>((c) => [
       c,
       ...(c.colGroup ?? []),
     ])
@@ -320,9 +320,9 @@ export function getDefaultOperator<RowType extends BaseData>(
  * @param struct the definition of the table column
  * @returns the path
  */
-export function getPath<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+export function getPath<RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
-  struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
 ): PathType<RowType> {
   const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
   if (path === true || path === undefined) return struct.dataIndex!;
@@ -385,8 +385,8 @@ export function getColumnTitle<T extends BaseData[]>(title: ColumnDefinitionTitl
  * @param isCSVExport whether the function is being invoked as part of the CSV export
  * @returns the rendered value
  */
-export function getValue<T extends BaseData, DataType extends T[] = T[]>(
-  struct: ColumnDefinition<T, DataType> | ColGroupDefinition<T, DataType>,
+export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
+  struct: ColumnDefinition<T, AllDataType> | ColGroupDefinition<T, AllDataType>,
   data: T,
   rowId: string,
   dataArrayIndex: number,
@@ -424,8 +424,8 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
  * @param index the index of the row in the table data array
  * @returns the cell alignment
  */
-export function getTableCellAlignment<RowType extends BaseData, DataType extends RowType[]>(
-  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+export function getTableCellAlignment<RowType extends BaseData, AllDataType extends RowType[]>(
+  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
   data?: RowType,
   index = 0,
 ): TableCellAlign {
@@ -444,10 +444,10 @@ export function getTableCellAlignment<RowType extends BaseData, DataType extends
  */
 export async function exportTableToCSV<
   RowType extends BaseData,
-  DataType extends RowType[] = RowType[],
-  TableColumn extends ColumnDefinition<RowType, DataType> = ColumnDefinition<RowType, DataType>,
->(tableData: DataType, tableStructure: TableColumn[] = []) {
-  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, DataType>) => {
+  AllDataType extends RowType[] = RowType[],
+  TableColumn extends ColumnDefinition<RowType, AllDataType> = ColumnDefinition<RowType, AllDataType>,
+>(tableData: AllDataType, tableStructure: TableColumn[] = []) {
+  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, AllDataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
   };

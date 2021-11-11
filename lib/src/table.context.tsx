@@ -55,9 +55,9 @@ type Update = {
   (value: TableAction): void;
 };
 
-interface BaseTableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
+interface BaseTableState<RowType extends BaseData = BaseData, AllDataType extends RowType[] = RowType[]>
   extends Pick<
-    TableProps<RowType, DataType>,
+    TableProps<RowType, AllDataType>,
     | "tableData"
     | "tableStructure"
     | "onChange"
@@ -83,14 +83,14 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
   editable: false | "cells" | "rows";
 }
 
-export interface TableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
-  extends Omit<BaseTableState<RowType, DataType>, "onChange"> {
+export interface TableState<RowType extends BaseData = BaseData, AllDataType extends RowType[] = RowType[]>
+  extends Omit<BaseTableState<RowType, AllDataType>, "onChange"> {
   count: number;
-  onChange?(queryParams?: OnChangeObject): Promise<DataType>;
-  allTableData: DataType;
+  onChange?(queryParams?: OnChangeObject): Promise<AllDataType>;
+  allTableData: AllDataType;
   update: Update;
-  filteredTableStructure: ColumnDefinition<RowType, DataType>[];
-  flattenedTableStructure: Array<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>;
+  filteredTableStructure: ColumnDefinition<RowType, AllDataType>[];
+  flattenedTableStructure: Array<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>;
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
 }
 
@@ -114,8 +114,8 @@ export type TableContextValue<RowType extends BaseData, AllDataType extends RowT
     >
   >;
 
-type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reducer<
-  BaseTableState<RowType, DataType>,
+type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Reducer<
+  BaseTableState<RowType, AllDataType>,
   TableAction
 >;
 
@@ -140,11 +140,11 @@ const reducer: TableReducer<any, any> = (state, action) =>
  *
  * @package
  */
-export const TableProvider = <RowType extends BaseData, DataType extends RowType[]>({
+export const TableProvider = <RowType extends BaseData, AllDataType extends RowType[]>({
   value: { defaultSort, rowsPerPageDefault, csvFilename, count, editable, ...value },
   ...props
 }: PropsWithChildren<{
-  value: TableContextValue<RowType, DataType>;
+  value: TableContextValue<RowType, AllDataType>;
 }>) => {
   const dateUtils = useUtils();
   const stored = useStoredValues(defaultSort, rowsPerPageDefault);
@@ -165,7 +165,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     [editable, isMacOS, stored, value],
   );
 
-  const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);
+  const [state, dispatch] = useReducer<TableReducer<RowType, AllDataType>>(reducer, tableState);
   const update = useMemo(() => {
     function updateFunction(value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
       dispatch(
@@ -297,7 +297,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     );
   }, [noRowsSelected, tableData, update]);
 
-  const filteredTableStructure = useMemo<ColumnDefinition<RowType, DataType>[]>(
+  const filteredTableStructure = useMemo<ColumnDefinition<RowType, AllDataType>[]>(
     () => [
       ...(!tableState.rowsSelectable
         ? []
@@ -354,7 +354,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
 
   const flattenedTableStructure = useMemo(
     () =>
-      filteredTableStructure.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>(
+      filteredTableStructure.flatMap<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>(
         (struct) =>
           !struct.colGroup || state.hiddenColumns[struct.key]
             ? struct

@@ -10,7 +10,7 @@ export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<Ro
 
 interface FilterProps<RowType extends BaseData> {
   initialFilter: InitialFilterValues<RowType> | null;
-  onClose(): void;
+  onClose(e: React.MouseEvent<Document, MouseEvent>): void;
 }
 
 const useStyles = makeStyles(
@@ -105,7 +105,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   }, [activeFilters.length, initialFilter]);
 
   return (
-    <ClickAwayListener onClickAway={onClose}>
+    <ClickAwayListener onClickAway={onClose} mouseEvent="onMouseUp" touchEvent="onTouchEnd">
       <Paper className={classes.root}>
         <div>
           {filtersArray.map((filter, index) => (

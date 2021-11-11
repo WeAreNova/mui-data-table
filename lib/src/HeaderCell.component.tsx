@@ -199,6 +199,8 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [filterPath, onFilterClick, structure],
   );
 
+  const stopPropagation = useCallback((e: React.MouseEvent | React.TouchEvent) => e.stopPropagation(), []);
+
   return (
     <Fragment key={id}>
       <Tooltip title={hidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
@@ -259,6 +261,8 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
               {filterEnabled && (
                 <IconButton
                   onClick={handleFilterClick}
+                  onMouseUp={stopPropagation}
+                  onTouchEnd={stopPropagation}
                   data-testid="tableFilterButton"
                   color={filterActive ? "primary" : "default"}
                   size="small"

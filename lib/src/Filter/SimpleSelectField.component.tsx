@@ -47,6 +47,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   className,
   error,
   helperText,
+  fullWidth,
   disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
@@ -75,7 +76,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   );
 
   return (
-    <FormControl fullWidth={selectProps.fullWidth} error={error} className={className}>
+    <FormControl fullWidth={fullWidth} error={error} className={className}>
       <Select
         {...selectProps}
         {...(value === undefined ? { defaultValue: val } : { value: val })}

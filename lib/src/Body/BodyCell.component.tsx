@@ -1,19 +1,30 @@
-import { Tooltip } from "@material-ui/core";
+import { createStyles, makeStyles, Tooltip } from "@material-ui/core";
+import clsx from "clsx";
 import { get } from "dot-prop";
-import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useContext, useMemo } from "react";
-import TableContext, { TableState } from "./table.context";
-import type { BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
-import TableCell from "./TableCell.component";
-import { findIndexFrom, findLastIndexFrom, getRowId, getValue } from "./utils";
-import { ColumnDefinitionPropType, RowDataPropType } from "./_propTypes";
+import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useState } from "react";
+import TableContext, { TableState } from "../table.context";
+import type { BaseData } from "../table.types";
+import TableCell from "../TableCell.component";
+import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import BodyContext, { BodyState } from "./body.context";
+import EditCell from "./EditCell.component";
 
-interface BodyCellProps<RowType extends BaseData, DataType extends RowType[]> {
-  index: number;
-  rowId: string;
-  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>;
-  data: RowType;
-}
+interface BodyCellProps {}
+
+const useStyles = makeStyles(
+  (theme) =>
+    createStyles({
+      editable: {
+        "& > div": {
+          padding: theme.spacing(0.5),
+          "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+          },
+        },
+      },
+    }),
+  { name: "DataTable-BodyCell" },
+);
 
 /**
  * The BodyCell component is a wrapper around the custom TableCell component which manages the rendering of the
@@ -22,14 +33,22 @@ interface BodyCellProps<RowType extends BaseData, DataType extends RowType[]> {
  * @component
  * @package
  */
-const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
-  index,
-  rowId,
-  structure,
-  data,
-}: PropsWithChildren<BodyCellProps<RowType, DataType>>) => {
-  const { rowClick, hiddenColumns, pinnedColumn, tableData, rowsSelectable, selectedRows, isMacOS, loading, update } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+const BodyCell = <RowType extends BaseData, DataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
+  const classes = useStyles(props);
+  const { structure, data, rowId, index } = useContext<BodyState<RowType, DataType>>(BodyContext);
+  const {
+    rowClick,
+    hiddenColumns,
+    pinnedColumn,
+    tableData,
+    rowsSelectable,
+    selectedRows,
+    isMacOS,
+    loading,
+    update,
+    editable: tableEditable,
+  } = useContext<TableState<RowType, DataType>>(TableContext);
+  const [editMode, setEditMode] = useState(false);
 
   const value = useMemo(() => getValue(structure, data, rowId, index), [data, index, rowId, structure]);
   const tooltipTitle = useMemo(() => (typeof value === "string" && value.length > 20 ? value : ""), [value]);
@@ -57,6 +76,7 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
   const handleRowClick = useCallback(
     (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>) => {
       e.stopPropagation();
+      dispatchTableEvent("cancelEdit");
       if (loading) return;
       if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
         const updatedSelectedRows = { ...selectedRows };
@@ -95,6 +115,34 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
     [loading, rowsSelectable, isMacOS, rowClick, data, selectedRows, rowId, rowSpan, update, tableData, index],
   );
 
+  const bodyCellClasses = useMemo(
+    () =>
+      clsx({
+        [classes.editable]: Boolean(tableEditable && structure.editable),
+      }),
+    [classes.editable, structure.editable, tableEditable],
+  );
+
+  const handleEdit = useCallback<MouseEventHandler<HTMLDivElement>>(
+    (e) => {
+      e.stopPropagation();
+      if (!tableEditable || !structure.editable || editMode) return;
+      setEditMode(true);
+    },
+    [editMode, structure.editable, tableEditable],
+  );
+
+  const handleEditCancel = useCallback(() => setEditMode(false), []);
+  const handleEditClick = useCallback<MouseEventHandler<HTMLDivElement>>(
+    (e) => {
+      if (!tableEditable || !structure.editable) return;
+      e.stopPropagation();
+      if (editMode) return;
+      dispatchTableEvent("cancelEdit");
+    },
+    [editMode, structure.editable, tableEditable],
+  );
+
   return (
     <TableCell
       key={structure.key}
@@ -104,22 +152,21 @@ const BodyCell = <RowType extends BaseData, DataType extends RowType[]>({
       maxWidth={structure.limitWidth}
       rowSpan={rowSpan}
       align={structure.align}
+      className={bodyCellClasses}
     >
-      {structure.limitWidth ? (
-        <Tooltip title={tooltipTitle}>
-          <span>{value}</span>
-        </Tooltip>
-      ) : (
-        value
-      )}
+      <div onClick={handleEditClick} onDoubleClick={handleEdit}>
+        {editMode ? (
+          <EditCell cancelEdit={handleEditCancel} />
+        ) : structure.limitWidth ? (
+          <Tooltip title={tooltipTitle}>
+            <span>{value}</span>
+          </Tooltip>
+        ) : (
+          value
+        )}
+      </div>
     </TableCell>
   );
-};
-(BodyCell as React.FC).propTypes = {
-  index: PropTypes.number.isRequired,
-  rowId: PropTypes.string.isRequired,
-  structure: ColumnDefinitionPropType.isRequired,
-  data: RowDataPropType.isRequired,
 };
 
 export default BodyCell;

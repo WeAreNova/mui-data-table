@@ -8,8 +8,6 @@
   - [Peer Dependencies](/getting-started#peer-dependencies)
   - [Usage](/getting-started#usage)
 
-- [**Columns**](/columns#column-definitions)
-
 - [**Rendering**](/rendering)
 
   - [Path-to-Data Render](/columns#path-render-optional)
@@ -17,4 +15,28 @@
   - [Numerical Render](/columns#numerical-render-optional)
 
 - [**Features**](/features#features)
+
   - [CSV Export](/features#csv-export)
+  - [Editing](/features#editing)
+    - [Validation](/features#validation)
+    - [Cell Options](/columns#editing-optional)
+
+- [**Columns**](/columns#column-definitions)
+  - [Options](/columns#the-options)
+    - [Key - Required](/columns#key-required)
+    - [Title - Required](/columns#title-required)
+    - [Path Render - Optional](/columns#path-render-optional)
+    - [Custom Render - Optional](/columns#custom-render-optional)
+    - [Numerical Render - Optional](/columns#numerical-render-optional)
+    - [Data Type - Optional](/columns#data-type-optional)
+    - [Footer - Optional](/columns#footer-optional)
+    - [Grouping - Optional](/columns#grouping-optional)
+    - [Alignment - Optional](/columns#alignment-optional)
+    - [Limit Width - Optional](/columns#limit-width-optional)
+    - [Row Span - Optional](/columns#row-span-optional)
+    - [Sorting - Optional](/columns#sorting-optional)
+    - [Filtering - Optional](/columns#filtering-optional)
+    - [Editing - Optional](/columns#editing-optional)
+    - [Pinnable - Optional](/columns#pinnable-optional)
+    - [Header Action Buttons - Optional](/columns#header-action-buttons-optional)
+    - [Column Groups - Optional](/columns#column-groups-optional)

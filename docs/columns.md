@@ -13,7 +13,7 @@ The Column Definition has many fields you can make use of.
 The `key` field is the unique identifier for the column.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   key: string;
   ....
@@ -30,9 +30,9 @@ The **required** `title` field is used to specify the column header title and ha
 ?> If the value is a function, then it is passed all the table's data as an argument.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
-  title: Exclude<ReactNode, number | boolean | null | undefined> | (data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>;
+  title: Exclude<ReactNode, number | boolean | null | undefined> | (data: AllDataType) => Exclude<ReactNode, number | boolean | null | undefined>;
   ....
 }
 ```
@@ -42,7 +42,7 @@ interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]>
 The `dataIndex` field is used to specify the path to the data which is to be rendered using dot-notation.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   dataIndex?: string;
   ....
@@ -63,7 +63,7 @@ Its type is a function which is given:
 and returns a `ReactNode`.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   render?(data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number): ReactNode;
   ....
@@ -91,9 +91,21 @@ interface NumericalObject<RowType extends BaseData = BaseData> {
 ```
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   numerical?: true | string | NumericalObject<RowType>;
+  ....
+}
+```
+
+#### Data Type - Optional
+
+The `dataType` field is used the specify the type of the data. This field can be used as the default for [`filterColumn.type`](#filtering-optional) and [`editable.type`](#editing-optional).
+
+```ts
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
+  ....
+  dataType?: "string" | "number" | "boolean" | "date";
   ....
 }
 ```
@@ -103,9 +115,9 @@ interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]>
 The `footer` field is used to render a column footer and is passed all the table's data and returns a `ReactNode`.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
-  footer?(tableData: DataType): ReactNode;
+  footer?(tableData: AllDataType): ReactNode;
   ....
 }
 ```
@@ -115,7 +127,7 @@ interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]>
 The `groupBy` field is a dot-notation path that indicates that this cell should span the rows which have the same value as this, using strict equality `===`, until a row with a different value is found.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   groupBy?: string;
   ....
@@ -133,7 +145,7 @@ If `align` is unspecified, then the data table attempts to work out the alignmen
 - else align `"left"`
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   align?: "left" | "center" | "right";
   ....
@@ -150,7 +162,7 @@ There are currently two possible values being:
 - `sm` which limits the width to `6em`
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   limitWidth?: "lg" | "sm";
   ....
@@ -168,7 +180,7 @@ The function is passed three arguments:
 - all the table's data
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   rowSpan?(data: RowType, index: number, arr: RowType[]): number;
   ....
@@ -190,7 +202,7 @@ The value can be one of:
 !> The sorter function value is only available when the sorting is done client-side.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   sorter?: true | string | (a: RowType, b: RowType) => number;
   ....
@@ -209,7 +221,7 @@ The value can be one of:
 
 ```ts
 interface FilterOptions<RowType extends BaseData> {
-  path?: true | string; // `true` uses the value of `dataIndex`
+  path: true | string; // `true` uses the value of `dataIndex`
   type?: "string" | "number" | "boolean" | "date" | undefined | null; // defaults to `"string"`
 }
 ```
@@ -217,9 +229,65 @@ interface FilterOptions<RowType extends BaseData> {
 ?> If the value is `true` or a string, then the filter type defaults to `"string"`
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   filterColumn?: true | string | FilterOptions<RowType>;
+  ....
+}
+```
+
+#### Editing - Optional
+
+The `editable` field is used to specify the edit options for the cell.
+
+The value can be one of:
+
+- `true` which defaults to the path specified in the `dataIndex` field
+- a string specifying the path to the data to be filtered
+- an object with the type:
+
+```ts
+interface EditComponentProps {
+  defaultValue: unknown;
+  onChange: Dispatch<unknown>;
+  error: boolean;
+  helperText: string | null;
+}
+
+export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
+  path: PathValueType<RowType>;
+  /**
+   * The data type. Used to determine the type of the input.
+   *
+   * If not specified, the type is inferred from the `dataType` field.
+   */
+  type?: "string" | "number" | "boolean" | "date" | "select";
+  /**
+   * Custom edit component.
+   */
+  component?: (props: EditComponentProps) => ReactNode;
+  /**
+   * Validation for the input value.
+   *
+   * @param value the input value.
+   * @returns the value, post-validation.
+   * @throws an error if the value is invalid.
+   * If you want to display an error message as helper text, throw an error with a message.
+   */
+  validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
+  /**
+   * Options for the select component when `type` is `"select"`
+   */
+  selectOptions?: SelectFieldOption[];
+}
+```
+
+?> An unspecified type defaults to the value of the `dataType` field. This includes if `editable` is `true` or a `string`.
+
+```ts
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
+  ....
+  editable?: true | string | EditableOptions<RowType, AllDataType>;
   ....
 }
 ```
@@ -228,10 +296,10 @@ interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]>
 
 The `pinnable` field is used to specify whether the column is able to be "pinned" and appear on top of other columns as you scroll. This displays a header action button which freezes the column.
 
-!> This uses the CSS `sticky` property which may not be fully supported in all browsers. See `caniuse` [here](https://caniuse.com/css-sticky) to see if it is supported for you target browser(s).
+!> This uses the CSS `sticky` property which may not be fully supported in all browsers. See `caniuse` [here](https://caniuse.com/css-sticky) to check if it is supported for your target browser(s).
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   pinnable?: boolean;
   ....
@@ -255,7 +323,7 @@ interface ActionButton extends Omit<IconButtonProps, "size"> {
 ```
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
   actionButtons?: ActionButton[];
   ....
@@ -269,8 +337,8 @@ The `colGroup` field is used to define the nested columns to this column. This i
 The value of `colGroup` is an array of `ColGroupDefinition` objects. Which has the type:
 
 ```ts
-type ColGroupDefinition<RowType extends BaseData, DataType extends RowType[]> = Omit<
-  ColumnDefinition<RowType, DataType>,
+type ColGroupDefinition<RowType extends BaseData, AllDataType extends RowType[]> = Omit<
+  ColumnDefinition<RowType, AllDataType>,
   "colGroup"
 >;
 ```
@@ -278,9 +346,9 @@ type ColGroupDefinition<RowType extends BaseData, DataType extends RowType[]> = 
 ?> In other words, `ColGroupDefinition` has the same type as `ColumnDefinition` but without the `colGroup` field. So, columns can only be nested to a depth of `1`.
 
 ```ts
-interface ColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   ....
-  colGroup: ColGroupDefinition<RowType, DataType>[];
+  colGroup: ColGroupDefinition<RowType, AllDataType>[];
   ....
 }
 ```

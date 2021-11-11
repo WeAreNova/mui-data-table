@@ -3,19 +3,24 @@ import { useUtils } from "@material-ui/pickers";
 import { get } from "dot-prop";
 import fileDownload from "js-file-download";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
+import useStoredValues from "./hooks/useStoredValues.hook";
 import type {
   ActiveFilters,
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  DataTypes,
   OnChangeObject,
   Sort,
   TableProps,
 } from "./table.types";
 import {
   exportTableToCSV,
+  getColumnTitle,
+  getDataType,
   getFilteredData,
   getPagedData,
+  getPath,
   getRowId,
   getSortedData,
   getTableCellAlignment,
@@ -30,6 +35,7 @@ const DYNAMIC_STATE = [
   "pinnedColumn",
   "selectedRows",
   "loading",
+  "tableData",
 ] as const;
 
 type DynamicState = Pick<BaseTableState, typeof DYNAMIC_STATE[number]>;
@@ -60,6 +66,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
     | "rowsPerPageDefault"
     | "rowOptions"
     | "rowClick"
+    | "onEdit"
   > {
   sort: Sort;
   rowsPerPage: number | undefined;
@@ -70,6 +77,8 @@ interface BaseTableState<RowType extends BaseData = BaseData, DataType extends R
   selectedRows: { [rowId: string]: RowType };
   loading: boolean;
   exportToCSV?(): Promise<void>;
+  isMacOS: boolean;
+  editable: false | "cells" | "rows";
 }
 
 export interface TableState<RowType extends BaseData = BaseData, DataType extends RowType[] = RowType[]>
@@ -80,26 +89,28 @@ export interface TableState<RowType extends BaseData = BaseData, DataType extend
   update: Update;
   filteredTableStructure: ColumnDefinition<RowType, DataType>[];
   flattenedTableStructure: Array<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>;
-  isMacOS: boolean;
+  filterOptions: Array<{ label: string; value: string; type: DataTypes }>;
 }
 
-export type TableContextValue<RowType extends BaseData, DataType extends RowType[]> = Pick<
-  TableProps<RowType, DataType>,
+export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
+  TableProps<RowType, AllDataType>,
   | "count"
-  | "csvFilename"
   | "disablePagination"
-  | "enableHiddenColumns"
   | "onChange"
   | "rowClick"
   | "rowOptions"
-  | "rowsPerPageDefault"
   | "tableData"
   | "tableStructure"
-  | "rowsSelectable"
   | "onSelectedRowsChange"
   | "selectGroupBy"
-  | "defaultSort"
->;
+  | "onEdit"
+> &
+  Required<
+    Pick<
+      TableProps<RowType, AllDataType>,
+      "csvFilename" | "enableHiddenColumns" | "rowsPerPageDefault" | "rowsSelectable" | "defaultSort" | "editable"
+    >
+  >;
 
 type TableReducer<RowType extends BaseData, DataType extends RowType[]> = Reducer<
   BaseTableState<RowType, DataType>,
@@ -114,13 +125,12 @@ const reducer: TableReducer<any, any> = (state, action) =>
     ? { ...state, ...action(state) }
     : {
         ...state,
-        ...Object.entries(action).reduce<Partial<DynamicState>>(
-          (prev, [key, value]) => ({
+        ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
+          return {
             ...prev,
             [key]: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
-          }),
-          {} as Partial<DynamicState>,
-        ),
+          };
+        }, {} as Partial<DynamicState>),
       };
 
 /**
@@ -129,41 +139,19 @@ const reducer: TableReducer<any, any> = (state, action) =>
  * @package
  */
 export const TableProvider = <RowType extends BaseData, DataType extends RowType[]>({
-  value: { defaultSort, rowsPerPageDefault, csvFilename, count, ...value },
+  value: { defaultSort, rowsPerPageDefault, csvFilename, count, editable, ...value },
   ...props
 }: PropsWithChildren<{
   value: TableContextValue<RowType, DataType>;
 }>) => {
-  const pickersUtils = useUtils();
-  const stored = useMemo(() => {
-    const defaultStored = {
-      sort: defaultSort!,
-      rowsPerPage: rowsPerPageDefault!,
-      activeFilters: [] as ActiveFilters,
-    };
-    if (typeof window === "undefined") return defaultStored;
-    const sessionChangeObjStr = sessionStorage.getItem(window.location.pathname);
-    if (!sessionChangeObjStr) return defaultStored;
-
-    const parsed = JSON.parse(sessionChangeObjStr) as OnChangeObject;
-
-    const filters = parsed.columnFilters || defaultStored.activeFilters;
-    return {
-      sort:
-        parsed.sortKey && parsed.sortDirection
-          ? { key: parsed.sortKey, direction: parsed.sortDirection }
-          : defaultStored.sort,
-      rowsPerPage: parsed.limit || defaultStored.rowsPerPage,
-      activeFilters: filters,
-    };
-  }, [defaultSort, rowsPerPageDefault]);
-
+  const dateUtils = useUtils();
+  const stored = useStoredValues(defaultSort, rowsPerPageDefault);
   const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
-
   const tableState = useMemo(
     () => ({
       ...value,
       ...stored,
+      editable: editable === true ? "cells" : editable,
       loading: false,
       page: 0,
       hideColumns: false,
@@ -172,13 +160,12 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
       selectedRows: {},
       isMacOS,
     }),
-    [isMacOS, stored, value],
+    [editable, isMacOS, stored, value],
   );
 
   const [state, dispatch] = useReducer<TableReducer<RowType, DataType>>(reducer, tableState);
-
   const update = useMemo(() => {
-    const updateFunction = (value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) => {
+    function updateFunction(value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
       dispatch(
         Object.entries(value).reduce(
           (prev, [key, value]) =>
@@ -186,7 +173,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
           {},
         ),
       );
-    };
+    }
     DYNAMIC_STATE.forEach((curr) => {
       (updateFunction as any)[curr] = (
         arg: BaseTableState[typeof curr] | ((currState: BaseTableState[typeof curr]) => BaseTableState[typeof curr]),
@@ -194,6 +181,10 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     });
     return updateFunction as Update;
   }, []);
+
+  useEffect(() => {
+    update.tableData(tableState.tableData);
+  }, [tableState.tableData, update]);
 
   const onChangeObject = useMemo<OnChangeObject>(
     () => ({
@@ -220,7 +211,6 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   const onChange = useCallback(
     async (queryParams = {}, isExport = false) => {
       if (!tableState.onChange) return;
-      dispatch({ loading: true });
       if (!isExport) update.loading(true);
       const data = await tableState.onChange!({ ...queryParams }, isExport);
       if (!isExport) update.loading(false);
@@ -230,15 +220,14 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
   );
 
   const handleChange = useMemo(() => tableState.onChange && debounce(onChange, 250), [onChange, tableState.onChange]);
-
   useEffect(() => {
     handleChange?.(onChangeObject);
   }, [handleChange, onChangeObject]);
 
   const [tableData, tableCount] = useMemo(() => {
     const numberCount = count && Number(count);
-    if (tableState.onChange) return [tableState.tableData, numberCount || tableState.tableData.length];
-    const filteredData = getFilteredData(tableState.tableData, state.activeFilters, pickersUtils);
+    if (tableState.onChange) return [state.tableData, numberCount || state.tableData.length];
+    const filteredData = getFilteredData(state.tableData, state.activeFilters, dateUtils);
     const sortedData = getSortedData(filteredData, state.sort, tableState.tableStructure);
     const pagedData = tableState.disablePagination
       ? sortedData
@@ -246,19 +235,19 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     return [pagedData, numberCount || filteredData.length];
   }, [
     count,
-    pickersUtils,
+    dateUtils,
     state.activeFilters,
     state.page,
     state.rowsPerPage,
     state.sort,
+    state.tableData,
     tableState.disablePagination,
     tableState.onChange,
-    tableState.tableData,
     tableState.tableStructure,
   ]);
 
   const exportToCSV = useCallback(async () => {
-    let data = tableState.tableData;
+    let data = state.tableData;
     if (tableState.onChange) {
       data = await onChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
       await onChange(onChangeObject);
@@ -266,7 +255,7 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     const csvString = await exportTableToCSV(data, tableState.tableStructure as any);
     const filename = csvFilename!.endsWith(".csv") ? csvFilename! : `${csvFilename}.csv`;
     fileDownload(new Blob([csvString]), filename, "text/csv;charset=utf-16;");
-  }, [csvFilename, onChange, onChangeObject, tableState.onChange, tableState.tableData, tableState.tableStructure]);
+  }, [csvFilename, onChange, onChangeObject, tableState.onChange, state.tableData, tableState.tableStructure]);
 
   const handleSelectedChange = useCallback(
     (data: RowType, rowId: string, dataArrayIndex: number, e: React.MouseEvent) => {
@@ -376,29 +365,52 @@ export const TableProvider = <RowType extends BaseData, DataType extends RowType
     [filteredTableStructure, state.hiddenColumns],
   );
 
+  const filterOptions = useMemo(
+    () =>
+      state.tableStructure
+        .flatMap((c) => {
+          const title = getColumnTitle(c.title, state.tableData);
+          return [
+            { ...c, title },
+            ...(c.colGroup?.map((cg) => {
+              const nestedTitle = getColumnTitle(cg.title, state.tableData);
+              return { ...cg, title: `${title} - ${nestedTitle}` };
+            }) || []),
+          ];
+        })
+        .filter((c) => Boolean(c.filterColumn))
+        .map((c) => ({
+          label: c.title,
+          value: getPath(c.filterColumn, c),
+          type: getDataType(c.filterColumn, c),
+        })),
+    [state.tableData, state.tableStructure],
+  );
+
   const providerValue = useMemo<TableState>(
     () =>
       ({
         ...state,
         onChange: handleChange,
         tableData,
-        allTableData: tableState.tableData,
+        allTableData: state.tableData,
         count: tableCount,
         exportToCSV,
         filteredTableStructure,
         flattenedTableStructure,
         update,
-      } as unknown as TableState),
+        filterOptions,
+      } as TableState),
     [
       state,
       handleChange,
       tableData,
-      tableState.tableData,
       tableCount,
       exportToCSV,
       filteredTableStructure,
       flattenedTableStructure,
       update,
+      filterOptions,
     ],
   );
 

@@ -1,6 +1,7 @@
 import {
   createStyles,
   FormControl,
+  FormHelperText,
   makeStyles,
   MenuItem,
   Select,
@@ -17,6 +18,8 @@ export type SimpleSelectChangeHandler<T extends SelectFieldOption> = (value: T |
 interface SimpleSelectProps<T extends SelectFieldOption> extends Omit<SelectProps, "onChange"> {
   options: T[];
   onChange: SimpleSelectChangeHandler<T>;
+  helperText?: string | null;
+  disablePortal?: boolean;
 }
 
 const useStyles = makeStyles(
@@ -38,14 +41,26 @@ const useStyles = makeStyles(
 const SimpleSelectField = <T extends SelectFieldOption>({
   placeholder,
   options,
+  value,
+  defaultValue,
   onChange,
   className,
+  error,
+  helperText,
+  disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
 
-  const currValue = useMemo(() => selectProps.value || "", [selectProps.value]);
+  const menuProps = useMemo(
+    () => ({
+      disablePortal,
+    }),
+    [disablePortal],
+  );
+
+  const val = useMemo(() => value ?? defaultValue ?? "", [defaultValue, value]);
   const allOptions = useMemo(
     () => [...(placeholder ? [{ label: placeholder, value: "" }] : []), ...options],
     [options, placeholder],
@@ -60,14 +75,15 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   );
 
   return (
-    <FormControl className={className}>
+    <FormControl fullWidth={selectProps.fullWidth} error={error} className={className}>
       <Select
         {...selectProps}
-        value={currValue}
+        {...(value === undefined ? { defaultValue: val } : { value: val })}
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}
         className={classes.select}
+        MenuProps={menuProps}
       >
         {allOptions.map(({ label, value }) =>
           !isAccuratePointer ? (
@@ -81,6 +97,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
           ),
         )}
       </Select>
+      <FormHelperText>{helperText}</FormHelperText>
     </FormControl>
   );
 };

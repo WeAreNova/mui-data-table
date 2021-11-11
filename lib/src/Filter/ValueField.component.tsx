@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
-import { FilterValuePropTypes } from "./filter.consts";
+import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
 import SimpleSelect, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
@@ -23,7 +23,6 @@ interface ValueFieldProps<T extends ActiveFilter | NullableActiveFilter, V exten
   onChange(value: V | null): void;
 }
 
-const BOOLEAN_OPTIONS: SelectFieldOption[] = ["true", "false"].map((value) => ({ value, label: value }));
 const COMMON_PROPS = {
   name: "value",
   placeholder: "Value",
@@ -80,22 +79,13 @@ const ValueField = <
   );
 
   const field = useMemo(() => {
-    const { defaultValue, ...otherCommonProps } = commonProps;
-    const dateProps = { ...otherCommonProps, defaultValue };
     switch (filter.type) {
       case "boolean":
-        return (
-          <SimpleSelect
-            {...otherCommonProps}
-            value={defaultValue}
-            onChange={handleSelectChange}
-            options={BOOLEAN_OPTIONS}
-          />
-        );
+        return <SimpleSelect {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
       case "date":
         return (
           <DatePicker
-            {...(dateProps as any)}
+            {...(commonProps as any)}
             onChange={handleDateChange}
             variant="dialog"
             inputVariant={commonProps.variant}

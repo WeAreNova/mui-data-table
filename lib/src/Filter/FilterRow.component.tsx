@@ -6,9 +6,8 @@ import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BaseData, FilterValue } from "..";
 import TableContext, { TableState } from "../table.context";
-import type { ActiveFilter, FilterColumn, FilterTypes, NullableActiveFilter } from "../table.types";
-import { getPath } from "../utils";
-import { FilterValuePropTypes, OPERATORS } from "./filter.consts";
+import type { ActiveFilter, NullableActiveFilter, NullableDataTypes } from "../table.types";
+import { FilterValuePropTypes, OPERATORS } from "../_dataTable.consts";
 import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
 
@@ -63,12 +62,7 @@ export const EMPTY_FILTER = {
   type: null,
 } as const;
 
-const getFilterType = <T extends FilterColumn<any>>(f: T): Exclude<FilterTypes, undefined | null> => {
-  if (typeof f !== "object" || typeof f.type !== "string") return "string";
-  return f.type;
-};
-
-const getOperatorOptions = (type: Exclude<FilterTypes, undefined | null> | null) =>
+const getOperatorOptions = (type: Exclude<NullableDataTypes, undefined | null> | null) =>
   OPERATORS.filter((o) => !o.typeLabelMap || o.typeLabelMap.default || (Boolean(type) && type! in o.typeLabelMap)).map(
     (o) => ({
       label: !o.typeLabelMap ? o.value : (type && o.typeLabelMap[type]) ?? o.typeLabelMap.default!,
@@ -91,22 +85,9 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   ...props
 }: PropsWithChildren<Props>) => {
   const classes = useStyles(props);
-  const { tableStructure, allTableData } = useContext<TableState<RowType, DataType>>(TableContext);
+  const { filterOptions } = useContext<TableState<RowType, DataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
-
-  const columns = useMemo(
-    () =>
-      tableStructure
-        .flatMap((c) => [c, ...(c.colGroup?.map((cg) => ({ ...cg, title: `${c.title} - ${cg.title}` })) ?? [])])
-        .filter((c) => Boolean(c.filterColumn))
-        .map((c) => ({
-          label: typeof c.title === "function" ? c.title(allTableData) : c.title,
-          value: getPath(c.filterColumn, c),
-          type: getFilterType(c.filterColumn),
-        })),
-    [allTableData, tableStructure],
-  );
 
   const operatorOptions = useMemo(() => getOperatorOptions(filter.type), [filter.type]);
 
@@ -141,7 +122,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
     }
   }, [debouncedSubmit, filter]);
 
-  const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof columns[number]>>((selected) => {
+  const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof filterOptions[number]>>((selected) => {
     setFilter((currValues) => ({
       ...currValues,
       path: selected?.value ?? null,
@@ -178,7 +159,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <SimpleSelectField
             name="path"
             value={filter.path}
-            options={columns}
+            options={filterOptions}
             error={errors.path}
             placeholder="Column"
             variant="standard"

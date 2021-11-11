@@ -1,8 +1,9 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
 import type React from "react";
-import { ReactNode } from "react";
+import { Dispatch, ReactNode } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
-import { BASE_OPERATORS, FILTER_TYPES } from "./Filter/filter.consts";
+import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
+import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
 
 export interface BaseData {
   id?: string | null;
@@ -18,11 +19,31 @@ export type Sorter<T> = (ab: T, ba: T) => number;
 
 export type TableCellAlign = "left" | "center" | "right";
 
-interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowType[]> {
+export type DataTypes = typeof DATA_TYPES[number];
+
+export type NullableDataTypes = DataTypes | undefined | null;
+
+export type EditDataTypes = NullableDataTypes | "select";
+
+export type ColumnDefinitionTitle<DataType extends BaseData[]> =
+  | Exclude<ReactNode, number | boolean | null | undefined>
+  | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+
+export declare class DataTableErrorType extends Error {
+  readonly isDataTableError: true;
+  readonly dataTableMessage: string;
+  constructor(helperMessage: string, errorMessage?: string);
+}
+
+interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
   /**
    * The unique identifier for the column.
    */
   key: string;
+  /**
+   * Data type of the column.
+   */
+  dataType?: DataTypes;
   /**
    * The dot-notation path to the data which is to be displayed.
    */
@@ -49,7 +70,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
    *
    * @param tableData all the table's data
    */
-  footer?(tableData: DataType): ReactNode;
+  footer?(tableData: AllDataType): ReactNode;
   /**
    * A dot-notation path that indicates that this cell should group with adjacent rows which have the same value as this.
    */
@@ -73,13 +94,15 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   /**
    * The title of the column.
    */
-  title:
-    | Exclude<ReactNode, number | boolean | null | undefined>
-    | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+  title: ColumnDefinitionTitle<AllDataType>;
   /**
    * A helper field which specifies how to filter data for this column.
    */
   filterColumn?: FilterColumn<RowType>;
+  /**
+   *  Options for cell editing.
+   */
+  editable?: EditableCell<RowType, AllDataType>;
   /**
    * Indicates whether the column is pinnable.
    */
@@ -91,7 +114,7 @@ interface BaseColumnDefinition<RowType extends BaseData, DataType extends RowTyp
   /**
    * An array of `ColGroupDefinition` objects which define the nested columns of this column.
    */
-  colGroup?: ColGroupDefinition<RowType, DataType>[];
+  colGroup?: ColGroupDefinition<RowType, AllDataType>[];
   /**
    * @private internal use only
    */
@@ -140,11 +163,9 @@ export interface ActionButton extends Omit<IconButtonProps, "size"> {
   onClick(): void;
 }
 
-export type FilterTypes = typeof FILTER_TYPES[number] | undefined | null;
-
 export interface FilterOptions<RowType extends BaseData> {
   path?: PathValueType<RowType>;
-  type?: FilterTypes;
+  type?: NullableDataTypes;
 }
 
 export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
@@ -152,9 +173,47 @@ export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
 export interface Operator {
   readonly value: OperatorValues;
   readonly typeLabelMap?: {
-    readonly [key in typeof FILTER_TYPES[number] | "default"]?: string;
+    readonly [key in typeof DATA_TYPES[number] | "default"]?: string;
   };
 }
+
+interface EditComponentProps {
+  defaultValue: unknown;
+  onChange: Dispatch<unknown>;
+  error: boolean;
+  helperText: string | null;
+}
+
+export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
+  path: PathValueType<RowType>;
+  /**
+   * The data type. Used to determine the type of the input.
+   *
+   * If not specified, the type is inferred from the `dataType` field.
+   */
+  type?: EditDataTypes;
+  /**
+   * Custom edit component.
+   */
+  component?: (props: EditComponentProps) => ReactNode;
+  /**
+   * Validation for the input value.
+   *
+   * @param value the input value.
+   * @returns the value, post-validation.
+   * @throws {Error | DataTableErrorType} throws a DataTableError if the value is invalid.
+   * If you want to display an error message as helper text, throw an error with a message.
+   */
+  validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
+  /**
+   * Options for the select component when `type` is `"select"`
+   */
+  selectOptions?: SelectFieldOption[];
+}
+
+export type EditableCell<RowType extends BaseData, AllDataType extends RowType[]> =
+  | PathValueType<RowType>
+  | EditableOptions<RowType, AllDataType>;
 
 export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 
@@ -162,7 +221,7 @@ export type FilterValue = string | number | Date | boolean | null;
 
 export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
   id: string;
-  type: NonNullable<FilterTypes>;
+  type: NonNullable<NullableDataTypes>;
   path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
   value: FilterValue;
   operator: OperatorValues;
@@ -231,10 +290,10 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   /**
    * A function invoked when a row is clicked.
    *
-   * @param data the data of the row.
+   * @param rowData the data of the row.
    * @param e the mouse event.
    */
-  rowClick?(data: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
+  rowClick?(rowData: RowType, e: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void;
   /**
    * Options specific to row customisation.
    */
@@ -264,7 +323,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    */
   rowsSelectable?: boolean;
   /**
-   * A function invoked when a row is selected.
+   * A function invoked when a row is selected or deselected.
    *
    * @param rows the selected rows.
    */
@@ -277,4 +336,23 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    * The default sort options.
    */
   defaultSort?: Sort;
+  /**
+   * Enables editing rows/cells.
+   *
+   * @default false when undefined.
+   * @default "cells" when true.
+   */
+  editable?: boolean | "cells" | "rows";
+  /**
+   * A function invoked when a row/cell is edited.
+   *
+   * If no function is provided, the row/cell will be updated in place.
+   * Otherwise it will expect the function to update the value.
+   *
+   * @param path the path to the value to be updated.
+   * @param value the updated value.
+   * @param data the row data.
+   * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
+   */
+  onEdit?<T>(path: PathType<RowType>, value: T, rowData: RowType): void | Promise<void>;
 }

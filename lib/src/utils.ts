@@ -2,18 +2,53 @@ import { useUtils } from "@material-ui/pickers";
 import { get } from "dot-prop";
 import { orderBy } from "natural-orderby";
 import type { ReactNode } from "react";
-import type {
+import {
   ActiveFilter,
   ActiveFilters,
   BaseData,
   ColGroupDefinition,
   ColumnDefinition,
+  ColumnDefinitionTitle,
+  DataTableErrorType,
+  EditDataTypes,
+  NullableDataTypes,
   NumericalObject,
   PathValueType,
   Sort,
   Sorter,
   TableCellAlign,
 } from "./table.types";
+
+/**
+ * A function to dispatch a custom Data Table event.
+ *
+ * @param event the custom event to dispatch.
+ */
+export function dispatchTableEvent(event: "cancelEdit") {
+  return document.dispatchEvent(new CustomEvent(event));
+}
+
+/**
+ * The `DataTableError` class
+ */
+class DataTableError extends Error implements DataTableErrorType {
+  readonly isDataTableError: true = true as const;
+  readonly dataTableMessage: string;
+  constructor(helperMessage: string, errorMessage?: string) {
+    super(errorMessage || helperMessage);
+    this.dataTableMessage = helperMessage;
+  }
+}
+
+/**
+ * A helper function for creating a `DataTableError`.
+ *
+ * @param errorMessage the error message to display.
+ * @returns the `DataTableError`
+ */
+export function createDTError(helperMessage: string, errorMessage?: string): DataTableError {
+  return new DataTableError(helperMessage, errorMessage);
+}
 
 /**
  * A function that returns the index of the first element in the array where predicate is `true`, else `-1`
@@ -225,6 +260,25 @@ export function getPagedData<RowType extends BaseData>(data: RowType[], paginati
 }
 
 /**
+ * A utility function which returns the specified data type.
+ *
+ * @param value the value of one of the properties in the definition of the table column
+ * @param struct the definition of the table column
+ * @returns the data type
+ */
+export function getDataType<
+  RowType extends BaseData,
+  AllDataType extends RowType[],
+  T extends { type?: NullableDataTypes } | { type?: EditDataTypes } = { type?: NullableDataTypes },
+>(
+  value: PathValueType<RowType> | T,
+  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+) {
+  const dataType = (typeof value === "object" && value.type) || struct.dataType;
+  return (dataType ?? "string") as NonNullable<T["type"]>;
+}
+
+/**
  * A utility function which returns the path to the data to be rendered when the given value could be `true | string | undefined`
  *
  * @param value the value of one of the properties in the definition of the table column
@@ -273,6 +327,17 @@ export function numberFormatter(
  */
 export function getRowId<T extends BaseData>(data: T, index: number) {
   return String(data.id || data._id || index);
+}
+
+/**
+ * A utility function to retrieve the header's title.
+ *
+ * @param title the title property in the column definition
+ * @param data all the table data
+ * @returns the rendered title
+ */
+export function getColumnTitle<T extends BaseData[]>(title: ColumnDefinitionTitle<T>, data: T) {
+  return typeof title === "function" ? title(data) : title;
 }
 
 /**

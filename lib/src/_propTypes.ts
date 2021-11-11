@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { FilterTypePropTypes } from "./Filter/filter.consts";
+import { FilterTypePropTypes } from "./_dataTable.consts";
 
 export const PathValuePropType = [PropTypes.oneOf([true]), PropTypes.string];
 

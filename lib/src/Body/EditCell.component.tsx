@@ -177,7 +177,6 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
               ? BOOLEAN_OPTIONS
               : (structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!
           }
-          disablePortal
         />
       );
     }
@@ -185,7 +184,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [commonProps, editType, handleOtherChange, handleSelectChange, structure.editable]);
 
   return (
-    <ClickAwayListener onClickAway={handleCancelEdit}>
+    <ClickAwayListener onClickAway={handleCancelEdit} mouseEvent="onMouseUp">
       <div className={classes.fieldContainer}>{field}</div>
     </ClickAwayListener>
   );

@@ -159,24 +159,24 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <Typography variant="caption">Column</Typography>
           <SimpleSelectField
             name="path"
+            onChange={handleColumnChange}
             value={filter.path}
             options={filterOptions}
             error={errors.path}
             placeholder="Column"
             variant="standard"
-            onChange={handleColumnChange}
           />
         </div>
         <div className={clsx([classes.field, classes.operatorField])}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelectField
             name="operator"
+            onChange={handleOperatorChange}
             value={filter.operator}
             options={operatorOptions}
             error={errors.operator}
             placeholder="Operator"
             variant="standard"
-            onChange={handleOperatorChange}
           />
         </div>
         {!filter.operator?.includes("exists") && (

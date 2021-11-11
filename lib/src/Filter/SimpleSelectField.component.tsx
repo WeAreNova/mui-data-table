@@ -19,7 +19,6 @@ interface SimpleSelectProps<T extends SelectFieldOption> extends Omit<SelectProp
   options: T[];
   onChange: SimpleSelectChangeHandler<T>;
   helperText?: string | null;
-  disablePortal?: boolean;
 }
 
 const useStyles = makeStyles(
@@ -47,18 +46,10 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   className,
   error,
   helperText,
-  disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
-
-  const menuProps = useMemo(
-    () => ({
-      disablePortal,
-    }),
-    [disablePortal],
-  );
 
   const val = useMemo(() => value ?? defaultValue ?? "", [defaultValue, value]);
   const allOptions = useMemo(
@@ -83,7 +74,6 @@ const SimpleSelectField = <T extends SelectFieldOption>({
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}
         className={classes.select}
-        MenuProps={menuProps}
       >
         {allOptions.map(({ label, value }) =>
           !isAccuratePointer ? (

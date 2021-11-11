@@ -105,7 +105,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   }, [activeFilters.length, initialFilter]);
 
   return (
-    <ClickAwayListener onClickAway={onClose}>
+    <ClickAwayListener onClickAway={onClose} mouseEvent="onMouseUp">
       <Paper className={classes.root}>
         <div>
           {filtersArray.map((filter, index) => (

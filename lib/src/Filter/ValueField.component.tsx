@@ -54,7 +54,7 @@ const ValueField = <
 
   const specifiable = useMemo(() => !filter.operator?.includes("exists"), [filter.operator]);
   const commonProps = useMemo(
-    () => ({ ...COMMON_PROPS, defaultValue: filter.value, error: hasError }),
+    () => ({ ...COMMON_PROPS, defaultValue: filter.value, error: hasError, autoFocus: true }),
     [filter.value, hasError],
   );
 

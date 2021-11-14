@@ -86,13 +86,13 @@ const SimpleSelectField = <T extends SelectFieldOption>({
         className={classes.select}
         MenuProps={menuProps}
       >
-        {allOptions.map(({ label, value }) =>
+        {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (
-            <Typography key={value} value={value} variant="caption" component="option">
+            <Typography key={optionValue} value={optionValue} variant="caption" component="option">
               {label}
             </Typography>
           ) : (
-            <MenuItem key={value} value={value}>
+            <MenuItem key={optionValue} value={optionValue}>
               <Typography variant="caption">{label}</Typography>
             </MenuItem>
           ),

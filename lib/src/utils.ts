@@ -120,7 +120,7 @@ export function getFilterTypeConvertors(value: ActiveFilter["value"], utils: Ret
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
     boolean: (): boolean | null => (typeof value === "boolean" ? value : value === "true"),
-    date: (): any | null => utils.startOfDay(utils.date(value)),
+    date: (): Date | null => utils.startOfDay(utils.date(value)),
   } as const;
   return Object.entries(convertors).reduce(
     (prev, [key, convertor]) => ({ ...prev, [key]: () => (isNil(value) ? null : convertor()) }),
@@ -247,11 +247,14 @@ export function getSortedData<RowType extends BaseData, AllDataType extends RowT
       (sortColumn.sorter as Sorter<RowType>)(sort.direction === "asc" ? a : b, sort.direction === "asc" ? b : a),
     );
   }
-  const sortKey = !sortColumn?.sorter
-    ? sort.key
-    : typeof sortColumn.sorter === "string"
-    ? sortColumn.sorter
-    : sortColumn.dataIndex;
+  let sortKey: string | undefined;
+  if (!sortColumn?.sorter) {
+    sortKey = sort.key;
+  } else if (typeof sortColumn.sorter === "string") {
+    sortKey = sortColumn.sorter;
+  } else {
+    sortKey = sortColumn.dataIndex;
+  }
   return orderBy([...data], sortKey, sort.direction);
 }
 /**
@@ -324,7 +327,7 @@ export function getPath<RowType extends BaseData, AllDataType extends RowType[] 
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
   struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
 ): PathType<RowType> {
-  const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
+  const path = typeof value === "object" ? value.path : value;
   if (path === true || path === undefined) return struct.dataIndex!;
   return path;
 }
@@ -344,9 +347,15 @@ export function numberFormatter(
     ...options
   }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number },
 ) {
+  let currencySymbol: string | undefined;
+  if (typeof currency === "string") {
+    currencySymbol = currency;
+  } else if (currency) {
+    currencySymbol = "GBP";
+  }
   return new Intl.NumberFormat(window.navigator.language, {
     style: currency ? "currency" : undefined,
-    currency: typeof currency === "string" ? currency : currency ? "GBP" : undefined,
+    currency: currencySymbol,
     minimumFractionDigits: decimalPlaces ?? 2,
     maximumFractionDigits: decimalPlaces ?? 2,
     ...options,

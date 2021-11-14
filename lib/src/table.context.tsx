@@ -167,11 +167,11 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 
   const [state, dispatch] = useReducer<TableReducer<RowType, AllDataType>>(reducer, tableState);
   const update = useMemo(() => {
-    function updateFunction(value: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
+    function updateFunction(partialState: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
       dispatch(
-        Object.entries(value).reduce(
-          (prev, [key, value]) =>
-            DYNAMIC_STATE.includes(key as typeof DYNAMIC_STATE[number]) ? { ...prev, [key]: value } : prev,
+        Object.entries(partialState).reduce(
+          (prev, [key, updateValue]) =>
+            DYNAMIC_STATE.includes(key as typeof DYNAMIC_STATE[number]) ? { ...prev, [key]: updateValue } : prev,
           {},
         ),
       );
@@ -255,7 +255,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       await onChange(onChangeObject);
     }
     const csvString = await exportTableToCSV(data, tableState.tableStructure as any);
-    const filename = csvFilename!.endsWith(".csv") ? csvFilename! : `${csvFilename}.csv`;
+    const filename = csvFilename.endsWith(".csv") ? csvFilename : `${csvFilename}.csv`;
     fileDownload(new Blob([csvString]), filename, "text/csv;charset=utf-16;");
   }, [csvFilename, onChange, onChangeObject, tableState.onChange, state.tableData, tableState.tableStructure]);
 
@@ -271,7 +271,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       if (tableState.selectGroupBy) {
         const extraRows = [...tableData]
           .slice(dataArrayIndex + 1)
-          .filter((value) => get(data, tableState.selectGroupBy!) === get(value, tableState.selectGroupBy!));
+          .filter((row) => get(data, tableState.selectGroupBy!) === get(row, tableState.selectGroupBy!));
         extraRows.forEach((row, extraRowIndex) => {
           const extraRowId = getRowId(row, dataArrayIndex + (extraRowIndex + 1));
           if (updatedSelectedRows[extraRowId]) {
@@ -292,9 +292,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     if (noRowsSelected) {
       return update.selectedRows({});
     }
-    update.selectedRows(
-      tableData.reduce((prev, value, rowIndex) => ({ ...prev, [getRowId(value, rowIndex)]: value }), {}),
-    );
+    update.selectedRows(tableData.reduce((prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }), {}));
   }, [noRowsSelected, tableData, update]);
 
   const filteredTableStructure = useMemo<ColumnDefinition<RowType, AllDataType>[]>(

@@ -210,7 +210,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
             <TablePagination
               className={classes.tablePagination}
               rowsPerPageOptions={rowsPerPageOptions}
-              count={count!}
+              count={count}
               rowsPerPage={rowsPerPage!}
               page={page}
               SelectProps={{

@@ -1,4 +1,3 @@
-import { useUtils } from "@material-ui/pickers";
 import { get } from "dot-prop";
 import { orderBy } from "natural-orderby";
 import type { ReactNode } from "react";
@@ -38,7 +37,7 @@ export function dispatchTableEvent(event?: typeof TABLE_EVENTS[number]) {
 /**
  * The `DataTableError` class
  */
-class DataTableError extends Error implements DataTableErrorType {
+export class DataTableError extends Error implements DataTableErrorType {
   readonly isDataTableError: true = true as const;
   readonly dataTableMessage: string;
   constructor(helperMessage: string, errorMessage?: string) {
@@ -108,6 +107,30 @@ function isNil<T>(value: T | null | undefined): value is null | undefined {
   return value === null || value === undefined;
 }
 
+function startOfDay(date: any) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function endOfDay(date: any) {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
+function isSameDay(date1: any, date2: any) {
+  const d1 = startOfDay(date1);
+  const d2 = startOfDay(date2);
+  return d1.valueOf() === d2.valueOf();
+}
+
+function isBefore(date1: any, date2: any) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return d1.valueOf() < d2.valueOf();
+}
+
 /**
  * A function that returns an object which converts the given filter value to the correct type
  *
@@ -115,12 +138,16 @@ function isNil<T>(value: T | null | undefined): value is null | undefined {
  * @param utils the date utilities from \@material-ui/pickers
  * @returns the convertors
  */
-export function getFilterTypeConvertors(value: ActiveFilter["value"], utils: ReturnType<typeof useUtils>) {
+export function getFilterTypeConvertors(value: ActiveFilter["value"]) {
   const convertors = {
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
     boolean: (): boolean | null => (typeof value === "boolean" ? value : value === "true"),
-    date: (): any | null => utils.startOfDay(utils.date(value)),
+    date: (): any | null => {
+      if (value instanceof Date) return value;
+      if (!value || value === true) return null;
+      return startOfDay(value);
+    },
   } as const;
   return Object.entries(convertors).reduce(
     (prev, [key, convertor]) => ({ ...prev, [key]: () => (isNil(value) ? null : convertor()) }),
@@ -151,13 +178,9 @@ function getStringRegexMatch(value: string, searchValue: string, isContains: boo
  * @param utils the date utilities from \@material-ui/pickers
  * @returns whether the value matches the filter value given the filter operator and type
  */
-function getMatch<RowType extends BaseData>(
-  value: RowType[keyof RowType],
-  filter: ActiveFilter,
-  utils: ReturnType<typeof useUtils>,
-): boolean {
-  const filterValue = getFilterTypeConvertors(filter.value, utils)[filter.type]();
-  const currValue = getFilterTypeConvertors(value, utils)[filter.type]();
+export function getMatch<RowType extends BaseData>(value: RowType[keyof RowType], filter: ActiveFilter): boolean {
+  const filterValue = getFilterTypeConvertors(filter.value)[filter.type]();
+  const currValue = getFilterTypeConvertors(value)[filter.type]();
   if (!filter.operator.includes("exists") && (isNil(filterValue) || isNil(currValue))) return false;
 
   switch (filter.operator) {
@@ -174,7 +197,7 @@ function getMatch<RowType extends BaseData>(
         return currValue === filterValue;
       }
       if (filter.type === "date") {
-        return utils.isSameDay(currValue, filterValue);
+        return isSameDay(currValue, filterValue);
       }
       return getStringRegexMatch(currValue as string, filterValue as string, false);
     case "!=":
@@ -182,7 +205,7 @@ function getMatch<RowType extends BaseData>(
         return currValue !== filterValue;
       }
       if (filter.type === "date") {
-        return !utils.isSameDay(currValue, filterValue);
+        return !isSameDay(currValue, filterValue);
       }
       return !getStringRegexMatch(currValue as string, filterValue as string, true);
     case ">":
@@ -192,8 +215,9 @@ function getMatch<RowType extends BaseData>(
     case "<":
       return currValue! < filterValue!;
     case "<=":
-      if (filter.type === "date")
-        return utils.isBefore(currValue, utils.endOfDay(filterValue)) || utils.isSameDay(currValue, filterValue);
+      if (filter.type === "date") {
+        return isBefore(currValue, endOfDay(filterValue)) || isSameDay(currValue, filterValue);
+      }
       return currValue! <= filterValue!;
   }
 }
@@ -206,17 +230,13 @@ function getMatch<RowType extends BaseData>(
  * @param utils the date utilities from \@material-ui/pickers
  * @returns the filtered data
  */
-export function getFilteredData<RowType extends BaseData>(
-  data: RowType[],
-  filters: ActiveFilters<RowType>,
-  utils: ReturnType<typeof useUtils>,
-): RowType[] {
+export function getFilteredData<RowType extends BaseData>(data: RowType[], filters: ActiveFilters<RowType>): RowType[] {
   if (!filters.length) return data;
   return [...data].filter((row) =>
     // * `filters.every` will change to `filters.some` for the 'OR' case
     filters.every((filter) => {
       const currValue = get(row, filter.path);
-      return getMatch(currValue, filter, utils);
+      return getMatch(currValue, filter);
     }),
   );
 }
@@ -285,7 +305,7 @@ export function getDataType<
   return (dataType ?? "string") as NonNullable<T["type"]>;
 }
 
-const dataTypeOperatorMap: Record<DataTypes, OperatorValues> = {
+export const dataTypeOperatorMap: Record<DataTypes, OperatorValues> = {
   string: "~",
   number: "=",
   boolean: "=",

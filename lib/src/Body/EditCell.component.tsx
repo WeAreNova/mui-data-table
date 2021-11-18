@@ -11,7 +11,15 @@ import React, {
 } from "react";
 import SimpleSelectField, { SelectFieldOption } from "../Filter/SimpleSelectField.component";
 import TableContext, { TableState } from "../table.context";
-import { BaseData, DataTableErrorType, EditableOptions } from "../table.types";
+import {
+  BaseData,
+  ColGroupDefinition,
+  ColumnDefinition,
+  DataTableErrorType,
+  EditableOptions,
+  EditDataTypes,
+  PathType,
+} from "../table.types";
 import { createDTError, getDataType, getPath, getRowId } from "../utils";
 import { BOOLEAN_OPTIONS } from "../_dataTable.consts";
 import BodyContext, { BodyState } from "./body.context";
@@ -24,6 +32,11 @@ const useStyles = makeStyles(
   () =>
     createStyles({
       fieldContainer: {
+        display: "flex",
+        flexDirection: "column",
+        "& > *": {
+          width: "100%",
+        },
         "& *:not(svg)": {
           fontSize: "inherit",
         },
@@ -32,6 +45,26 @@ const useStyles = makeStyles(
   { name: "DataTable-EditCell" },
 );
 
+function getDefaultValue<RowType extends BaseData, AllDataType extends RowType[]>({
+  structure,
+  data,
+  path,
+  type,
+}: {
+  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
+  data: RowType;
+  path: PathType<RowType>;
+  type: EditDataTypes;
+}) {
+  if (!structure.editable) return null;
+  const v = get(data, path);
+  if (!v || type !== "date") return v;
+  const asDate = new Date(v as string | number | Date);
+  const month = asDate.getMonth() + 1;
+  const day = asDate.getDate();
+  return `${asDate.getFullYear()}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+}
+
 const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   cancelEdit,
   ...props
@@ -39,19 +72,17 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const classes = useStyles(props);
   const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
+
   const [error, setError] = useState<string | null>(null);
+
   const editType = useMemo(() => getDataType(structure.editable, structure), [structure]);
   const editPath = useMemo(() => getPath(structure.editable, structure), [structure]);
-
   const defaultValue = useMemo(() => {
-    if (!structure.editable) return null;
-    const v = get(data, editPath);
-    if (!v || editType !== "date") return v;
-    const asDate = new Date(v as string | number | Date);
-    const month = asDate.getMonth() + 1;
-    const day = asDate.getDate();
-    return `${asDate.getFullYear()}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-  }, [data, editPath, editType, structure.editable]);
+    const v = getDefaultValue({ structure, data, path: editPath, type: editType });
+    if (v || typeof structure.editable !== "object") return v;
+    return structure.editable.defaultValue;
+  }, [data, editPath, editType, structure]);
+
   const [editValue, setEditValue] = useState(defaultValue);
 
   const commonProps = useMemo(
@@ -81,7 +112,9 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         }
         if (
           editType === "select" &&
-          !(structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!.some((o) => o.value === value)
+          !(structure.editable as EditableOptions<typeof editValue, RowType, AllDataType>).selectOptions!.some(
+            (o) => o.value === value,
+          )
         ) {
           throw createDTError("Invalid select option");
         }
@@ -178,7 +211,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           options={
             editType === "boolean"
               ? BOOLEAN_OPTIONS
-              : (structure.editable as EditableOptions<RowType, AllDataType>).selectOptions!
+              : (structure.editable as EditableOptions<typeof editValue, RowType, AllDataType>).selectOptions!
           }
           disablePortal
         />

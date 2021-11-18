@@ -1,4 +1,5 @@
-import { ColumnDefinition } from "@wearenova/mui-data-table";
+import { TextField } from "@material-ui/core";
+import { ColumnDefinition, EditComponentProps } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";
 import * as Yup from "yup";
@@ -76,6 +77,47 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     title: "Address",
     sorter: "personalDetails.addressHistory.addressLineOne",
     filterColumn: "personalDetails.addressHistory.addressLineOne",
+    editable: {
+      path: "personalDetails.addressHistory",
+      component: ({ defaultValue, onChange }: EditComponentProps<Address[]>) =>
+        defaultValue.map((value, index) => {
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange((v) => {
+              const newValue = [...v];
+              newValue[index] = { ...newValue[index], [e.target.name]: e.target.value };
+              return newValue;
+            });
+          return (
+            <>
+              {Boolean(index) && <hr />}
+              <TextField
+                name="addressLineOne"
+                defaultValue={value.addressLineOne}
+                onChange={handleChange}
+                placeholder="Line One"
+              />
+              <TextField
+                name="addressLineTwo"
+                defaultValue={value.addressLineTwo}
+                onChange={handleChange}
+                placeholder="Line Two"
+              />
+              <TextField name="city" defaultValue={value.city} onChange={handleChange} placeholder="City" />
+              <TextField name="country" defaultValue={value.country} onChange={handleChange} placeholder="Country" />
+              <TextField name="postcode" defaultValue={value.postcode} onChange={handleChange} placeholder="Postcode" />
+            </>
+          );
+        }),
+      defaultValue: [
+        {
+          addressLineOne: "",
+          addressLineTwo: "",
+          city: "",
+          country: "",
+          postcode: "",
+        },
+      ],
+    },
     render: (record, isCSVExport) => {
       if (!record.personalDetails?.addressHistory) return null;
       if (isCSVExport)

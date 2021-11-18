@@ -251,6 +251,24 @@ export interface Sort {
   direction?: "asc" | "desc";
 }
 
+/**
+ * A function invoked when a row/cell is edited.
+ *
+ * If no function is provided, the row/cell will be updated in place.
+ * Otherwise it will expect the function to return the updated value or update the table data itself.
+ *
+ * @param update.path the path to the value to be updated.
+ * @param update.value the updated value.
+ * @param data the row data.
+ * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
+ * @returns `void` if the update will be handled separately or the updated value which is then used to
+ * update the table data in place.
+ */
+export type TableCellEditHandler<RowType extends BaseData, T = unknown> = (
+  update: { path: PathType<RowType>; value: T },
+  rowData: RowType,
+) => T | Promise<T> | void | Promise<void>;
+
 export interface TableProps<RowType extends BaseData, DataType extends RowType[]> {
   /**
    * Custom number of rows after filtering.
@@ -347,12 +365,9 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
    * A function invoked when a row/cell is edited.
    *
    * If no function is provided, the row/cell will be updated in place.
-   * Otherwise it will expect the function to update the value.
+   * Otherwise it will expect the function to return the updated value or update the table data itself.
    *
-   * @param path the path to the value to be updated.
-   * @param value the updated value.
-   * @param data the row data.
-   * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
+   * @see {@link TableCellEditHandler}
    */
-  onEdit?<T>(path: PathType<RowType>, value: T, rowData: RowType): void | Promise<void>;
+  onEdit?: TableCellEditHandler<RowType>;
 }

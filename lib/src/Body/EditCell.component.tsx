@@ -12,7 +12,7 @@ import React, {
 import SimpleSelectField, { SelectFieldOption } from "../Filter/SimpleSelectField.component";
 import TableContext, { TableState } from "../table.context";
 import { BaseData, DataTableErrorType, EditableOptions } from "../table.types";
-import { createDTError, getDataType, getPath } from "../utils";
+import { createDTError, getDataType, getPath, getRowId } from "../utils";
 import { BOOLEAN_OPTIONS } from "../_dataTable.consts";
 import BodyContext, { BodyState } from "./body.context";
 
@@ -101,14 +101,17 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     try {
       const valid = await validate(editValue);
       if (!valid) return;
+      let newValue: typeof editValue | undefined = undefined;
       if (onEdit) {
-        await onEdit(editPath, editValue, data);
-      } else {
+        const res = await onEdit({ path: editPath, value: editValue }, data);
+        if (typeof res !== "undefined") newValue = res;
+      }
+      if (!onEdit || typeof newValue !== "undefined") {
         update.tableData((currTableData) => {
-          const index = currTableData.findIndex((row) => row.id === rowId);
+          const index = currTableData.findIndex((row, index) => getRowId(row, index) === rowId);
           if (index === -1) return currTableData;
           const newData = [...currTableData];
-          const updatedValue = set({ ...newData[index] }, editPath, editValue);
+          const updatedValue = set({ ...newData[index] }, editPath, newValue ?? editValue);
           newData[index] = { ...updatedValue };
           return newData;
         });

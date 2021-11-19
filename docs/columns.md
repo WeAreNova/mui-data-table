@@ -255,7 +255,7 @@ interface EditComponentProps {
 }
 
 export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
-  path: PathValueType<RowType>;
+  path: true | string; // `true` uses the value of the `dataIndex` field
   /**
    * The data type. Used to determine the type of the input.
    *
@@ -265,7 +265,7 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
   /**
    * Custom edit component.
    */
-  component?: (props: EditComponentProps) => ReactNode;
+  component?: (props: EditComponentProps, data: RowType, allData: AllDataType) => ReactNode;
   /**
    * Validation for the input value.
    *

@@ -195,7 +195,7 @@ export interface EditableOptions<EditType, RowType extends BaseData, AllDataType
   /**
    * Custom edit component.
    */
-  component?: (props: EditComponentProps<EditType>) => ReactNode;
+  component?: (props: EditComponentProps<EditType>, data: RowType, allData: AllDataType) => ReactNode;
   /**
    * Validation for the input value.
    *

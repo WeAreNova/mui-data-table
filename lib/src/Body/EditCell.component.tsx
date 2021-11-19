@@ -202,12 +202,16 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   const field = useMemo(() => {
     if (typeof structure.editable === "object" && structure.editable.component) {
-      return structure.editable.component({
-        defaultValue: commonProps.defaultValue,
-        error: commonProps.error,
-        helperText: commonProps.helperText,
-        onChange: setEditValue,
-      });
+      return structure.editable.component(
+        {
+          defaultValue: commonProps.defaultValue,
+          error: commonProps.error,
+          helperText: commonProps.helperText,
+          onChange: setEditValue,
+        },
+        data,
+        allTableData,
+      );
     }
     if (["boolean", "select"].includes(editType)) {
       return (
@@ -224,7 +228,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
       );
     }
     return <TextField {...commonProps} onChange={handleOtherChange} type={editType} />;
-  }, [commonProps, editType, handleOtherChange, handleSelectChange, structure.editable]);
+  }, [allTableData, commonProps, data, editType, handleOtherChange, handleSelectChange, structure.editable]);
 
   return (
     <ClickAwayListener onClickAway={handleCancelEdit}>

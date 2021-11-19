@@ -124,8 +124,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         }
         setError(null);
         return true;
-      } catch (error: any) {
-        const errorMessage = error?.dataTableMessage || error?.message;
+      } catch (err: any) {
+        const errorMessage = err?.dataTableMessage || err?.message;
         if (errorMessage) setError(errorMessage || "Invalid value");
         return false;
       }
@@ -154,9 +154,9 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         });
       }
       cancelEdit();
-    } catch (error: any) {
-      if ((error as DataTableErrorType).isDataTableError) {
-        setError(error?.dataTableMessage || "Invalid value");
+    } catch (err: any) {
+      if ((err as DataTableErrorType).isDataTableError) {
+        setError(err?.dataTableMessage || "Invalid value");
       }
     }
   }, [cancelEdit, data, editPath, editValue, onEdit, rowId, update, validate]);

@@ -20,6 +20,7 @@
   - [Editing](/features#editing)
     - [Validation](/features#validation)
     - [Cell Options](/columns#editing-optional)
+  - [Filtering](/columns#filtering-optional)
 
 - [**Columns**](/columns#column-definitions)
   - [Options](/columns#the-options)

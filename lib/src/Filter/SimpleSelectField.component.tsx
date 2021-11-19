@@ -47,6 +47,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   className,
   error,
   helperText,
+  fullWidth,
   disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
@@ -75,7 +76,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
   );
 
   return (
-    <FormControl fullWidth={selectProps.fullWidth} error={error} className={className}>
+    <FormControl fullWidth={fullWidth} error={error} className={className}>
       <Select
         {...selectProps}
         {...(value === undefined ? { defaultValue: val } : { value: val })}
@@ -85,19 +86,19 @@ const SimpleSelectField = <T extends SelectFieldOption>({
         className={classes.select}
         MenuProps={menuProps}
       >
-        {allOptions.map(({ label, value }) =>
+        {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (
-            <Typography key={value} value={value} variant="caption" component="option">
+            <Typography key={optionValue} value={optionValue} variant="caption" component="option">
               {label}
             </Typography>
           ) : (
-            <MenuItem key={value} value={value}>
+            <MenuItem key={optionValue} value={optionValue}>
               <Typography variant="caption">{label}</Typography>
             </MenuItem>
           ),
         )}
       </Select>
-      <FormHelperText>{helperText}</FormHelperText>
+      {Boolean(helperText) && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   );
 };

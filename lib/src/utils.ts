@@ -10,22 +10,29 @@ import {
   ColumnDefinition,
   ColumnDefinitionTitle,
   DataTableErrorType,
+  DataTypes,
   EditDataTypes,
+  FilterColumn,
   NullableDataTypes,
   NumericalObject,
+  OperatorValues,
+  PathType,
   PathValueType,
   Sort,
   Sorter,
   TableCellAlign,
 } from "./table.types";
 
+const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
+
 /**
  * A function to dispatch a custom Data Table event.
  *
  * @param event the custom event to dispatch.
  */
-export function dispatchTableEvent(event: "cancelEdit") {
-  return document.dispatchEvent(new CustomEvent(event));
+export function dispatchTableEvent(event?: typeof TABLE_EVENTS[number]) {
+  if (event && event !== "*") return document.dispatchEvent(new CustomEvent(event));
+  TABLE_EVENTS.forEach((e) => document.dispatchEvent(new CustomEvent(e)));
 }
 
 /**
@@ -113,7 +120,7 @@ export function getFilterTypeConvertors(value: ActiveFilter["value"], utils: Ret
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
     boolean: (): boolean | null => (typeof value === "boolean" ? value : value === "true"),
-    date: (): any | null => utils.startOfDay(utils.date(value)),
+    date: (): Date | null => utils.startOfDay(utils.date(value)),
   } as const;
   return Object.entries(convertors).reduce(
     (prev, [key, convertor]) => ({ ...prev, [key]: () => (isNil(value) ? null : convertor()) }),
@@ -221,15 +228,15 @@ export function getFilteredData<RowType extends BaseData>(
  * @param tableStructure the complete structure definition of the table
  * @returns the sorted data
  */
-export function getSortedData<RowType extends BaseData, DataType extends RowType[]>(
+export function getSortedData<RowType extends BaseData, AllDataType extends RowType[]>(
   data: RowType[],
   sort: Sort,
-  tableStructure?: ColumnDefinition<RowType, DataType>[],
+  tableStructure?: ColumnDefinition<RowType, AllDataType>[],
 ): RowType[] {
   if (!sort.key || !sort.direction) return data;
 
   const sortColumn = tableStructure
-    ?.flatMap<ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>>((c) => [
+    ?.flatMap<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>((c) => [
       c,
       ...(c.colGroup ?? []),
     ])
@@ -240,11 +247,14 @@ export function getSortedData<RowType extends BaseData, DataType extends RowType
       (sortColumn.sorter as Sorter<RowType>)(sort.direction === "asc" ? a : b, sort.direction === "asc" ? b : a),
     );
   }
-  const sortKey = !sortColumn?.sorter
-    ? sort.key
-    : typeof sortColumn.sorter === "string"
-    ? sortColumn.sorter
-    : sortColumn.dataIndex;
+  let sortKey: string | undefined;
+  if (!sortColumn?.sorter) {
+    sortKey = sort.key;
+  } else if (typeof sortColumn.sorter === "string") {
+    sortKey = sortColumn.sorter;
+  } else {
+    sortKey = sortColumn.dataIndex;
+  }
   return orderBy([...data], sortKey, sort.direction);
 }
 /**
@@ -278,6 +288,34 @@ export function getDataType<
   return (dataType ?? "string") as NonNullable<T["type"]>;
 }
 
+const dataTypeOperatorMap: Record<DataTypes, OperatorValues> = {
+  string: "~",
+  number: "=",
+  boolean: "=",
+  date: "=",
+} as const;
+
+/**
+ * A utility function which returns the default operator for the filter.
+ *
+ * Returns `filterColumn.defaultOperator` if it is defined,
+ * else the default operator for the data type.
+ *
+ * See {@link dataTypeOperatorMap `dataTypeOperatorMap`} for the default operator for each data type.
+ *
+ * @param value the value of `filterColumn` property in the definition of the table column.
+ * @param dataType the specified data type for the filter.
+ * @returns the default operator for the filter.
+ */
+export function getDefaultOperator<RowType extends BaseData>(
+  value: FilterColumn<RowType>,
+  dataType: DataTypes,
+): OperatorValues {
+  const specifiedDefaultOperator = typeof value === "object" && value.defaultOperator;
+  if (specifiedDefaultOperator) return specifiedDefaultOperator;
+  return dataTypeOperatorMap[dataType] || "=";
+}
+
 /**
  * A utility function which returns the path to the data to be rendered when the given value could be `true | string | undefined`
  *
@@ -285,11 +323,11 @@ export function getDataType<
  * @param struct the definition of the table column
  * @returns the path
  */
-export function getPath<RowType extends BaseData, DataType extends RowType[] = RowType[]>(
+export function getPath<RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
-  struct: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
-): string {
-  const path = typeof value === "object" ? value.path : (value as PathValueType<RowType>);
+  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+): PathType<RowType> {
+  const path = typeof value === "object" ? value.path : value;
   if (path === true || path === undefined) return struct.dataIndex!;
   return path;
 }
@@ -309,9 +347,15 @@ export function numberFormatter(
     ...options
   }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number },
 ) {
+  let currencySymbol: string | undefined;
+  if (typeof currency === "string") {
+    currencySymbol = currency;
+  } else if (currency) {
+    currencySymbol = "GBP";
+  }
   return new Intl.NumberFormat(window.navigator.language, {
     style: currency ? "currency" : undefined,
-    currency: typeof currency === "string" ? currency : currency ? "GBP" : undefined,
+    currency: currencySymbol,
     minimumFractionDigits: decimalPlaces ?? 2,
     maximumFractionDigits: decimalPlaces ?? 2,
     ...options,
@@ -350,8 +394,8 @@ export function getColumnTitle<T extends BaseData[]>(title: ColumnDefinitionTitl
  * @param isCSVExport whether the function is being invoked as part of the CSV export
  * @returns the rendered value
  */
-export function getValue<T extends BaseData, DataType extends T[] = T[]>(
-  struct: ColumnDefinition<T, DataType> | ColGroupDefinition<T, DataType>,
+export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
+  struct: ColumnDefinition<T, AllDataType> | ColGroupDefinition<T, AllDataType>,
   data: T,
   rowId: string,
   dataArrayIndex: number,
@@ -389,8 +433,8 @@ export function getValue<T extends BaseData, DataType extends T[] = T[]>(
  * @param index the index of the row in the table data array
  * @returns the cell alignment
  */
-export function getTableCellAlignment<RowType extends BaseData, DataType extends RowType[]>(
-  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>,
+export function getTableCellAlignment<RowType extends BaseData, AllDataType extends RowType[]>(
+  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
   data?: RowType,
   index = 0,
 ): TableCellAlign {
@@ -409,10 +453,10 @@ export function getTableCellAlignment<RowType extends BaseData, DataType extends
  */
 export async function exportTableToCSV<
   RowType extends BaseData,
-  DataType extends RowType[] = RowType[],
-  TableColumn extends ColumnDefinition<RowType, DataType> = ColumnDefinition<RowType, DataType>,
->(tableData: DataType, tableStructure: TableColumn[] = []) {
-  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, DataType>) => {
+  AllDataType extends RowType[] = RowType[],
+  TableColumn extends ColumnDefinition<RowType, AllDataType> = ColumnDefinition<RowType, AllDataType>,
+>(tableData: AllDataType, tableStructure: TableColumn[] = []) {
+  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, AllDataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
   };

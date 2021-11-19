@@ -76,7 +76,7 @@ const getOperatorOptions = (type: Exclude<NullableDataTypes, undefined | null> |
  * @component
  * @package
  */
-const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
+const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   value,
   last,
   onSubmit,
@@ -85,7 +85,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
   ...props
 }: PropsWithChildren<Props>) => {
   const classes = useStyles(props);
-  const { filterOptions } = useContext<TableState<RowType, DataType>>(TableContext);
+  const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
 
@@ -127,6 +127,7 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
       ...currValues,
       path: selected?.value ?? null,
       type: selected?.type ?? null,
+      operator: selected?.defaultOperator ?? null,
       value: "",
     }));
   }, []);
@@ -158,24 +159,24 @@ const FilterRow = <RowType extends BaseData, DataType extends RowType[]>({
           <Typography variant="caption">Column</Typography>
           <SimpleSelectField
             name="path"
+            onChange={handleColumnChange}
             value={filter.path}
             options={filterOptions}
             error={errors.path}
             placeholder="Column"
             variant="standard"
-            onChange={handleColumnChange}
           />
         </div>
         <div className={clsx([classes.field, classes.operatorField])}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelectField
             name="operator"
+            onChange={handleOperatorChange}
             value={filter.operator}
             options={operatorOptions}
             error={errors.operator}
             placeholder="Operator"
             variant="standard"
-            onChange={handleOperatorChange}
           />
         </div>
         {!filter.operator?.includes("exists") && (

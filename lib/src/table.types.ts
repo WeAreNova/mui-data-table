@@ -25,9 +25,9 @@ export type NullableDataTypes = DataTypes | undefined | null;
 
 export type EditDataTypes = NullableDataTypes | "select";
 
-export type ColumnDefinitionTitle<DataType extends BaseData[]> =
+export type ColumnDefinitionTitle<AllDataType extends BaseData[]> =
   | Exclude<ReactNode, number | boolean | null | undefined>
-  | ((data: DataType) => Exclude<ReactNode, number | boolean | null | undefined>);
+  | ((data: AllDataType) => Exclude<ReactNode, number | boolean | null | undefined>);
 
 export declare class DataTableErrorType extends Error {
   readonly isDataTableError: true;
@@ -125,22 +125,25 @@ interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends Row
   hasColGroupFooter?: boolean;
 }
 
-type WithDataIndex<RowType extends BaseData, DataType extends RowType[]> = BaseColumnDefinition<RowType, DataType> & {
+type WithDataIndex<RowType extends BaseData, AllDataType extends RowType[]> = BaseColumnDefinition<
+  RowType,
+  AllDataType
+> & {
   dataIndex: PathType<RowType>;
 };
 
 type WithExactlyOne<
   RowType extends BaseData,
-  DataType extends RowType[],
-  Requires extends keyof BaseColumnDefinition<RowType, DataType> = "numerical" | "render",
-> = RequireExactlyOne<BaseColumnDefinition<RowType, DataType>, Requires>;
+  AllDataType extends RowType[],
+  Requires extends keyof BaseColumnDefinition<RowType, AllDataType> = "numerical" | "render",
+> = RequireExactlyOne<BaseColumnDefinition<RowType, AllDataType>, Requires>;
 
-export type ColumnDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> =
-  | WithDataIndex<RowType, DataType>
-  | WithExactlyOne<RowType, DataType, "numerical" | "render" | "colGroup">;
+export type ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> =
+  | WithDataIndex<RowType, AllDataType>
+  | WithExactlyOne<RowType, AllDataType, "numerical" | "render" | "colGroup">;
 
-export type ColGroupDefinition<RowType extends BaseData, DataType extends RowType[] = RowType[]> = Omit<
-  WithDataIndex<RowType, DataType> | WithExactlyOne<RowType, DataType, "numerical" | "render">,
+export type ColGroupDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> = Omit<
+  WithDataIndex<RowType, AllDataType> | WithExactlyOne<RowType, AllDataType, "numerical" | "render">,
   "colGroup"
 > & { colGroup?: never };
 
@@ -163,12 +166,16 @@ export interface ActionButton extends Omit<IconButtonProps, "size"> {
   onClick(): void;
 }
 
+export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
+
 export interface FilterOptions<RowType extends BaseData> {
   path?: PathValueType<RowType>;
   type?: NullableDataTypes;
+  /**
+   * The default operator.
+   */
+  defaultOperator?: OperatorValues;
 }
-
-export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
 
 export interface Operator {
   readonly value: OperatorValues;
@@ -229,10 +236,10 @@ export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | Fi
 
 export type FilterValue = string | number | Date | boolean | null;
 
-export interface ActiveFilter<RowType extends BaseData = any> extends NonNullable<FilterOptions<RowType>> {
+export interface ActiveFilter<RowType extends BaseData = any> {
   id: string;
   type: NonNullable<NullableDataTypes>;
-  path: Exclude<FilterOptions<RowType>["path"], true | undefined>;
+  path: PathType<RowType>;
   value: FilterValue;
   operator: OperatorValues;
 }
@@ -279,7 +286,7 @@ export type TableCellEditHandler<RowType extends BaseData, T = unknown> = (
   rowData: RowType,
 ) => T | Promise<T> | void | Promise<void>;
 
-export interface TableProps<RowType extends BaseData, DataType extends RowType[]> {
+export interface TableProps<RowType extends BaseData, AllDataType extends RowType[]> {
   /**
    * Custom number of rows after filtering.
    */
@@ -314,7 +321,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   onChange?: <T extends boolean>(
     changeObject: OnChangeObject,
     isExport: T,
-  ) => T extends true ? DataType | Promise<DataType> : any;
+  ) => T extends true ? AllDataType | Promise<AllDataType> : any;
   /**
    * A function invoked when a row is clicked.
    *
@@ -337,7 +344,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   /**
    * The table data.
    */
-  tableData: DataType;
+  tableData: AllDataType;
   /**
    * The MUI table props.
    */
@@ -345,7 +352,7 @@ export interface TableProps<RowType extends BaseData, DataType extends RowType[]
   /**
    * The table's structure.
    */
-  tableStructure: ColumnDefinition<RowType, DataType>[];
+  tableStructure: ColumnDefinition<RowType, AllDataType>[];
   /**
    * Enables row selection.
    */

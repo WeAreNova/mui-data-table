@@ -5,17 +5,18 @@ import Visibility from "@material-ui/icons/Visibility";
 import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import React, { Fragment, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
+import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
+import { InitialFilterValues } from "./Filter";
 import TableContext, { TableState } from "./table.context";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
+import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getColumnTitle, getPath } from "./utils";
+import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
 
-interface Props<RowType extends BaseData, DataType extends RowType[]> {
+interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;
-  structure: ColumnDefinition<RowType, DataType> | ColGroupDefinition<RowType, DataType>;
-  onFilterClick(target: HTMLTableCellElement): void;
+  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
+  onFilterClick(target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
   className?: string;
@@ -104,7 +105,7 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowType[]>({
+const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>({
   id,
   structure,
   onFilterClick,
@@ -113,14 +114,14 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
   className,
   style,
   ...props
-}: PropsWithChildren<Props<RowType, DataType>>) => {
+}: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update } =
-    useContext<TableState<RowType, DataType>>(TableContext);
+    useContext<TableState<RowType, AllDataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);
-  const hidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
+  const isHidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
   const colSpan = useMemo(
     () => (structure.colGroup && !hiddenColumns[id] ? structure.colGroup.length : 1),
     [hiddenColumns, id, structure.colGroup],
@@ -150,20 +151,20 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [id, structure.colGroup, update],
   );
   const handleUnhide = useCallback(
-    () => hidden && handleHiddenColumnsChange(false),
-    [handleHiddenColumnsChange, hidden],
+    () => isHidden && handleHiddenColumnsChange(false),
+    [handleHiddenColumnsChange, isHidden],
   );
 
   const handleSort = useCallback(() => {
     update({
       sort: (currSort) => {
         const key = typeof structure.sorter === "string" ? structure.sorter : structure.dataIndex || id;
-        const direction =
-          currSort.key !== key || currSort.direction === undefined
-            ? "asc"
-            : currSort.direction === "asc"
-            ? "desc"
-            : undefined;
+        let direction: Sort["direction"];
+        if (currSort.key !== key || currSort.direction === undefined) {
+          direction = "asc";
+        } else if (currSort.direction === "asc") {
+          direction = "desc";
+        }
         return {
           key,
           direction,
@@ -183,15 +184,30 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
     [className, classes, colGroupHeader, id, pinnedColumn],
   );
 
-  const handleFilterClick = useCallback(() => onFilterClick(tableCellRef.current!), [onFilterClick]);
+  const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    (e) => {
+      if (!filterPath) return;
+      e.stopPropagation();
+      dispatchTableEvent("cancelEdit");
+      const filterType = getDataType(structure.filterColumn, structure);
+      onFilterClick(tableCellRef.current!, {
+        path: filterPath,
+        type: filterType,
+        operator: getDefaultOperator(structure.filterColumn, filterType),
+      });
+    },
+    [filterPath, onFilterClick, structure],
+  );
+
+  const stopPropagation = useCallback((e: React.MouseEvent | React.TouchEvent) => e.stopPropagation(), []);
 
   return (
     <Fragment key={id}>
-      <Tooltip title={hidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
+      <Tooltip title={isHidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
         <TableCell
           onClick={handleUnhide}
           ref={tableCellRef}
-          hidden={Boolean(hidden)}
+          hidden={Boolean(isHidden)}
           pinned={pinnedColumn === id}
           colSpan={colSpan}
           rowSpan={rowSpan}
@@ -237,14 +253,16 @@ const HeaderCell = <RowType extends BaseData, DataType extends RowType[] = RowTy
                   <AcUnit />
                 </IconButton>
               )}
-              {structure.actionButtons?.map(({ key, icon, onClick, ...props }: ActionButton) => (
-                <IconButton key={key} onClick={onClick} {...props} size="small">
+              {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
+                <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
                   {icon}
                 </IconButton>
               ))}
               {filterEnabled && (
                 <IconButton
                   onClick={handleFilterClick}
+                  onMouseUp={stopPropagation}
+                  onTouchEnd={stopPropagation}
                   data-testid="tableFilterButton"
                   color={filterActive ? "primary" : "default"}
                   size="small"

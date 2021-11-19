@@ -22,9 +22,9 @@ import TableCell from "./TableCell.component";
 import { getRowId } from "./utils";
 import { RowsPerPageOptionsPropType } from "./_propTypes";
 
-interface _TableProps<RowType extends BaseData, DataType extends RowType[]>
+interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   extends Pick<
-    TableProps<RowType, DataType>,
+    TableProps<RowType, AllDataType>,
     "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
   > {}
 
@@ -84,13 +84,13 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const _Table = <RowType extends BaseData, DataType extends RowType[]>({
+const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   tableProps = {},
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
   disablePagination = false,
   ...props
-}: PropsWithChildren<_TableProps<RowType, DataType>>) => {
+}: PropsWithChildren<_TableProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
   const {
     allTableData,
@@ -109,7 +109,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
     exportToCSV,
     count,
     isMacOS,
-  } = useContext<TableState<RowType, DataType>>(TableContext);
+  } = useContext<TableState<RowType, AllDataType>>(TableContext);
 
   const allColumnsVisible = useMemo(() => {
     const values = Object.values(hiddenColumns);
@@ -210,7 +210,7 @@ const _Table = <RowType extends BaseData, DataType extends RowType[]>({
             <TablePagination
               className={classes.tablePagination}
               rowsPerPageOptions={rowsPerPageOptions}
-              count={count!}
+              count={count}
               rowsPerPage={rowsPerPage!}
               page={page}
               SelectProps={{

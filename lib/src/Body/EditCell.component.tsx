@@ -71,16 +71,20 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const classes = useStyles(props);
   const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
-
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const editType = useMemo(() => getDataType(structure.editable, structure), [structure]);
   const editPath = useMemo(() => getPath(structure.editable, structure), [structure]);
+  const editOptions = useMemo(
+    () => (typeof structure.editable === "object" ? structure.editable : null),
+    [structure.editable],
+  );
   const defaultValue = useMemo(() => {
     const v = getDefaultValue({ structure, data, path: editPath, type: editType });
-    if (v || typeof structure.editable !== "object") return v;
-    return structure.editable.defaultValue;
-  }, [data, editPath, editType, structure]);
+    if (typeof v === "string" || typeof v === "number") return v;
+    return editOptions?.defaultValue ?? "";
+  }, [data, editOptions?.defaultValue, editPath, editType, structure]);
 
   const [editValue, setEditValue] = useState(defaultValue);
 
@@ -95,11 +99,6 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         margin: "none",
       } as const),
     [defaultValue, error],
-  );
-
-  const editOptions = useMemo(
-    () => (typeof structure.editable === "object" ? structure.editable : null),
-    [structure.editable],
   );
   const selectOptions = useMemo(() => {
     if (editType === "boolean") return BOOLEAN_OPTIONS;
@@ -163,13 +162,16 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [cancelEdit, data, editPath, editValue, onEdit, rowId, update, validate]);
 
   const handleKeyPress = useCallback(
-    (e: KeyboardEvent | React.KeyboardEvent) => {
+    async (e: KeyboardEvent | React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
           return handleCancelEdit();
         case "Tab":
         case "Enter":
-          return handleEdit();
+          setIsSaving(true);
+          await handleEdit();
+          setIsSaving(false);
+          return;
         default:
           return;
       }
@@ -190,6 +192,13 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   useEffect(() => {
     setEditValue(defaultValue);
   }, [defaultValue]);
+
+  useEffect(
+    () => () => {
+      setIsSaving(false);
+    },
+    [],
+  );
 
   const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => {
     setEditValue(e.target.value);
@@ -213,6 +222,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           error: commonProps.error,
           helperText: commonProps.helperText,
           onChange: setEditValue,
+          disabled: isSaving,
         },
         data,
         allTableData,
@@ -224,12 +234,23 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           {...commonProps}
           onChange={handleSelectChange}
           options={editType === "boolean" ? BOOLEAN_OPTIONS : selectOptions}
+          disabled={isSaving}
           disablePortal
         />
       );
     }
-    return <TextField {...commonProps} onChange={handleOtherChange} type={editType} />;
-  }, [allTableData, commonProps, data, editOptions, editType, handleOtherChange, handleSelectChange, selectOptions]);
+    return <TextField {...commonProps} onChange={handleOtherChange} type={editType} disabled={isSaving} />;
+  }, [
+    allTableData,
+    commonProps,
+    data,
+    editOptions,
+    editType,
+    handleOtherChange,
+    handleSelectChange,
+    isSaving,
+    selectOptions,
+  ]);
 
   return (
     <ClickAwayListener onClickAway={handleCancelEdit}>

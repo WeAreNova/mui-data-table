@@ -182,6 +182,12 @@ export interface EditComponentProps<T = any> {
   onChange: Dispatch<SetStateAction<T>>;
   error: boolean;
   helperText: string | null;
+  /**
+   * Boolean flag for when the input should be disabled.
+   *
+   * The value is `true` when the it is validating the edit value and then updating the data.
+   */
+  disabled: boolean;
 }
 
 export interface EditableOptions<EditType, RowType extends BaseData, AllDataType extends RowType[]> {

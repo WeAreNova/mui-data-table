@@ -189,10 +189,16 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => {
     setEditValue(e.target.value);
   }, []);
-  const handleSelectChange = useCallback((selected: SelectFieldOption | null) => {
-    if (!selected) return setEditValue(null);
-    setEditValue(selected.value === "true");
-  }, []);
+  const handleSelectChange = useCallback(
+    (selected: SelectFieldOption | null) => {
+      if (!selected) return setEditValue(null);
+      if (editType === "boolean") {
+        return setEditValue(selected.value === "true");
+      }
+      setEditValue(selected.value);
+    },
+    [editType],
+  );
 
   const field = useMemo(() => {
     if (typeof structure.editable === "object" && structure.editable.component) {

@@ -16,7 +16,6 @@ import {
   ColGroupDefinition,
   ColumnDefinition,
   DataTableErrorType,
-  EditableOptions,
   EditDataTypes,
   PathType,
 } from "../table.types";
@@ -98,11 +97,22 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     [defaultValue, error],
   );
 
+  const editOptions = useMemo(
+    () => (typeof structure.editable === "object" ? structure.editable : null),
+    [structure.editable],
+  );
+  const selectOptions = useMemo(() => {
+    if (editType === "boolean") return BOOLEAN_OPTIONS;
+    if (editType !== "select") return [];
+    if (typeof editOptions!.selectOptions === "function") return editOptions!.selectOptions(data, allTableData);
+    return editOptions!.selectOptions || [];
+  }, [allTableData, data, editOptions, editType]);
+
   const validate = useCallback(
     async (value) => {
       try {
-        if (typeof structure.editable === "object" && structure.editable.validate) {
-          await structure.editable.validate(value, { data, allData: allTableData });
+        if (editOptions?.validate) {
+          await editOptions.validate(value, { data, allData: allTableData });
           return true;
         }
         if (editType === "number" && isNaN(Number(value))) throw createDTError("Invalid number");
@@ -110,12 +120,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         if (editType === "date" && isNaN(new Date(value as string | number | Date).getTime())) {
           throw createDTError("Invalid date");
         }
-        if (
-          editType === "select" &&
-          !(structure.editable as EditableOptions<typeof editValue, RowType, AllDataType>).selectOptions!.some(
-            (o) => o.value === value,
-          )
-        ) {
+        if (editType === "select" && !selectOptions?.some((o) => o.value === value)) {
           throw createDTError("Invalid select option");
         }
         setError(null);
@@ -126,7 +131,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         return false;
       }
     },
-    [allTableData, data, editType, structure.editable],
+    [allTableData, data, editOptions, editType, selectOptions],
   );
 
   const handleCancelEdit = useCallback(() => cancelEdit(), [cancelEdit]);
@@ -201,8 +206,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   );
 
   const field = useMemo(() => {
-    if (typeof structure.editable === "object" && structure.editable.component) {
-      return structure.editable.component(
+    if (editOptions?.component) {
+      return editOptions.component(
         {
           defaultValue: commonProps.defaultValue,
           error: commonProps.error,
@@ -218,17 +223,13 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         <SimpleSelectField
           {...commonProps}
           onChange={handleSelectChange}
-          options={
-            editType === "boolean"
-              ? BOOLEAN_OPTIONS
-              : (structure.editable as EditableOptions<typeof editValue, RowType, AllDataType>).selectOptions!
-          }
+          options={editType === "boolean" ? BOOLEAN_OPTIONS : selectOptions}
           disablePortal
         />
       );
     }
     return <TextField {...commonProps} onChange={handleOtherChange} type={editType} />;
-  }, [allTableData, commonProps, data, editType, handleOtherChange, handleSelectChange, structure.editable]);
+  }, [allTableData, commonProps, data, editOptions, editType, handleOtherChange, handleSelectChange, selectOptions]);
 
   return (
     <ClickAwayListener onClickAway={handleCancelEdit}>

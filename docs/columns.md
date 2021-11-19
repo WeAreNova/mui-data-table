@@ -276,9 +276,13 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
    */
   validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
   /**
-   * Options for the select component when `type` is `"select"`
+   * Options or a function that returns the options for the select component when `type` is `"select"`.
    */
-  selectOptions?: SelectFieldOption[];
+  selectOptions?: SelectFieldOption[] | ((data: RowType, allData: AllDataType) => SelectFieldOption[]);
+  /**
+   * Default value if the value at the `path` is `undefined` or `null`.
+   */
+  defaultValue?: EditType;
 }
 ```
 

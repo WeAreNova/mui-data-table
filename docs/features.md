@@ -45,13 +45,16 @@ By default, the table data is edited by the Data Table itself. If you want contr
 
 The `onEdit` table prop is passed the following arguments:
 
-- `path` - the path to the value which is to be updated.
-- `value` - the updated value.
+- `update.path` - the path to the value which is to be updated.
+- `update.value` - the updated value.
 - `data` the row's data that the cell belongs to, prior to updating.
 
 The function can return a `Promise`, which the Data Table awaits.
 
-If `onEdit` is specified, the Data Table expects the function to update the table's data and so does not handle the update.
+If `onEdit` is specified, the Data Table expects the function to either:
+
+- return `undefined` and so expects the function to update the table's data or
+- return any other value, which will then be treated as the updated value. The data table then uses this to update the record in place.
 
 > To view more info on the specific options for cell editing see [here](/columns#editing-optional).
 

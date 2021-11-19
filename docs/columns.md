@@ -334,10 +334,16 @@ interface EditComponentProps {
   onChange: Dispatch<unknown>;
   error: boolean;
   helperText: string | null;
+  /**
+   * Boolean flag for when the input should be disabled.
+   *
+   * The value is `true` when the it is validating the edit value and then updating the data.
+   */
+  disabled: boolean;
 }
 
 export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
-  path: PathValueType<RowType>;
+  path: true | string; // `true` uses the value of the `dataIndex` field
   /**
    * The data type. Used to determine the type of the input.
    *
@@ -347,7 +353,7 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
   /**
    * Custom edit component.
    */
-  component?: (props: EditComponentProps) => ReactNode;
+  component?: (props: EditComponentProps, data: RowType, allData: AllDataType) => ReactNode;
   /**
    * Validation for the input value.
    *
@@ -358,9 +364,13 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
    */
   validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
   /**
-   * Options for the select component when `type` is `"select"`
+   * Options or a function that returns the options for the select component when `type` is `"select"`.
    */
-  selectOptions?: SelectFieldOption[];
+  selectOptions?: SelectFieldOption[] | ((data: RowType, allData: AllDataType) => SelectFieldOption[]);
+  /**
+   * Default value if the value at the `path` is `undefined` or `null`.
+   */
+  defaultValue?: EditType;
 }
 ```
 

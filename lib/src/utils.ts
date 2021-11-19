@@ -439,7 +439,7 @@ export function getTableCellAlignment<RowType extends BaseData, AllDataType exte
   index = 0,
 ): TableCellAlign {
   if (structure.align) return structure.align;
-  if (structure.numerical) return "right";
+  if (structure.numerical || structure.dataType === "number") return "right";
   const renderedValue = data && getValue(structure, data, getRowId(data, index), index);
   return typeof renderedValue === "number" ? "right" : "left";
 }

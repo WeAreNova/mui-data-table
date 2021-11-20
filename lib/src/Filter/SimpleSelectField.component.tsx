@@ -10,13 +10,13 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import PropTypes from "prop-types";
-import React, { ChangeEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
+import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 
 export type SelectFieldOption = { label: string; value: string };
 export type SimpleSelectChangeHandler<T extends SelectFieldOption> = (value: T | null) => void;
 
 interface SimpleSelectProps<T extends SelectFieldOption> extends Omit<SelectProps, "onChange"> {
-  options: T[];
+  options: Array<T | string>;
   onChange: SimpleSelectChangeHandler<T>;
   helperText?: string | null;
   disablePortal?: boolean;
@@ -53,27 +53,33 @@ const SimpleSelectField = <T extends SelectFieldOption>({
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
   const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
+  const [isOpen, setIsOpen] = useState(false);
 
-  const menuProps = useMemo(
-    () => ({
-      disablePortal,
-    }),
-    [disablePortal],
-  );
-
+  const menuProps = useMemo(() => ({ disablePortal }), [disablePortal]);
   const val = useMemo(() => value ?? defaultValue ?? "", [defaultValue, value]);
-  const allOptions = useMemo(
-    () => [...(placeholder ? [{ label: placeholder, value: "" }] : []), ...options],
+  const allOptions = useMemo<T[]>(
+    () => [
+      ...(placeholder ? [{ label: placeholder, value: "" } as T] : []),
+      ...options.map((option) => (typeof option === "object" ? option : ({ label: option, value: option } as T))),
+    ],
     [options, placeholder],
   );
 
+  const handleOpen = useCallback(() => setIsOpen(true), []);
+  const handleClose = useCallback(() => setIsOpen(false), []);
   const handleChange = useCallback<ChangeEventHandler<{ name?: string; value: unknown }>>(
     (e) => {
       const selectedValue = e.target.value === "" ? null : e.target.value;
-      onChange(options.find((o) => o.value === selectedValue) ?? null);
+      onChange(allOptions.find((o) => o.value === selectedValue) ?? null);
     },
-    [onChange, options],
+    [allOptions, onChange],
   );
+
+  useEffect(() => {
+    if (selectProps.disabled) {
+      handleClose();
+    }
+  }, [handleClose, selectProps.disabled]);
 
   return (
     <FormControl fullWidth={fullWidth} error={error} className={className}>
@@ -85,6 +91,9 @@ const SimpleSelectField = <T extends SelectFieldOption>({
         native={!isAccuratePointer}
         className={classes.select}
         MenuProps={menuProps}
+        open={isOpen}
+        onOpen={handleOpen}
+        onClose={handleClose}
       >
         {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (

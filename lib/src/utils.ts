@@ -104,7 +104,7 @@ export function findLastIndexFrom<T>(
  *  isNil(null) // true
  *  isNil(true) // false
  */
-function isNil<T>(value: T | null | undefined): value is null | undefined {
+export function isNil<T>(value: T | null | undefined): value is null | undefined {
   return value === null || value === undefined;
 }
 

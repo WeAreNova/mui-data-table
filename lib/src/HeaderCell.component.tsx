@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
 import { InitialFilterValues } from "./Filter";
 import TableContext, { TableState } from "./table.context";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition } from "./table.types";
+import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "./table.types";
 import TableCell from "./TableCell.component";
 import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
 import { ColumnDefinitionPropType } from "./_propTypes";
@@ -121,7 +121,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);
-  const hidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
+  const isHidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
   const colSpan = useMemo(
     () => (structure.colGroup && !hiddenColumns[id] ? structure.colGroup.length : 1),
     [hiddenColumns, id, structure.colGroup],
@@ -151,20 +151,20 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     [id, structure.colGroup, update],
   );
   const handleUnhide = useCallback(
-    () => hidden && handleHiddenColumnsChange(false),
-    [handleHiddenColumnsChange, hidden],
+    () => isHidden && handleHiddenColumnsChange(false),
+    [handleHiddenColumnsChange, isHidden],
   );
 
   const handleSort = useCallback(() => {
     update({
       sort: (currSort) => {
         const key = typeof structure.sorter === "string" ? structure.sorter : structure.dataIndex || id;
-        const direction =
-          currSort.key !== key || currSort.direction === undefined
-            ? "asc"
-            : currSort.direction === "asc"
-            ? "desc"
-            : undefined;
+        let direction: Sort["direction"];
+        if (currSort.key !== key || currSort.direction === undefined) {
+          direction = "asc";
+        } else if (currSort.direction === "asc") {
+          direction = "desc";
+        }
         return {
           key,
           direction,
@@ -203,11 +203,11 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
 
   return (
     <Fragment key={id}>
-      <Tooltip title={hidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
+      <Tooltip title={isHidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
         <TableCell
           onClick={handleUnhide}
           ref={tableCellRef}
-          hidden={Boolean(hidden)}
+          hidden={Boolean(isHidden)}
           pinned={pinnedColumn === id}
           colSpan={colSpan}
           rowSpan={rowSpan}
@@ -253,8 +253,8 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   <AcUnit />
                 </IconButton>
               )}
-              {structure.actionButtons?.map(({ key, icon, onClick, ...props }: ActionButton) => (
-                <IconButton key={key} onClick={onClick} {...props} size="small">
+              {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
+                <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
                   {icon}
                 </IconButton>
               ))}

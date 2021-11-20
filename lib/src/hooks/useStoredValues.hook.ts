@@ -7,8 +7,8 @@ function useStoredValues(
 ): { sort: Sort; rowsPerPage: number; activeFilters: ActiveFilters } {
   return useMemo(() => {
     const defaultStored = {
-      sort: defaultSort!,
-      rowsPerPage: defaultRowsPerPage!,
+      sort: defaultSort,
+      rowsPerPage: defaultRowsPerPage,
       activeFilters: [] as ActiveFilters,
     };
     if (typeof window === "undefined") return defaultStored;

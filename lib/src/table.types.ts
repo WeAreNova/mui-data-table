@@ -1,6 +1,6 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
 import type React from "react";
-import { Dispatch, ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
 import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
 import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
@@ -184,14 +184,20 @@ export interface Operator {
   };
 }
 
-interface EditComponentProps {
-  defaultValue: unknown;
-  onChange: Dispatch<unknown>;
+export interface EditComponentProps<T = any> {
+  defaultValue: T;
+  onChange: Dispatch<SetStateAction<T>>;
   error: boolean;
   helperText: string | null;
+  /**
+   * Boolean flag for when the input should be disabled.
+   *
+   * The value is `true` when the it is validating the edit value and then updating the data.
+   */
+  disabled: boolean;
 }
 
-export interface EditableOptions<RowType extends BaseData, AllDataType extends RowType[]> {
+export interface EditableOptions<EditType, RowType extends BaseData, AllDataType extends RowType[]> {
   path: PathValueType<RowType>;
   /**
    * The data type. Used to determine the type of the input.
@@ -202,7 +208,7 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
   /**
    * Custom edit component.
    */
-  component?: (props: EditComponentProps) => ReactNode;
+  component?: (props: EditComponentProps<EditType>, data: RowType, allData: AllDataType) => ReactNode;
   /**
    * Validation for the input value.
    *
@@ -211,16 +217,20 @@ export interface EditableOptions<RowType extends BaseData, AllDataType extends R
    * @throws {Error | DataTableErrorType} throws a DataTableError if the value is invalid.
    * If you want to display an error message as helper text, throw an error with a message.
    */
-  validate?<T>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
+  validate?<T = EditType>(value: T, options: { data: RowType; allData: AllDataType }): any | Promise<any>;
   /**
-   * Options for the select component when `type` is `"select"`
+   * Options or a function that returns the options for the select component when `type` is `"select"`.
    */
-  selectOptions?: SelectFieldOption[];
+  selectOptions?: SelectFieldOption[] | ((data: RowType, allData: AllDataType) => SelectFieldOption[]);
+  /**
+   * Default value if the value at the `path` is `undefined` or `null`.
+   */
+  defaultValue?: EditType;
 }
 
 export type EditableCell<RowType extends BaseData, AllDataType extends RowType[]> =
   | PathValueType<RowType>
-  | EditableOptions<RowType, AllDataType>;
+  | EditableOptions<any, RowType, AllDataType>;
 
 export type FilterColumn<RowType extends BaseData> = PathValueType<RowType> | FilterOptions<RowType>;
 
@@ -257,6 +267,24 @@ export interface Sort {
   key: null | string;
   direction?: "asc" | "desc";
 }
+
+/**
+ * A function invoked when a row/cell is edited.
+ *
+ * If no function is provided, the row/cell will be updated in place.
+ * Otherwise it will expect the function to return the updated value or update the table data itself.
+ *
+ * @param update.path the path to the value to be updated.
+ * @param update.value the updated value.
+ * @param data the row data.
+ * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
+ * @returns `void` if the update will be handled separately or the updated value which is then used to
+ * update the table data in place.
+ */
+export type TableCellEditHandler<RowType extends BaseData, T = unknown> = (
+  update: { path: PathType<RowType>; value: T },
+  rowData: RowType,
+) => T | Promise<T> | void | Promise<void>;
 
 export interface TableProps<RowType extends BaseData, AllDataType extends RowType[]> {
   /**
@@ -354,12 +382,9 @@ export interface TableProps<RowType extends BaseData, AllDataType extends RowTyp
    * A function invoked when a row/cell is edited.
    *
    * If no function is provided, the row/cell will be updated in place.
-   * Otherwise it will expect the function to update the value.
+   * Otherwise it will expect the function to return the updated value or update the table data itself.
    *
-   * @param path the path to the value to be updated.
-   * @param value the updated value.
-   * @param data the row data.
-   * @throws {DataTableErrorType} throws a `DataTableError` if the value is invalid.
+   * @see {@link TableCellEditHandler}
    */
-  onEdit?<T>(path: PathType<RowType>, value: T, rowData: RowType): void | Promise<void>;
+  onEdit?: TableCellEditHandler<RowType>;
 }

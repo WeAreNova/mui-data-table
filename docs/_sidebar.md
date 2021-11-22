@@ -16,6 +16,7 @@
 
 - [**Features**](/features#features)
 
+  - [Currency & Number Formatting](/features#currency-amp-number-formatting)
   - [CSV Export](/features#csv-export)
   - [Editing](/features#editing)
     - [Validation](/features#validation)

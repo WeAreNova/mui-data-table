@@ -12,9 +12,11 @@ import {
 import Brightness4 from "@material-ui/icons/Brightness4";
 import Brightness7 from "@material-ui/icons/Brightness7";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-import DataTable from "@wearenova/mui-data-table";
+import DataTable, { setDefaultCurrency } from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
 import { getData, STRUCTURE, User } from "./utils";
+
+setDefaultCurrency("USD");
 
 function App() {
   const [darkMode, setDarkMode] = useState(window.localStorage.getItem("darkMode") === "true");

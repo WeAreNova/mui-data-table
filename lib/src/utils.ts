@@ -22,6 +22,8 @@ import {
   TableCellAlign,
 } from "./table.types";
 
+let defaultCurrency = "GBP";
+
 const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
 
 /**
@@ -135,7 +137,6 @@ function isBefore(date1: any, date2: any) {
  * A function that returns an object which converts the given filter value to the correct type
  *
  * @param value the filter's value
- * @param utils the date utilities from \@material-ui/pickers
  * @returns the convertors
  */
 export function getFilterTypeConvertors(value: ActiveFilter["value"]) {
@@ -355,9 +356,12 @@ export function getPath<RowType extends BaseData, AllDataType extends RowType[] 
 /**
  * A utility function to handle the formatting of numerical values when desired
  *
- * @param value the number to be formatted
- * @param param1 the formatting options
- * @returns the formatted number as a string
+ * @param value the number to be formatted. If `value` is not a parseable number, then `value` is returned.
+ * @param options the `Intl.NumberFormatOptions` options.
+ * @param options.currency can be a `boolean` or an ISO 4217 currency code e.g. `"USD"` to override the default currency.
+ * @param options.decimalPlaces a special field to set both the maximum and minimum decimal places.
+ * @default options.currency = true
+ * @returns the formatted number as a string.
  */
 export function numberFormatter(
   value: number,
@@ -365,13 +369,14 @@ export function numberFormatter(
     currency = true,
     decimalPlaces,
     ...options
-  }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number },
+  }: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number } = {},
 ) {
+  if (isNaN(value)) return value;
   let currencySymbol: string | undefined;
   if (typeof currency === "string") {
     currencySymbol = currency;
   } else if (currency) {
-    currencySymbol = "GBP";
+    currencySymbol = defaultCurrency;
   }
   return new Intl.NumberFormat(window.navigator.language, {
     style: currency ? "currency" : undefined,
@@ -380,6 +385,17 @@ export function numberFormatter(
     maximumFractionDigits: decimalPlaces ?? 2,
     ...options,
   }).format(value);
+}
+
+/**
+ * A utility function to change the default currency for the number formatter
+ *
+ * @param currency the ISO 4217 currency code
+ * @returns the new default currency
+ */
+export function setDefaultCurrency(currency: string) {
+  defaultCurrency = currency;
+  return defaultCurrency;
 }
 
 /**

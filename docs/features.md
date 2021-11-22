@@ -25,7 +25,7 @@ function numberFormatter(
 
 There are a few options which are defaulted. These are:
 
-- `currency` defaults to `true`. So, unless specifically disabled, the value number will be formatted as currency.
+- `currency` defaults to `true`. So, unless specifically disabled, the value will be formatted as currency.
 - If `decimalPlaces`, `minimumFractionDigits` and `maximumFractionDigits` are all unspecified, then the number of decimal places defaults to 2.
 
 ### Setting the Default Currency

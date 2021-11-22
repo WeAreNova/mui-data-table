@@ -44,7 +44,7 @@ const useStyles = makeStyles(
   { name: "DataTable-EditCell" },
 );
 
-function getDefaultValue<RowType extends BaseData, AllDataType extends RowType[]>({
+function getInitialValue<RowType extends BaseData, AllDataType extends RowType[]>({
   structure,
   data,
   path,
@@ -80,25 +80,24 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     () => (typeof structure.editable === "object" ? structure.editable : null),
     [structure.editable],
   );
-  const defaultValue = useMemo(() => {
-    const v = getDefaultValue({ structure, data, path: editPath, type: editType });
-    if (typeof v === "string" || typeof v === "number") return v;
-    return editOptions?.defaultValue ?? "";
+  const initialValue = useMemo(() => {
+    const v = getInitialValue({ structure, data, path: editPath, type: editType });
+    return v ?? editOptions?.defaultValue ?? "";
   }, [data, editOptions?.defaultValue, editPath, editType, structure]);
 
-  const [editValue, setEditValue] = useState(defaultValue);
+  const [editValue, setEditValue] = useState(initialValue);
 
   const commonProps = useMemo(
     () =>
       ({
-        defaultValue,
+        defaultValue: initialValue,
         error: Boolean(error),
         helperText: error,
         fullWidth: true,
         variant: "standard",
         margin: "none",
       } as const),
-    [defaultValue, error],
+    [initialValue, error],
   );
   const selectOptions = useMemo(() => {
     if (editType === "boolean") return BOOLEAN_OPTIONS;
@@ -190,8 +189,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [handleCancelEdit]);
 
   useEffect(() => {
-    setEditValue(defaultValue);
-  }, [defaultValue]);
+    setEditValue(initialValue);
+  }, [initialValue]);
 
   useEffect(
     () => () => {

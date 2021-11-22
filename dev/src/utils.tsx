@@ -79,7 +79,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     filterColumn: "personalDetails.addressHistory.addressLineOne",
     editable: {
       path: "personalDetails.addressHistory",
-      component: ({ defaultValue, onChange }: EditComponentProps<Address[]>) =>
+      component: ({ defaultValue, onChange, disabled }: EditComponentProps<Address[]>) =>
         defaultValue.map((value, index) => {
           const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
             onChange((v) => {
@@ -88,24 +88,44 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
               return newValue;
             });
           return (
-            <>
+            <Fragment key={index}>
               {Boolean(index) && <hr />}
               <TextField
                 name="addressLineOne"
                 defaultValue={value.addressLineOne}
                 onChange={handleChange}
                 placeholder="Line One"
+                disabled={disabled}
               />
               <TextField
                 name="addressLineTwo"
                 defaultValue={value.addressLineTwo}
                 onChange={handleChange}
                 placeholder="Line Two"
+                disabled={disabled}
               />
-              <TextField name="city" defaultValue={value.city} onChange={handleChange} placeholder="City" />
-              <TextField name="country" defaultValue={value.country} onChange={handleChange} placeholder="Country" />
-              <TextField name="postcode" defaultValue={value.postcode} onChange={handleChange} placeholder="Postcode" />
-            </>
+              <TextField
+                name="city"
+                defaultValue={value.city}
+                onChange={handleChange}
+                placeholder="City"
+                disabled={disabled}
+              />
+              <TextField
+                name="country"
+                defaultValue={value.country}
+                onChange={handleChange}
+                placeholder="Country"
+                disabled={disabled}
+              />
+              <TextField
+                name="postcode"
+                defaultValue={value.postcode}
+                onChange={handleChange}
+                placeholder="Postcode"
+                disabled={disabled}
+              />
+            </Fragment>
           );
         }),
       defaultValue: [

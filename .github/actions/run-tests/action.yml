@@ -1,0 +1,22 @@
+name: Test MUI Data Table
+description: Runs the tests for MUI Data Table
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: "14"
+        cache: "npm"
+
+    - name: Update npm to v8
+      shell: bash
+      run: npm i -g npm@8
+
+    - name: Install
+      shell: bash
+      run: npm ci
+
+    - name: Test
+      shell: bash
+      run: npm run test

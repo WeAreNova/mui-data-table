@@ -65,5 +65,5 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
 };
 
 export * from "./table.types";
-export { createDTError } from "./utils";
+export { createDTError, numberFormatter, setDefaultCurrency } from "./utils";
 export default DataTable;

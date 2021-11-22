@@ -1,5 +1,4 @@
 import { Checkbox, debounce } from "@material-ui/core";
-import { useUtils } from "@material-ui/pickers";
 import { get } from "dot-prop";
 import fileDownload from "js-file-download";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
@@ -146,7 +145,6 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 }: PropsWithChildren<{
   value: TableContextValue<RowType, AllDataType>;
 }>) => {
-  const dateUtils = useUtils();
   const stored = useStoredValues(defaultSort, rowsPerPageDefault);
   const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
   const tableState = useMemo(
@@ -229,7 +227,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
   const [tableData, tableCount] = useMemo(() => {
     const numberCount = count && Number(count);
     if (tableState.onChange) return [state.tableData, numberCount || state.tableData.length];
-    const filteredData = getFilteredData(state.tableData, state.activeFilters, dateUtils);
+    const filteredData = getFilteredData(state.tableData, state.activeFilters);
     const sortedData = getSortedData(filteredData, state.sort, tableState.tableStructure);
     const pagedData = tableState.disablePagination
       ? sortedData
@@ -237,7 +235,6 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     return [pagedData, numberCount || filteredData.length];
   }, [
     count,
-    dateUtils,
     state.activeFilters,
     state.page,
     state.rowsPerPage,

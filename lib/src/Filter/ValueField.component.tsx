@@ -1,5 +1,5 @@
 import { debounce, TextField, Typography } from "@material-ui/core";
-import { DatePicker, useUtils } from "@material-ui/pickers";
+import { DatePicker } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
@@ -48,7 +48,6 @@ const ValueField = <
   value: filter,
   onChange,
 }: PropsWithChildren<ValueFieldProps<T, V>>) => {
-  const dateUtils = useUtils();
   const [filterValue, setFilterValue] = useState<ActiveFilter["value"]>(filter.value);
   const [hasError, setHasError] = useState(false);
 
@@ -62,20 +61,17 @@ const ValueField = <
     if (!selected) return setFilterValue(null);
     setFilterValue(selected.value === "true");
   }, []);
-  const handleDateChange = useCallback(
-    (value: MaterialUiPickersDate | null) => {
-      const newFilterValue = value && dateUtils.date(value)?.toDate();
-      setFilterValue(newFilterValue ?? null);
-    },
-    [dateUtils],
-  );
+  const handleDateChange = useCallback((value: MaterialUiPickersDate | null) => {
+    const newFilterValue = value && new Date(value);
+    setFilterValue(newFilterValue ?? null);
+  }, []);
   const handleOtherChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       if (!filter.type) return setFilterValue(e.target.value);
-      const convertors = getFilterTypeConvertors(e.target.value, dateUtils);
+      const convertors = getFilterTypeConvertors(e.target.value);
       setFilterValue(convertors[filter.type]());
     },
-    [dateUtils, filter.type],
+    [filter.type],
   );
 
   const field = useMemo(() => {

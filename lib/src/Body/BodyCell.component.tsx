@@ -154,6 +154,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
       rowSpan={rowSpan}
       align={structure.align}
       className={bodyCellClasses}
+      data-testid="DataTable-BodyCell"
     >
       <div onClick={handleEditClick} onDoubleClick={handleEdit}>
         {editMode ? (

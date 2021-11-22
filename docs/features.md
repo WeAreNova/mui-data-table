@@ -1,5 +1,55 @@
 # Features
 
+## Currency & Number Formatting
+
+This package exports a `numberFormatter` utility function that can be used to format numerical values. The function is also used during a Numerical Render (see [here](/columns#numerical-render-optional)).
+
+```ts
+/**
+ * @param value the number to be formatted. If `value` is not a parseable number, then `value` is returned.
+ * @param options the `Intl.NumberFormatOptions` options.
+ * @param options.currency can be a `boolean` or an ISO 4217 currency code e.g. `"USD"` to override the default currency.
+ * @param options.decimalPlaces a special field to set both the maximum and minimum decimal places.
+ * @default options.currency = true
+ * @returns the formatted number as a string.
+ */
+function numberFormatter(
+  value: number,
+  options: Omit<Intl.NumberFormatOptions, "currency"> & { currency?: boolean | string; decimalPlaces?: number } = {},
+): string;
+```
+
+> The locale for the number formatter uses `window.navigator.language`.
+
+### Defaults
+
+There are a few options which are defaulted. These are:
+
+- `currency` defaults to `true`. So, unless specifically disabled, the value will be formatted as currency.
+- If `decimalPlaces`, `minimumFractionDigits` and `maximumFractionDigits` are all unspecified, then the number of decimal places defaults to 2.
+
+### Setting the Default Currency
+
+By default, the currency is "GBP", but you can also use the exported `setDefaultCurrency` function to change it.
+
+e.g. given the locale of `"en"`
+
+```js
+import { numberFormatter, setDefaultCurrency } from "@wearenova/mui-data-table";
+
+numberFormatter(1); // £1.00
+setDefaultCurrency("USD"); // Changes the default currency to US Dollar
+numberFormatter(1); // $1.00
+```
+
+```ts
+/**
+ * @param currency the ISO 4217 currency code
+ * @returns the new default currency
+ */
+function setDefaultCurrency(currency: string): string;
+```
+
 ## CSV Export
 
 You can enable CSV exporting via the `exportToCSVOption?: boolean;` prop on the Data Table. Setting the prop to true will make the `CSV Export` button available.

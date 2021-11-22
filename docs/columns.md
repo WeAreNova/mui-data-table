@@ -86,9 +86,11 @@ interface NumericalObject<RowType extends BaseData = BaseData> {
   decimalPlaces?: number;
   minDecimalPlaces?: number;
   maxDecimalPlaces?: number;
-  currency?: true | string; // `true` uses the browser's locale to work out the currency to use. Or you can specify your own.
+  currency?: true | string; // `true` uses the default currency, which is "GBP" by default. Or you can override it here by specifying an ISO 4217 currency code.
 }
 ```
+
+!> To change the default currency, see [Setting the Default Currency](/features#setting-the-default-currency).
 
 ```ts
 interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
@@ -97,6 +99,8 @@ interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType
   ....
 }
 ```
+
+?> For more information on numerical rendering and formatting, see [Currency & Number Formatting](/features#currency-amp-number-formatting).
 
 #### Data Type - Optional
 

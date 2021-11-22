@@ -69,6 +69,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           git add .
-          git commit -m "${{ steps.git-tag.outputs.result }}"
+          git commit --amend --no-edit
+          git tag -d ${{ steps.git-tag.outputs.result }}
+          git tag ${{ steps.git-tag.outputs.result }}
           git push origin main
           git push origin ${{ steps.git-tag.outputs.result }}

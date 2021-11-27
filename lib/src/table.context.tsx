@@ -25,6 +25,7 @@ import {
   getRowId,
   getSortedData,
   getTableCellAlignment,
+  getUnhiddenColumns,
 } from "./utils";
 
 const DYNAMIC_STATE = [
@@ -82,14 +83,25 @@ interface BaseTableState<RowType extends BaseData = BaseData, AllDataType extend
   editable: false | "cells" | "rows";
 }
 
+type FlattenedStructure<RowType extends BaseData, AllDataType extends RowType[]> = Array<
+  ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>
+> & { notHidden: Array<FlattenedStructure<RowType, AllDataType>[number] & { hidden: false | undefined }> };
+
+export type Structure<RowType extends BaseData, AllDataType extends RowType[]> = ColumnDefinition<
+  RowType,
+  AllDataType
+>[] & {
+  flattened: FlattenedStructure<RowType, AllDataType>;
+  notHidden: Array<ColumnDefinition<RowType, AllDataType> & { hidden: false | undefined }>;
+};
+
 export interface TableState<RowType extends BaseData = BaseData, AllDataType extends RowType[] = RowType[]>
   extends Omit<BaseTableState<RowType, AllDataType>, "onChange"> {
   count: number;
   onChange?(queryParams?: OnChangeObject): Promise<AllDataType>;
   allTableData: AllDataType;
   update: Update;
-  filteredTableStructure: ColumnDefinition<RowType, AllDataType>[];
-  flattenedTableStructure: Array<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>;
+  structure: Structure<RowType, AllDataType>;
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
 }
 
@@ -119,7 +131,7 @@ type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Red
 >;
 
 const TableContext = React.createContext<TableState<any, any>>({} as TableState);
-TableContext.displayName = "TableContext";
+TableContext.displayName = "DataTableContext";
 
 const reducer: TableReducer<any, any> = (state, action) =>
   typeof action === "function"
@@ -251,9 +263,9 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       data = await onChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
       await onChange(onChangeObject);
     }
-    const csvString = await exportTableToCSV(data, tableState.tableStructure as any);
+    const csvString = await exportTableToCSV(data, tableState.tableStructure);
     const filename = csvFilename.endsWith(".csv") ? csvFilename : `${csvFilename}.csv`;
-    fileDownload(new Blob([csvString]), filename, "text/csv;charset=utf-16;");
+    fileDownload(csvString, filename, "text/csv;charset=utf-16;");
   }, [csvFilename, onChange, onChangeObject, tableState.onChange, state.tableData, tableState.tableStructure]);
 
   const handleSelectedChange = useCallback(
@@ -286,14 +298,18 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
   const noRowsSelected = useMemo(() => Object.values(state.selectedRows).length, [state.selectedRows]);
 
   const handleSelectAll = useCallback(() => {
-    if (noRowsSelected) {
-      return update.selectedRows({});
-    }
-    update.selectedRows(tableData.reduce((prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }), {}));
-  }, [noRowsSelected, tableData, update]);
+    if (noRowsSelected) return update.selectedRows({});
+    update((currState) => ({
+      ...currState,
+      selectedRows: currState.tableData.reduce(
+        (prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }),
+        {},
+      ),
+    }));
+  }, [noRowsSelected, update]);
 
-  const filteredTableStructure = useMemo<ColumnDefinition<RowType, AllDataType>[]>(
-    () => [
+  const structure = useMemo<Structure<RowType, AllDataType>>(() => {
+    const fullStructure = [
       ...(!tableState.rowsSelectable
         ? []
         : [
@@ -334,37 +350,36 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
               align: getTableCellAlignment(structure, tableData?.[0]),
             },
       ),
-    ],
-    [
-      tableState.rowsSelectable,
-      tableState.selectGroupBy,
-      tableState.tableStructure,
-      handleSelectAll,
-      noRowsSelected,
-      tableData,
-      state.selectedRows,
-      handleSelectedChange,
-    ],
-  );
+    ] as Structure<RowType, AllDataType>;
+    fullStructure.notHidden = getUnhiddenColumns(fullStructure);
 
-  const flattenedTableStructure = useMemo(
-    () =>
-      filteredTableStructure.flatMap<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>(
-        (struct) =>
-          !struct.colGroup || state.hiddenColumns[struct.key]
-            ? struct
-            : struct.colGroup.map((colGroup) => ({
-                ...colGroup,
-                isColGroup: true,
-                hasColGroupFooter: Boolean(struct.footer),
-              })),
-      ),
-    [filteredTableStructure, state.hiddenColumns],
-  );
+    fullStructure.flattened = fullStructure.flatMap<FlattenedStructure<RowType, AllDataType>[number]>((struct) => {
+      if (!struct.colGroup || state.hiddenColumns[struct.key]) return [struct];
+      return struct.colGroup.map<ColGroupDefinition<RowType, AllDataType>>((colGroup) => ({
+        ...colGroup,
+        isColGroup: true,
+        hasColGroupFooter: Boolean(struct.footer),
+      }));
+    }) as FlattenedStructure<RowType, AllDataType>;
+    fullStructure.flattened.notHidden = getUnhiddenColumns(fullStructure.flattened);
+
+    return fullStructure;
+  }, [
+    handleSelectAll,
+    handleSelectedChange,
+    noRowsSelected,
+    state.hiddenColumns,
+    state.selectedRows,
+    tableData,
+    tableState.rowsSelectable,
+    tableState.selectGroupBy,
+    tableState.tableStructure,
+  ]);
 
   const filterOptions = useMemo(
     () =>
       state.tableStructure
+        .filter((c) => c.filterColumn || c.colGroup?.some((cg) => cg.filterColumn))
         .flatMap((c) => {
           const title = getColumnTitle(c.title, state.tableData);
           return [
@@ -375,7 +390,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
             }) || []),
           ];
         })
-        .filter((c) => Boolean(c.filterColumn))
+        .filter((c) => c.filterColumn)
         .map((c) => {
           const type = getDataType(c.filterColumn, c);
           return {
@@ -397,22 +412,11 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         allTableData: state.tableData,
         count: tableCount,
         exportToCSV,
-        filteredTableStructure,
-        flattenedTableStructure,
+        structure,
         update,
         filterOptions,
       } as TableState),
-    [
-      state,
-      handleChange,
-      tableData,
-      tableCount,
-      exportToCSV,
-      filteredTableStructure,
-      flattenedTableStructure,
-      update,
-      filterOptions,
-    ],
+    [exportToCSV, filterOptions, handleChange, state, structure, tableCount, tableData, update],
   );
 
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;

@@ -102,6 +102,21 @@ interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType
 
 ?> For more information on numerical rendering and formatting, see [Currency & Number Formatting](/features#currency-amp-number-formatting).
 
+#### Hidden Columns - Optional
+
+The `hidden` field is used to specify a column that will not be rendered, but will be available for functionality such as filtering and the CSV Export.
+
+This can be useful for fields that may not provide much visual benefit, but very useful for filtering the data. E.g. Id values may not want to be rendered in the table but may want to search up an entry by the Id.
+
+```ts
+
+interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[]> {
+  ....
+  hidden?: boolean;
+  ....
+}
+```
+
 #### Data Type - Optional
 
 The `dataType` field is used the specify the type of the data. This field can be used as the default for [`filterColumn.type`](#filtering-optional) and [`editable.type`](#editing-optional).

@@ -1,5 +1,6 @@
 import {
   Button,
+  createStyles,
   makeStyles,
   Table as MUITable,
   TableBody,
@@ -13,7 +14,8 @@ import {
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from "react";
+import type { ChangeEventHandler, MouseEvent, PropsWithChildren } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import BodyRow from "./Body/BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
@@ -29,51 +31,52 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   > {}
 
 const useStyles = makeStyles(
-  (theme) => ({
-    dataLoading: {
-      "& > tbody": {
-        opacity: 0.4,
-        backgroundColor: theme.palette.action.hover,
+  (theme) =>
+    createStyles({
+      dataLoading: {
+        "& > tbody": {
+          opacity: 0.4,
+          backgroundColor: theme.palette.action.hover,
+        },
       },
-    },
-    footerButtons: {
-      display: "flex",
-    },
-    selectedRowsFooter: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-end",
-      "& > *": {
-        marginRight: theme.spacing(2.5),
+      footerButtons: {
+        display: "flex",
       },
-    },
-    table: {
-      "& > tbody": {
-        transition: "opacity 0.2s ease-in-out, background-color 0.2s ease-in-out",
+      selectedRowsFooter: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        "& > *": {
+          marginRight: theme.spacing(2.5),
+        },
       },
-    },
-    tableFooter: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      border: `1px solid ${theme.palette.divider}`,
-      borderWidth: "1px 0 1px 0",
-      flexWrap: "wrap",
-      "& > *": {
-        borderBottom: 0,
+      table: {
+        "& > tbody": {
+          transition: "opacity 0.2s ease-in-out, background-color 0.2s ease-in-out",
+        },
       },
-      [theme.breakpoints.down("sm")]: {
-        flexDirection: "column",
-        alignItems: "flex-start",
+      tableFooter: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        border: `1px solid ${theme.palette.divider}`,
+        borderWidth: "1px 0 1px 0",
+        flexWrap: "wrap",
+        "& > *": {
+          borderBottom: 0,
+        },
+        [theme.breakpoints.down("sm")]: {
+          flexDirection: "column",
+          alignItems: "flex-start",
+        },
       },
-    },
-    tablePagination: {
-      borderBottom: "none",
-      [theme.breakpoints.down("sm")]: {
-        width: "100%",
+      tablePagination: {
+        borderBottom: "none",
+        [theme.breakpoints.down("sm")]: {
+          width: "100%",
+        },
       },
-    },
-  }),
+    }),
   { name: "DataTable" },
 );
 
@@ -95,8 +98,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   const {
     allTableData,
     tableData,
-    filteredTableStructure,
-    flattenedTableStructure,
+    structure,
     enableHiddenColumns,
     rowsSelectable,
     rowsPerPage,
@@ -116,9 +118,14 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     return !values.length || values.every((value) => !value);
   }, [hiddenColumns]);
 
-  const onPageChange = useCallback((newPage) => update.page(newPage), [update]);
+  const hasFooter = useMemo(() => structure.flattened.some((struct) => Boolean(struct.footer)), [structure.flattened]);
+  const hasColGroupFooter = useMemo(
+    () => structure.some((struct) => Boolean(struct.colGroup && struct.footer)),
+    [structure],
+  );
 
-  const onRowsPerPageChange = useCallback(
+  const onPageChange = useCallback((_e: MouseEvent | null, newPage: number) => update.page(newPage), [update]);
+  const onRowsPerPageChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>>(
     (e) => {
       const newRowsPerPage = parseInt(e.target.value, 10);
       update({ rowsPerPage: newRowsPerPage, page: 0 });
@@ -126,14 +133,14 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     [update],
   );
 
-  const hasColGroupFooter = useMemo(
-    () => filteredTableStructure.some((struct) => Boolean(struct.colGroup && struct.footer)),
-    [filteredTableStructure],
+  const handleShowAll = useCallback(
+    () =>
+      update.hiddenColumns((currHiddenColumns) =>
+        Object.keys(currHiddenColumns).reduce((prev, key) => ({ ...prev, [key]: false }), {}),
+      ),
+    [update],
   );
-  const hasFooter = useMemo(
-    () => flattenedTableStructure.some((struct) => Boolean(struct.footer)),
-    [flattenedTableStructure],
-  );
+  const handleClearSelection = useCallback(() => update.selectedRows({}), [update]);
 
   useEffect(() => {
     if (onSelectedRowsChange) onSelectedRowsChange(Object.values(selectedRows));
@@ -157,7 +164,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
             <TableFooter>
               {hasFooter && (
                 <TableRow>
-                  {flattenedTableStructure.map((struct) => (
+                  {structure.flattened.map((struct) => (
                     <TableCell
                       key={struct.key}
                       rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
@@ -169,7 +176,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
               )}
               {hasColGroupFooter && (
                 <TableRow>
-                  {filteredTableStructure.map(({ colGroup, footer, ...struct }) =>
+                  {structure.map(({ colGroup, footer, ...struct }) =>
                     colGroup && footer ? (
                       <TableCell key={struct.key} colSpan={colGroup.length}>
                         {footer(allTableData)}
@@ -190,16 +197,8 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 CSV Export
               </Button>
             )}
-            {enableHiddenColumns && !allColumnsVisible && (
-              <Button
-                onClick={() =>
-                  update.hiddenColumns(
-                    Object.keys(hiddenColumns).reduce((prev, key) => ({ ...prev, [key]: false }), {}),
-                  )
-                }
-                variant="text"
-                disabled={allColumnsVisible}
-              >
+            {enableHiddenColumns && (
+              <Button onClick={handleShowAll} variant="text" disabled={allColumnsVisible}>
                 Show all
               </Button>
             )}
@@ -213,11 +212,8 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
               count={count}
               rowsPerPage={rowsPerPage!}
               page={page}
-              SelectProps={{
-                inputProps: { "aria-label": "rows per page" },
-                native: true,
-              }}
-              onPageChange={(_e, newPage) => onPageChange(newPage)}
+              SelectProps={{ inputProps: { "aria-label": "rows per page" }, native: true }}
+              onPageChange={onPageChange}
               onRowsPerPageChange={onRowsPerPageChange}
               component="div"
             />
@@ -225,7 +221,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
           {rowsSelectable && (
             <div className={classes.selectedRowsFooter}>
               <Button
-                onClick={() => update.selectedRows({})}
+                onClick={handleClearSelection}
                 disabled={!Object.values(selectedRows).length}
                 variant="text"
                 size="small"

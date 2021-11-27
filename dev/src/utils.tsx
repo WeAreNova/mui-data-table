@@ -25,6 +25,7 @@ const USER_ROLES = ["publicUser", "readOnlyUser", "user", "readOnlyAdmin", "admi
 export type UserRole = typeof USER_ROLES[number];
 
 export interface User {
+  id: string;
   email: string;
   title?: string;
   forenames: string;
@@ -42,6 +43,13 @@ export interface User {
 }
 
 export const STRUCTURE: ColumnDefinition<User>[] = [
+  {
+    key: "id",
+    dataIndex: "id",
+    title: "ID",
+    hidden: true,
+    filterColumn: true,
+  },
   {
     key: "fullName",
     title: "Full Name",

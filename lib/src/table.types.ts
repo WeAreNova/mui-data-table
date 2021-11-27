@@ -116,6 +116,16 @@ interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends Row
    */
   colGroup?: ColGroupDefinition<RowType, AllDataType>[];
   /**
+   * Boolean flag to indicate if the column is hidden from the table.
+   *
+   * Can be used when you want to include the column in the table's various functionality but don't want to display as a column.
+   *
+   * @example
+   * When you want to be able to filter the data by the column, but the rendered value is not useful.
+   * e.g. an Id field
+   */
+  hidden?: boolean;
+  /**
    * @private internal use only
    */
   isColGroup?: true;
@@ -138,9 +148,14 @@ type WithExactlyOne<
   Requires extends keyof BaseColumnDefinition<RowType, AllDataType> = "numerical" | "render",
 > = RequireExactlyOne<BaseColumnDefinition<RowType, AllDataType>, Requires>;
 
-export type ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> =
+type GetColumnDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> =
   | WithDataIndex<RowType, AllDataType>
-  | WithExactlyOne<RowType, AllDataType, "numerical" | "render" | "colGroup">;
+  | WithExactlyOne<RowType, AllDataType, "numerical" | "render" | "colGroup" | "hidden">;
+
+export type ColumnDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> = GetColumnDefinition<
+  RowType,
+  AllDataType
+>;
 
 export type ColGroupDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> = Omit<
   WithDataIndex<RowType, AllDataType> | WithExactlyOne<RowType, AllDataType, "numerical" | "render">,

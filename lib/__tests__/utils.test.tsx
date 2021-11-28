@@ -279,11 +279,21 @@ describe("getTableCellAlignment utility function", function () {
   });
 });
 
-it("should filter out hidden columns with the getUnhiddenColumns utility function", function () {
-  const columns = [
+describe("getUnhiddenColumns utility function", function () {
+  const baseColumns = [
     { dataIndex: "email", hidden: true } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
     { dataIndex: "name" } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
     { dataIndex: "balance", hidden: false } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
   ];
-  expect(getUnhiddenColumns(columns)).toEqual([columns[1], columns[2]]);
+  it("should filter out hidden columns", function () {
+    expect(getUnhiddenColumns(baseColumns)).toEqual([baseColumns[1], baseColumns[2]]);
+  });
+  it("should return all columns if there are no hidden columns", function () {
+    baseColumns[0].hidden = false;
+    expect(getUnhiddenColumns(baseColumns)).toEqual(baseColumns);
+  });
+  it("should return no columns if all columns are hidden", function () {
+    baseColumns.forEach((column) => (column.hidden = true));
+    expect(getUnhiddenColumns(baseColumns)).toEqual([]);
+  });
 });

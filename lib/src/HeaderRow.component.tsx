@@ -24,19 +24,19 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
   props: PropsWithChildren<Record<string, never>>,
 ) => {
   const classes = useStyles(props);
-  const { filteredTableStructure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { structure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
   const [initialFilter, setInitialFilter] = useState<InitialFilterValues<RowType> | null>(null);
 
+  const hasColGroups = useMemo(
+    () => structure.notHidden.some((struct) => Boolean(struct.colGroup)),
+    [structure.notHidden],
+  );
+
   const topHeaderOffsetStyle = useCallback(
     () => ({ top: (topHeaderRef.current && topHeaderRef.current.offsetHeight) ?? undefined }),
     [],
-  );
-
-  const hasColGroups = useMemo(
-    () => filteredTableStructure.some((struct) => Boolean(struct.colGroup)),
-    [filteredTableStructure],
   );
 
   const handleFilterClick = useCallback((target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>) => {
@@ -57,7 +57,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
   return (
     <TableHead>
       <TableRow ref={topHeaderRef}>
-        {filteredTableStructure.map((structure) => (
+        {structure.notHidden.map((structure) => (
           <HeaderCell
             key={structure.key}
             id={structure.key}
@@ -69,18 +69,20 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
       </TableRow>
       {hasColGroups && (
         <TableRow>
-          {filteredTableStructure.map(({ colGroup, ...containerStructure }) =>
+          {structure.notHidden.map(({ colGroup, ...containerStructure }) =>
             colGroup && !hiddenColumns[containerStructure.key]
-              ? colGroup.map((colGroupStructure) => (
-                  <HeaderCell
-                    key={colGroupStructure.key}
-                    id={colGroupStructure.key}
-                    structure={colGroupStructure}
-                    onFilterClick={handleFilterClick}
-                    style={topHeaderOffsetStyle()}
-                    colGroupHeader
-                  />
-                ))
+              ? colGroup
+                  .filter((cg) => !cg.hidden)
+                  .map((colGroupStructure) => (
+                    <HeaderCell
+                      key={colGroupStructure.key}
+                      id={colGroupStructure.key}
+                      structure={colGroupStructure}
+                      onFilterClick={handleFilterClick}
+                      style={topHeaderOffsetStyle()}
+                      colGroupHeader
+                    />
+                  ))
               : null,
           )}
         </TableRow>

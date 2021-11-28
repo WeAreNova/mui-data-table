@@ -48,7 +48,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   ...props
 }: PropsWithChildren<BodyRowProps<RowType>>) => {
   const classes = useStyles(props);
-  const { flattenedTableStructure, rowClick, rowOptions, rowsSelectable, selectedRows } =
+  const { structure, rowClick, rowOptions, rowsSelectable, selectedRows } =
     useContext<TableState<RowType, AllDataType>>(TableContext);
 
   const rowId = useMemo(() => getRowId(data, index), [data, index]);
@@ -121,7 +121,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
       onMouseOut={onUnHover}
       className={tableRowClasses}
     >
-      {flattenedTableStructure.map((struct) => (
+      {structure.flattened.notHidden.map((struct) => (
         <BodyContextProvider
           key={struct.key}
           value={{

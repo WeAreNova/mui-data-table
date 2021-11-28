@@ -487,12 +487,11 @@ export function getTableCellAlignment<RowType extends BaseData, AllDataType exte
  * @param tableStructure the complete table structure definition
  * @returns the CSV string
  */
-export async function exportTableToCSV<
-  RowType extends BaseData,
-  AllDataType extends RowType[] = RowType[],
-  TableColumn extends ColumnDefinition<RowType, AllDataType> = ColumnDefinition<RowType, AllDataType>,
->(tableData: AllDataType, tableStructure: TableColumn[] = []) {
-  const getTitle = (c: TableColumn | ColGroupDefinition<RowType, AllDataType>) => {
+export async function exportTableToCSV<RowType extends BaseData, AllDataType extends RowType[]>(
+  tableData: AllDataType,
+  tableStructure: ColumnDefinition<RowType, AllDataType>[] = [],
+) {
+  const getTitle = (c: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
   };
@@ -513,4 +512,14 @@ export async function exportTableToCSV<
     }),
   );
   return [csvHeaders, ...csvRows].join("\n");
+}
+
+/**
+ * A function to filter out hidden columns from the table structure.
+ *
+ * @param tableStructure the complete table structure definition
+ * @returns the table structure without always hidden columns
+ */
+export function getUnhiddenColumns<T extends { hidden?: boolean }>(tableStructure: T[]) {
+  return tableStructure.filter((c): c is typeof c & { hidden: false | undefined } => !c.hidden);
 }

@@ -402,4 +402,8 @@ export interface TableProps<RowType extends BaseData, AllDataType extends RowTyp
    * @see {@link TableCellEditHandler}
    */
   onEdit?: TableCellEditHandler<RowType>;
+  /**
+   * Enables the table to be resized.
+   */
+  resizeable?: boolean;
 }

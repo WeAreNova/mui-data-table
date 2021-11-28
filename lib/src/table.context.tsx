@@ -69,6 +69,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, AllDataType extend
     | "rowOptions"
     | "rowClick"
     | "onEdit"
+    | "resizeable"
   > {
   sort: Sort;
   rowsPerPage: number | undefined;
@@ -103,6 +104,7 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
   update: Update;
   structure: Structure<RowType, AllDataType>;
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
+  resizeable: boolean;
 }
 
 export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -121,7 +123,13 @@ export type TableContextValue<RowType extends BaseData, AllDataType extends RowT
   Required<
     Pick<
       TableProps<RowType, AllDataType>,
-      "csvFilename" | "enableHiddenColumns" | "rowsPerPageDefault" | "rowsSelectable" | "defaultSort" | "editable"
+      | "csvFilename"
+      | "enableHiddenColumns"
+      | "rowsPerPageDefault"
+      | "rowsSelectable"
+      | "defaultSort"
+      | "editable"
+      | "resizeable"
     >
   >;
 

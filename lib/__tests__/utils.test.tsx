@@ -15,6 +15,7 @@ import {
   getPath,
   getRowId,
   getTableCellAlignment,
+  getUnhiddenColumns,
   getValue,
   numberFormatter,
   setDefaultCurrency,
@@ -276,4 +277,13 @@ describe("getTableCellAlignment utility function", function () {
       >),
     ).toBe("left");
   });
+});
+
+it("should filter out hidden columns with the getUnhiddenColumns utility function", function () {
+  const columns = [
+    { dataIndex: "email", hidden: true } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
+    { dataIndex: "name" } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
+    { dataIndex: "balance", hidden: false } as ColumnDefinition<typeof DATA_TO_FILTER[number]>,
+  ];
+  expect(getUnhiddenColumns(columns)).toEqual([columns[1], columns[2]]);
 });

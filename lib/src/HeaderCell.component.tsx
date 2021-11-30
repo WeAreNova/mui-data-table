@@ -1,4 +1,4 @@
-import { IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
+import { Divider, IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
 import AcUnit from "@material-ui/icons/AcUnit";
 import FilterList from "@material-ui/icons/FilterList";
 import Visibility from "@material-ui/icons/Visibility";
@@ -84,11 +84,25 @@ const useStyles = makeStyles(
       },
       headerCellInner: {
         display: "flex",
+        position: "relative",
       },
       headerCellSortLabel: {
         whiteSpace: "inherit",
         "& > svg.MuiTableSortLabel-icon": {
           opacity: 0.2,
+        },
+      },
+      resizeable: {
+        paddingRight: theme.spacing(2),
+        overflow: "hidden",
+      },
+      resizeHandle: {
+        cursor: "col-resize",
+        position: "absolute",
+        right: 0,
+        width: 3,
+        "&:active,&:hover": {
+          backgroundColor: theme.palette.action.active,
         },
       },
       stickyColGroupHeader: {
@@ -116,7 +130,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   ...props
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
-  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update } =
+  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update, resizeable } =
     useContext<TableState<RowType, AllDataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
@@ -180,8 +194,11 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   );
 
   const headerClasses = useMemo(
-    () => clsx(classes.tableCell, className, { [classes.stickyColGroupHeader]: colGroupHeader && pinnedColumn !== id }),
-    [className, classes, colGroupHeader, id, pinnedColumn],
+    () =>
+      clsx(classes.tableCell, className, {
+        [classes.stickyColGroupHeader]: colGroupHeader && pinnedColumn !== id,
+      }),
+    [className, classes.stickyColGroupHeader, classes.tableCell, colGroupHeader, id, pinnedColumn],
   );
 
   const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -219,6 +236,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
             className={clsx(classes.headerCellInner, {
               [classes.alignRight]: structure.align === "right",
               [classes.alignCenter]: structure.align === "center",
+              [classes.resizeable]: resizeable,
             })}
           >
             <div className={classes.headerCellBody}>
@@ -273,6 +291,9 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
               )}
             </div>
             <div />
+            {!colGroupHeader && resizeable && (
+              <Divider id="DataTable-ResizeHandle" className={classes.resizeHandle} orientation="vertical" />
+            )}
           </div>
         </TableCell>
       </Tooltip>

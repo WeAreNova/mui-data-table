@@ -4,7 +4,6 @@ import {
   makeStyles,
   Table as MUITable,
   TableBody,
-  TableContainer,
   TableFooter,
   TablePagination,
   TableRow,
@@ -14,8 +13,8 @@ import {
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import type { ChangeEventHandler, MouseEvent, PropsWithChildren } from "react";
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import type { ChangeEventHandler, PropsWithChildren } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import BodyRow from "./Body/BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
@@ -95,6 +94,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   ...props
 }: PropsWithChildren<_TableProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
+  const tableRef = useRef<HTMLTableElement>(null);
   const {
     allTableData,
     tableData,
@@ -111,6 +111,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     exportToCSV,
     count,
     isMacOS,
+    resizeable,
   } = useContext<TableState<RowType, AllDataType>>(TableContext);
 
   const allColumnsVisible = useMemo(() => {
@@ -124,7 +125,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     [structure],
   );
 
-  const onPageChange = useCallback((_e: MouseEvent | null, newPage: number) => update.page(newPage), [update]);
+  const onPageChange = useCallback((_e: React.MouseEvent | null, newPage: number) => update.page(newPage), [update]);
   const onRowsPerPageChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>>(
     (e) => {
       const newRowsPerPage = parseInt(e.target.value, 10);
@@ -146,49 +147,77 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     if (onSelectedRowsChange) onSelectedRowsChange(Object.values(selectedRows));
   }, [onSelectedRowsChange, selectedRows]);
 
+  useEffect(() => {
+    if (!resizeable || !tableRef.current) return;
+    tableRef.current.style.tableLayout = "auto";
+    const columns = tableRef.current.getElementsByTagName("th");
+    Array.from(columns).forEach((column) => {
+      column.style.width = column.clientWidth + "px";
+      const resizeHandle = column.querySelector<HTMLHRElement>("hr#DataTable-ResizeHandle");
+      if (!resizeHandle) return;
+      let initialX = 0;
+      let width = 0;
+      const handleMouseMove = (e: MouseEvent) => {
+        const diffX = e.clientX - initialX;
+        column.style.width = `${width + diffX}px`;
+      };
+      const handleMouseUp = () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+      const handleMouseDown = (e: MouseEvent) => {
+        initialX = e.clientX;
+        width = column.clientWidth;
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+      };
+      resizeHandle.addEventListener("mousedown", handleMouseDown);
+    });
+    tableRef.current.style.tableLayout = "fixed";
+  }, [resizeable, tableData]);
+
   return (
     <>
-      <TableContainer>
-        <MUITable
-          {...tableProps}
-          stickyHeader
-          className={clsx(classes.table, tableProps.className, { [classes.dataLoading]: loading })}
-        >
-          <HeaderRow />
-          <TableBody>
-            {tableData.map((data, dataIndex) => (
-              <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
-            ))}
-          </TableBody>
-          {(hasFooter || hasColGroupFooter) && (
-            <TableFooter>
-              {hasFooter && (
-                <TableRow>
-                  {structure.flattened.map((struct) => (
-                    <TableCell
-                      key={struct.key}
-                      rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
-                    >
-                      {struct.footer ? struct.footer(allTableData) : ""}
+      <MUITable
+        {...tableProps}
+        stickyHeader
+        className={clsx(classes.table, tableProps.className, { [classes.dataLoading]: loading })}
+        ref={tableRef}
+      >
+        <HeaderRow />
+        <TableBody>
+          {tableData.map((data, dataIndex) => (
+            <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
+          ))}
+        </TableBody>
+        {(hasFooter || hasColGroupFooter) && (
+          <TableFooter>
+            {hasFooter && (
+              <TableRow>
+                {structure.flattened.map((struct) => (
+                  <TableCell
+                    key={struct.key}
+                    rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
+                  >
+                    {struct.footer ? struct.footer(allTableData) : ""}
+                  </TableCell>
+                ))}
+              </TableRow>
+            )}
+            {hasColGroupFooter && (
+              <TableRow>
+                {structure.map(({ colGroup, footer, ...struct }) =>
+                  colGroup && footer ? (
+                    <TableCell key={struct.key} colSpan={colGroup.length}>
+                      {footer(allTableData)}
                     </TableCell>
-                  ))}
-                </TableRow>
-              )}
-              {hasColGroupFooter && (
-                <TableRow>
-                  {structure.map(({ colGroup, footer, ...struct }) =>
-                    colGroup && footer ? (
-                      <TableCell key={struct.key} colSpan={colGroup.length}>
-                        {footer(allTableData)}
-                      </TableCell>
-                    ) : null,
-                  )}
-                </TableRow>
-              )}
-            </TableFooter>
-          )}
-        </MUITable>
-      </TableContainer>
+                  ) : null,
+                )}
+              </TableRow>
+            )}
+          </TableFooter>
+        )}
+      </MUITable>
       <div className={classes.tableFooter}>
         <div>
           <div className={classes.footerButtons}>

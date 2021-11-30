@@ -63,6 +63,7 @@ function App() {
               rowClick={(data) => console.log(data)}
               // onEdit={(...data) => "test"}
               exportToCSVOption
+              resizeable
             />
           </TableContainer>
         </Box>

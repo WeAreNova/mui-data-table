@@ -19,7 +19,8 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
       rowsSelectable: false,
       defaultSort: { key: null, direction: undefined },
       rowsPerPageDefault: 25,
-      csvFilename: "TableExport",
+      csvFilename: "DataTableExport.csv",
+      resizeable: false,
       ...props,
       editable:
         props.editable ??
@@ -62,6 +63,8 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
     key: PropTypes.string,
     direction: PropTypes.oneOf(["asc", "desc"]),
   }),
+  onEdit: PropTypes.func,
+  resizeable: PropTypes.bool,
 };
 
 export * from "./table.types";

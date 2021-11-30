@@ -1,5 +1,13 @@
 # Features
 
+## Resizeable Columns
+
+You can enable resizing of columns through the `resizeable?: boolean;` prop on the Data Table. This will allow the user to change the width of the columns manually, rather than relying on the table layout.
+
+```jsx
+<DataTable tableStructure={tableStructure} tableData={tableData} resizeable />
+```
+
 ## Currency & Number Formatting
 
 This package exports a `numberFormatter` utility function that can be used to format numerical values. The function is also used during a Numerical Render (see [here](/columns#numerical-render-optional)).

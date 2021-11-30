@@ -1,7 +1,8 @@
 import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@material-ui/core";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
+import TableContext from "./table.context";
 
 interface Props extends TableCellProps {
   hidden?: boolean;
@@ -12,12 +13,6 @@ interface Props extends TableCellProps {
 const useStyles = makeStyles(
   (theme) =>
     createStyles({
-      tableCell: {
-        transition: theme.transitions.create("width", {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
       hiddenTableCell: {
         contentVisibility: "hidden",
         maxWidth: 0,
@@ -71,6 +66,9 @@ const useStyles = makeStyles(
           zIndex: 4,
         },
       },
+      resizeable: {
+        overflow: "hidden",
+      },
     }),
   { name: "TableCellComponent" },
 );
@@ -84,20 +82,21 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
   { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
   ref,
 ) {
+  const { resizeable } = useContext(TableContext);
   const classes = useStyles(props);
   const cellClasses = useMemo(
     () =>
       clsx([
-        classes.tableCell,
         className,
         {
           [classes.hiddenTableCell]: hidden,
           [classes.pinnedTableCell]: pinned,
           [classes.maxWidthLg]: maxWidth === "lg",
           [classes.maxWidthSm]: maxWidth === "sm",
+          [classes.resizeable]: Boolean(resizeable),
         },
       ]),
-    [className, classes, hidden, maxWidth, pinned],
+    [className, classes, hidden, maxWidth, pinned, resizeable],
   );
   return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
 });

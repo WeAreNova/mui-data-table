@@ -22,6 +22,7 @@
     - [Validation](/features#validation)
     - [Cell Options](/columns#editing-optional)
   - [Filtering](/columns#filtering-optional)
+  - [Resizeable Columns](/features#resizeable-columns)
 
 - [**Columns**](/columns#column-definitions)
   - [Options](/columns#the-options)

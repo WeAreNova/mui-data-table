@@ -67,9 +67,7 @@ const useStyles = makeStyles(
         },
       },
       resizeable: {
-        width: "auto",
         overflow: "hidden",
-        minWidth: 0,
       },
     }),
   { name: "TableCellComponent" },
@@ -100,11 +98,7 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
       ]),
     [className, classes, hidden, maxWidth, pinned, resizeable],
   );
-  return (
-    <MUITableCell align="center" {...props} ref={ref} className={cellClasses}>
-      {props.children}
-    </MUITableCell>
-  );
+  return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
 });
 TableCell.propTypes = {
   hidden: PropTypes.bool,

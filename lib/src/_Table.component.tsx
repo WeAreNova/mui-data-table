@@ -13,15 +13,8 @@ import {
 import Help from "@material-ui/icons/Help";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import React, {
-  ChangeEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import type { ChangeEventHandler, PropsWithChildren } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import BodyRow from "./Body/BodyRow.component";
 import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";

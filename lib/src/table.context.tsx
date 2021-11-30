@@ -232,11 +232,11 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     async (queryParams = {}, isExport = false) => {
       if (!tableState.onChange) return;
       if (!isExport) update.loading(true);
-      const data = await tableState.onChange!({ ...queryParams }, isExport);
+      const data = await tableState.onChange({ ...queryParams }, isExport);
       if (!isExport) update.loading(false);
       return data;
     },
-    [tableState.onChange, update],
+    [tableState, update],
   );
 
   const handleChange = useMemo(() => tableState.onChange && debounce(onChange, 250), [onChange, tableState.onChange]);
@@ -343,20 +343,20 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
               },
             } as const,
           ]),
-      ...tableState.tableStructure.map((structure) =>
-        structure.colGroup
-          ? ({
-              ...structure,
-              align: "center",
-              colGroup: structure.colGroup.map((colGroupStructure) => ({
-                ...colGroupStructure,
-                align: getTableCellAlignment(colGroupStructure, tableData?.[0]),
-              })),
-            } as const)
-          : {
-              ...structure,
-              align: getTableCellAlignment(structure, tableData?.[0]),
-            },
+      ...tableState.tableStructure.map(
+        (column) =>
+          ({
+            ...column,
+            ...(!column.colGroup
+              ? { align: getTableCellAlignment(column, tableData?.[0]) }
+              : {
+                  align: "center",
+                  colGroup: column.colGroup.map((colGroupColumn) => ({
+                    ...colGroupColumn,
+                    align: getTableCellAlignment(colGroupColumn, tableData?.[0]),
+                  })),
+                }),
+          } as const),
       ),
     ] as Structure<RowType, AllDataType>;
     fullStructure.notHidden = getUnhiddenColumns(fullStructure);

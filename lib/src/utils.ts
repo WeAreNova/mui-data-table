@@ -22,6 +22,14 @@ import {
   TableCellAlign,
 } from "./table.types";
 
+type FilterValuesType = NonNullable<ReturnType<ReturnType<typeof getFilterTypeConvertors>[DataTypes]>>;
+interface MatchActionArg {
+  value: FilterValuesType | null | undefined;
+  currValue: FilterValuesType;
+  filterValue: FilterValuesType;
+  type: DataTypes;
+}
+
 let defaultCurrency = "GBP";
 
 const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
@@ -144,7 +152,7 @@ export function getFilterTypeConvertors(value: ActiveFilter["value"]) {
     string: (): string | null => (typeof value === "string" ? value : String(value)),
     number: (): number | null => (typeof value === "number" ? value : Number(value)),
     boolean: (): boolean | null => (typeof value === "boolean" ? value : value === "true"),
-    date: (): any | null => {
+    date: (): Date | null => {
       if (value instanceof Date) return value;
       if (!value || value === true) return null;
       return startOfDay(value);
@@ -168,6 +176,30 @@ function getStringRegexMatch(value: string, searchValue: string, isContains: boo
   return new RegExp(`${isContains ? ".*" : "^"}${searchValue}${isContains ? ".*" : "$"}`, "i").test(value);
 }
 
+const OPERATOR_MAP: Record<OperatorValues, (args: MatchActionArg) => boolean> = {
+  exists: ({ value }) => !isNil(value),
+  "!exists": ({ value }) => isNil(value),
+  "~": ({ currValue, filterValue }) => getStringRegexMatch(currValue as string, filterValue as string, true),
+  "!~": ({ currValue, filterValue }) => !getStringRegexMatch(currValue as string, filterValue as string, true),
+  ">": ({ currValue, filterValue }) => currValue > filterValue,
+  ">=": ({ currValue, filterValue }) => currValue >= filterValue,
+  "<": ({ currValue, filterValue }) => currValue < filterValue,
+  "<=": ({ currValue, filterValue, type }) => {
+    if (type === "date") return isBefore(currValue, endOfDay(filterValue)) || isSameDay(currValue, filterValue);
+    return currValue <= filterValue;
+  },
+  "=": ({ currValue, filterValue, type }) => {
+    if (type === "number" || type === "boolean") return currValue === filterValue;
+    if (type === "date") return isSameDay(currValue, filterValue);
+    return getStringRegexMatch(currValue as string, filterValue as string, false);
+  },
+  "!=": ({ currValue, filterValue, type }) => {
+    if (type === "number" || type === "boolean") return currValue !== filterValue;
+    if (type === "date") return !isSameDay(currValue, filterValue);
+    return !getStringRegexMatch(currValue as string, filterValue as string, true);
+  },
+};
+
 /**
  * A function which tests if the filter value matches the given value given the filter operator and type
  *
@@ -183,44 +215,7 @@ export function getMatch<RowType extends BaseData>(value: RowType[keyof RowType]
   const filterValue = getFilterTypeConvertors(filter.value)[filter.type]();
   const currValue = getFilterTypeConvertors(value)[filter.type]();
   if (!filter.operator.includes("exists") && (isNil(filterValue) || isNil(currValue))) return false;
-
-  switch (filter.operator) {
-    case "exists":
-      return !isNil(value);
-    case "!exists":
-      return isNil(value);
-    case "~":
-      return getStringRegexMatch(currValue as string, filterValue as string, true);
-    case "!~":
-      return !getStringRegexMatch(currValue as string, filterValue as string, true);
-    case "=":
-      if (filter.type === "number" || filter.type === "boolean") {
-        return currValue === filterValue;
-      }
-      if (filter.type === "date") {
-        return isSameDay(currValue, filterValue);
-      }
-      return getStringRegexMatch(currValue as string, filterValue as string, false);
-    case "!=":
-      if (filter.type === "number" || filter.type === "boolean") {
-        return currValue !== filterValue;
-      }
-      if (filter.type === "date") {
-        return !isSameDay(currValue, filterValue);
-      }
-      return !getStringRegexMatch(currValue as string, filterValue as string, true);
-    case ">":
-      return currValue! > filterValue!;
-    case ">=":
-      return currValue! >= filterValue!;
-    case "<":
-      return currValue! < filterValue!;
-    case "<=":
-      if (filter.type === "date") {
-        return isBefore(currValue, endOfDay(filterValue)) || isSameDay(currValue, filterValue);
-      }
-      return currValue! <= filterValue!;
-  }
+  return OPERATOR_MAP[filter.operator]({ value, currValue: currValue!, filterValue: filterValue!, type: filter.type });
 }
 
 /**

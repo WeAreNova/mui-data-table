@@ -39,13 +39,16 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
     [],
   );
 
-  const handleFilterClick = useCallback((target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>) => {
-    setAnchorEl((currentTarget) => {
-      const newAnchorEl = currentTarget === target ? null : target;
-      if (newAnchorEl) setInitialFilter(initialFilter);
-      return newAnchorEl;
-    });
-  }, []);
+  const handleFilterClick = useCallback(
+    (target: HTMLTableCellElement, targetInitFilter: InitialFilterValues<RowType>) => {
+      setAnchorEl((currentTarget) => {
+        const newAnchorEl = currentTarget === target ? null : target;
+        if (newAnchorEl) setInitialFilter(targetInitFilter);
+        return newAnchorEl;
+      });
+    },
+    [],
+  );
 
   const handleFilterClose = useCallback(() => setAnchorEl(null), []);
 
@@ -57,11 +60,11 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
   return (
     <TableHead>
       <TableRow ref={topHeaderRef}>
-        {structure.notHidden.map((structure) => (
+        {structure.notHidden.map((column) => (
           <HeaderCell
-            key={structure.key}
-            id={structure.key}
-            structure={structure}
+            key={column.key}
+            id={column.key}
+            structure={column}
             hasColGroups={hasColGroups}
             onFilterClick={handleFilterClick}
           />

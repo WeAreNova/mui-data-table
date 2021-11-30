@@ -82,10 +82,8 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   );
 
   const handleFilterSubmit = useCallback(
-    <RowType extends BaseData>(value: ActiveFilter<RowType>) => {
-      const submitPredicate = <T extends ActiveFilter<RowType> | NullableActiveFilter<RowType>>(
-        currFiltersArray: T[],
-      ) => {
+    <RType extends BaseData>(value: ActiveFilter<RType>) => {
+      const submitPredicate = <T extends ActiveFilter<RType> | NullableActiveFilter<RType>>(currFiltersArray: T[]) => {
         const filterIndex = currFiltersArray.findIndex((filter) => filter.id === value.id);
         if (filterIndex === -1) return [...currFiltersArray, value];
         const updatedArray = [...currFiltersArray];

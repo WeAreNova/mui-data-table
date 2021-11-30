@@ -144,7 +144,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
       }
       if (!onEdit || typeof newValue !== "undefined") {
         update.tableData((currTableData) => {
-          const index = currTableData.findIndex((row, index) => getRowId(row, index) === rowId);
+          const index = currTableData.findIndex((row, idx) => getRowId(row, idx) === rowId);
           if (index === -1) return currTableData;
           const newData = [...currTableData];
           const updatedValue = set({ ...newData[index] }, editPath, newValue ?? editValue);

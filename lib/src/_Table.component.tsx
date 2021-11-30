@@ -40,6 +40,7 @@ const useStyles = makeStyles(
       },
       footerButtons: {
         display: "flex",
+        paddingLeft: theme.spacing(1),
       },
       selectedRowsFooter: {
         display: "flex",
@@ -51,23 +52,21 @@ const useStyles = makeStyles(
       },
       table: {
         "& > tbody": {
-          transition: "opacity 0.2s ease-in-out, background-color 0.2s ease-in-out",
+          transition: theme.transitions.create(["opacity", "background-color"], {
+            duration: theme.transitions.duration.shortest,
+            easing: theme.transitions.easing.easeInOut,
+          }),
         },
       },
       tableFooter: {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        flexWrap: "wrap",
+        position: "sticky",
+        left: 0,
         border: `1px solid ${theme.palette.divider}`,
         borderWidth: "1px 0 1px 0",
-        flexWrap: "wrap",
-        "& > *": {
-          borderBottom: 0,
-        },
-        [theme.breakpoints.down("sm")]: {
-          flexDirection: "column",
-          alignItems: "flex-start",
-        },
       },
       tablePagination: {
         borderBottom: "none",

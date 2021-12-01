@@ -2,7 +2,7 @@ import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps
 import type React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
-import { SelectFieldOption } from "./Filter/SimpleSelectField.component";
+import { SelectOptionObject } from "./Fields/SimpleSelect.component";
 import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
 
 export interface BaseData {
@@ -212,6 +212,8 @@ export interface EditComponentProps<T = any> {
   disabled: boolean;
 }
 
+export type SelectOption = SelectOptionObject | string;
+
 export interface EditableOptions<EditType, RowType extends BaseData, AllDataType extends RowType[]> {
   path: PathValueType<RowType>;
   /**
@@ -236,7 +238,7 @@ export interface EditableOptions<EditType, RowType extends BaseData, AllDataType
   /**
    * Options or a function that returns the options for the select component when `type` is `"select"`.
    */
-  selectOptions?: SelectFieldOption[] | ((data: RowType, allData: AllDataType) => SelectFieldOption[]);
+  selectOptions?: SelectOption[] | ((data: RowType, allData: AllDataType) => SelectOption[]);
   /**
    * Default value if the value at the `path` is `undefined` or `null`.
    */

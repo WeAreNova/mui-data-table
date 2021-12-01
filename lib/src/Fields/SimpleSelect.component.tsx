@@ -12,10 +12,10 @@ import {
 import PropTypes from "prop-types";
 import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 
-export type SelectFieldOption = { label: string; value: string };
-export type SimpleSelectChangeHandler<T extends SelectFieldOption> = (value: T | null) => void;
+export type SelectOptionObject = { label: string; value: string };
+export type SimpleSelectChangeHandler<T extends SelectOptionObject> = (value: T | null) => void;
 
-interface SimpleSelectProps<T extends SelectFieldOption> extends Omit<SelectProps, "onChange"> {
+interface SimpleSelectProps<T extends SelectOptionObject> extends Omit<SelectProps, "onChange"> {
   options: Array<T | string>;
   onChange: SimpleSelectChangeHandler<T>;
   helperText?: string | null;
@@ -38,7 +38,7 @@ const useStyles = makeStyles(
  *
  * @component
  */
-const SimpleSelectField = <T extends SelectFieldOption>({
+const SimpleSelect = <T extends SelectOptionObject>({
   placeholder,
   options,
   value,
@@ -111,7 +111,7 @@ const SimpleSelectField = <T extends SelectFieldOption>({
     </FormControl>
   );
 };
-SimpleSelectField.propTypes = {
+SimpleSelect.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.string,
@@ -124,4 +124,4 @@ SimpleSelectField.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default SimpleSelectField;
+export default SimpleSelect;

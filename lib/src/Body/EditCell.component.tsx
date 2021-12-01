@@ -9,7 +9,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import SimpleSelectField, { SelectFieldOption } from "../Filter/SimpleSelectField.component";
+import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect.component";
 import TableContext, { TableState } from "../table.context";
 import {
   BaseData,
@@ -18,6 +18,7 @@ import {
   DataTableErrorType,
   EditDataTypes,
   PathType,
+  SelectOption,
 } from "../table.types";
 import { createDTError, getDataType, getPath, getRowId } from "../utils";
 import { BOOLEAN_OPTIONS } from "../_dataTable.consts";
@@ -43,6 +44,27 @@ const useStyles = makeStyles(
     }),
   { name: "DataTable-EditCell" },
 );
+
+const DEFAULT_VALIDATORS: Record<NonNullable<EditDataTypes>, (value: any, options: SelectOption[]) => void> = {
+  string: (value) => {
+    if (typeof value !== "string") throw createDTError("Value should be a string");
+  },
+  number: (value) => {
+    if (!isNaN(value)) throw createDTError("Value should be a valid number");
+  },
+  boolean: (value) => {
+    if (typeof value !== "boolean") throw createDTError("Value should be a boolean");
+  },
+  date: (value) => {
+    if (!isNaN(new Date(value as string | number | Date).getTime()))
+      throw createDTError("Value should be a valid date");
+  },
+  select: (value, options) => {
+    if (options.some((o) => (typeof o === "string" ? o === value : o.value === value))) {
+      throw createDTError("Value should be one of the available options");
+    }
+  },
+};
 
 function getInitialValue<RowType extends BaseData, AllDataType extends RowType[]>({
   structure,
@@ -102,8 +124,11 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const selectOptions = useMemo(() => {
     if (editType === "boolean") return BOOLEAN_OPTIONS;
     if (editType !== "select") return [];
-    if (typeof editOptions!.selectOptions === "function") return editOptions!.selectOptions(data, allTableData);
-    return editOptions!.selectOptions || [];
+    if (!editOptions?.selectOptions) return [];
+    if (typeof editOptions.selectOptions === "function") {
+      return editOptions.selectOptions(data, allTableData);
+    }
+    return editOptions.selectOptions;
   }, [allTableData, data, editOptions, editType]);
 
   const validate = useCallback(
@@ -111,15 +136,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
       try {
         if (editOptions?.validate) {
           await editOptions.validate(value, { data, allData: allTableData });
-          return true;
-        }
-        if (editType === "number" && isNaN(Number(value))) throw createDTError("Invalid number");
-        if (editType === "boolean" && typeof value !== "boolean") throw createDTError("Invalid boolean value");
-        if (editType === "date" && isNaN(new Date(value as string | number | Date).getTime())) {
-          throw createDTError("Invalid date");
-        }
-        if (editType === "select" && !selectOptions?.some((o) => o.value === value)) {
-          throw createDTError("Invalid select option");
+        } else {
+          DEFAULT_VALIDATORS[editType](value, selectOptions);
         }
         setError(null);
         return true;
@@ -203,7 +221,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     setEditValue(e.target.value);
   }, []);
   const handleSelectChange = useCallback(
-    (selected: SelectFieldOption | null) => {
+    (selected: SelectOptionObject | null) => {
       if (!selected) return setEditValue(null);
       if (editType === "boolean") {
         return setEditValue(selected.value === "true");
@@ -229,7 +247,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     }
     if (["boolean", "select"].includes(editType)) {
       return (
-        <SimpleSelectField
+        <SimpleSelect
           {...commonProps}
           onChange={handleSelectChange}
           options={editType === "boolean" ? BOOLEAN_OPTIONS : selectOptions}

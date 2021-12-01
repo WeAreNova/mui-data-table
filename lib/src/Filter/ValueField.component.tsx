@@ -1,12 +1,12 @@
 import { debounce, TextField, Typography } from "@material-ui/core";
-import { DatePicker } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import DatePicker from "../Fields/DatePicker.component";
+import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect.component";
 import type { ActiveFilter, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
 import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
-import SimpleSelectField, { SelectFieldOption } from "./SimpleSelectField.component";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
   ? string
@@ -57,7 +57,7 @@ const ValueField = <
     [filter.value, hasError],
   );
 
-  const handleSelectChange = useCallback((selected: SelectFieldOption | null) => {
+  const handleSelectChange = useCallback((selected: SelectOptionObject | null) => {
     if (!selected) return setFilterValue(null);
     setFilterValue(selected.value === "true");
   }, []);
@@ -77,11 +77,12 @@ const ValueField = <
   const field = useMemo(() => {
     switch (filter.type) {
       case "boolean":
-        return <SimpleSelectField {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
+        return <SimpleSelect {...commonProps} onChange={handleSelectChange} options={BOOLEAN_OPTIONS} />;
       case "date":
         return (
           <DatePicker
-            {...(commonProps as any)}
+            {...commonProps}
+            defaultValue={commonProps.defaultValue as MaterialUiPickersDate}
             onChange={handleDateChange}
             variant="dialog"
             inputVariant={commonProps.variant}

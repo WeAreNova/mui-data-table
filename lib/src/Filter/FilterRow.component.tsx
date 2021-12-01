@@ -5,10 +5,10 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BaseData, FilterValue } from "..";
+import SimpleSelect, { SimpleSelectChangeHandler } from "../Fields/SimpleSelect.component";
 import TableContext, { TableState } from "../table.context";
 import type { ActiveFilter, NullableActiveFilter, NullableDataTypes } from "../table.types";
 import { FilterValuePropTypes, OPERATORS } from "../_dataTable.consts";
-import SimpleSelectField, { SimpleSelectChangeHandler } from "./SimpleSelectField.component";
 import ValueField from "./ValueField.component";
 
 interface Props {
@@ -157,7 +157,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
       <div>
         <div className={classes.field}>
           <Typography variant="caption">Column</Typography>
-          <SimpleSelectField
+          <SimpleSelect
             name="path"
             onChange={handleColumnChange}
             value={filter.path}
@@ -169,7 +169,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         </div>
         <div className={clsx([classes.field, classes.operatorField])}>
           <Typography variant="caption">Operator</Typography>
-          <SimpleSelectField
+          <SimpleSelect
             name="operator"
             onChange={handleOperatorChange}
             value={filter.operator}

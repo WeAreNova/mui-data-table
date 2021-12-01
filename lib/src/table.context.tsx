@@ -160,7 +160,7 @@ const reducer: TableReducer<any, any> = (state, action) =>
  * @package
  */
 export const TableProvider = <RowType extends BaseData, AllDataType extends RowType[]>({
-  value: { defaultSort, rowsPerPageDefault, csvFilename, count, editable, ...value },
+  value: { defaultSort, rowsPerPageDefault, csvFilename, count, editable, onChange: baseOnChange, ...value },
   ...props
 }: PropsWithChildren<{
   value: TableContextValue<RowType, AllDataType>;
@@ -230,23 +230,23 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 
   const onChange = useCallback(
     async (queryParams = {}, isExport = false) => {
-      if (!tableState.onChange) return;
+      if (!baseOnChange) return;
       if (!isExport) update.loading(true);
-      const data = await tableState.onChange({ ...queryParams }, isExport);
+      const data = await baseOnChange({ ...queryParams }, isExport);
       if (!isExport) update.loading(false);
       return data;
     },
-    [tableState.onChange, update],
+    [baseOnChange, update],
   );
 
-  const handleChange = useMemo(() => tableState.onChange && debounce(onChange, 250), [onChange, tableState.onChange]);
+  const handleChange = useMemo(() => baseOnChange && debounce(onChange, 250), [onChange, baseOnChange]);
   useEffect(() => {
     handleChange?.(onChangeObject);
   }, [handleChange, onChangeObject]);
 
   const [tableData, tableCount] = useMemo(() => {
     const numberCount = count && Number(count);
-    if (tableState.onChange) return [state.tableData, numberCount || state.tableData.length];
+    if (baseOnChange) return [state.tableData, numberCount || state.tableData.length];
     const filteredData = getFilteredData(state.tableData, state.activeFilters);
     const sortedData = getSortedData(filteredData, state.sort, tableState.tableStructure);
     const pagedData = tableState.disablePagination
@@ -261,20 +261,20 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     state.sort,
     state.tableData,
     tableState.disablePagination,
-    tableState.onChange,
+    baseOnChange,
     tableState.tableStructure,
   ]);
 
   const exportToCSV = useCallback(async () => {
     let data = state.tableData;
-    if (tableState.onChange) {
+    if (baseOnChange) {
       data = await onChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
       await onChange(onChangeObject);
     }
     const csvString = await exportTableToCSV(data, tableState.tableStructure);
     const filename = csvFilename.endsWith(".csv") ? csvFilename : `${csvFilename}.csv`;
     fileDownload(csvString, filename, "text/csv;charset=utf-16;");
-  }, [csvFilename, onChange, onChangeObject, tableState.onChange, state.tableData, tableState.tableStructure]);
+  }, [csvFilename, onChange, onChangeObject, baseOnChange, state.tableData, tableState.tableStructure]);
 
   const handleSelectedChange = useCallback(
     (data: RowType, rowId: string, dataArrayIndex: number, e: React.MouseEvent) => {

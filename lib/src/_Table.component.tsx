@@ -4,6 +4,7 @@ import {
   makeStyles,
   Table as MUITable,
   TableBody,
+  TableContainer,
   TableFooter,
   TablePagination,
   TableRow,
@@ -177,46 +178,48 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   return (
     <>
-      <MUITable
-        {...tableProps}
-        stickyHeader
-        className={clsx(classes.table, tableProps.className, { [classes.dataLoading]: loading })}
-        ref={tableRef}
-      >
-        <HeaderRow />
-        <TableBody>
-          {tableData.map((data, dataIndex) => (
-            <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
-          ))}
-        </TableBody>
-        {(hasFooter || hasColGroupFooter) && (
-          <TableFooter>
-            {hasFooter && (
-              <TableRow>
-                {structure.flattened.map((struct) => (
-                  <TableCell
-                    key={struct.key}
-                    rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
-                  >
-                    {struct.footer ? struct.footer(allTableData) : ""}
-                  </TableCell>
-                ))}
-              </TableRow>
-            )}
-            {hasColGroupFooter && (
-              <TableRow>
-                {structure.map(({ colGroup, footer, ...struct }) =>
-                  colGroup && footer ? (
-                    <TableCell key={struct.key} colSpan={colGroup.length}>
-                      {footer(allTableData)}
+      <TableContainer>
+        <MUITable
+          {...tableProps}
+          stickyHeader
+          className={clsx(classes.table, tableProps.className, { [classes.dataLoading]: loading })}
+          ref={tableRef}
+        >
+          <HeaderRow />
+          <TableBody>
+            {tableData.map((data, dataIndex) => (
+              <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
+            ))}
+          </TableBody>
+          {(hasFooter || hasColGroupFooter) && (
+            <TableFooter>
+              {hasFooter && (
+                <TableRow>
+                  {structure.flattened.map((struct) => (
+                    <TableCell
+                      key={struct.key}
+                      rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
+                    >
+                      {struct.footer ? struct.footer(allTableData) : ""}
                     </TableCell>
-                  ) : null,
-                )}
-              </TableRow>
-            )}
-          </TableFooter>
-        )}
-      </MUITable>
+                  ))}
+                </TableRow>
+              )}
+              {hasColGroupFooter && (
+                <TableRow>
+                  {structure.map(({ colGroup, footer, ...struct }) =>
+                    colGroup && footer ? (
+                      <TableCell key={struct.key} colSpan={colGroup.length}>
+                        {footer(allTableData)}
+                      </TableCell>
+                    ) : null,
+                  )}
+                </TableRow>
+              )}
+            </TableFooter>
+          )}
+        </MUITable>
+      </TableContainer>
       <div className={classes.tableFooter}>
         <div>
           <div className={classes.footerButtons}>

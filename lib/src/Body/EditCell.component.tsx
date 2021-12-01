@@ -59,7 +59,7 @@ const DEFAULT_VALIDATORS: Record<NonNullable<EditDataTypes>, (value: any, option
     if (isNaN(new Date(value).getTime())) throw createDTError("Value should be a valid date");
   },
   select: (value, options) => {
-    if (options.some((o) => (typeof o === "string" ? o === value : o.value === value))) {
+    if (options.every((o) => (typeof o === "string" ? o !== value : o.value !== value))) {
       throw createDTError("Value should be one of the available options");
     }
   },

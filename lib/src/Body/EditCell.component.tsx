@@ -50,14 +50,13 @@ const DEFAULT_VALIDATORS: Record<NonNullable<EditDataTypes>, (value: any, option
     if (typeof value !== "string") throw createDTError("Value should be a string");
   },
   number: (value) => {
-    if (!isNaN(value)) throw createDTError("Value should be a valid number");
+    if (isNaN(value)) throw createDTError("Value should be a valid number");
   },
   boolean: (value) => {
     if (typeof value !== "boolean") throw createDTError("Value should be a boolean");
   },
   date: (value) => {
-    if (!isNaN(new Date(value as string | number | Date).getTime()))
-      throw createDTError("Value should be a valid date");
+    if (isNaN(new Date(value).getTime())) throw createDTError("Value should be a valid date");
   },
   select: (value, options) => {
     if (options.some((o) => (typeof o === "string" ? o === value : o.value === value))) {

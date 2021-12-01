@@ -236,7 +236,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       if (!isExport) update.loading(false);
       return data;
     },
-    [tableState, update],
+    [tableState.onChange, update],
   );
 
   const handleChange = useMemo(() => tableState.onChange && debounce(onChange, 250), [onChange, tableState.onChange]);

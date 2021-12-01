@@ -113,10 +113,13 @@ const SimpleSelectField = <T extends SelectFieldOption>({
 };
 SimpleSelectField.propTypes = {
   options: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      value: PropTypes.string.isRequired,
-    }).isRequired,
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        label: PropTypes.string.isRequired,
+        value: PropTypes.string.isRequired,
+      }).isRequired,
+    ]),
   ).isRequired,
   onChange: PropTypes.func.isRequired,
 };

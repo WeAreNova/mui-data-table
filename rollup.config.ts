@@ -4,7 +4,6 @@ import path from "path";
 import { defineConfig } from "rollup";
 import copyPlugin from "rollup-plugin-copy";
 import progressPlugin from "rollup-plugin-progress";
-import terserPlugin from "rollup-plugin-terser";
 import packageJSON from "./lib/package.json";
 
 const EXTERNALS = Object.keys({
@@ -36,7 +35,6 @@ export default defineConfig({
     progressPlugin(),
     commonjsPlugin(),
     typeScriptPlugin({ tsconfig: "lib/tsconfig.json", exclude: ["lib/src/_propTypes.ts"] }),
-    terserPlugin.terser(),
     copyPlugin({
       targets: [
         { src: "lib/package*.json", dest: "build" },

@@ -1,4 +1,4 @@
-import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@material-ui/core";
+import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@mui/material";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { useContext, useMemo } from "react";

@@ -1,16 +1,15 @@
 import {
-  createStyles,
   FormControl,
   FormHelperText,
-  makeStyles,
   MenuItem,
   Select,
+  SelectChangeEvent,
   SelectProps,
   Typography,
   useMediaQuery,
-} from "@material-ui/core";
+} from "@mui/material";
 import PropTypes from "prop-types";
-import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 
 export type SelectOptionObject = { label: string; value: string };
 export type SimpleSelectChangeHandler<T extends SelectOptionObject> = (value: T | null) => void;
@@ -21,16 +20,6 @@ interface SimpleSelectProps<T extends SelectOptionObject> extends Omit<SelectPro
   helperText?: string | null;
   disablePortal?: boolean;
 }
-
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      select: {
-        ...theme.typography.caption,
-      },
-    }),
-  { name: "DataTable-SimpleSelectField" },
-);
 
 /**
  * The SimpleSelectField is used to render a basic select field without autocomplete
@@ -51,7 +40,6 @@ const SimpleSelect = <T extends SelectOptionObject>({
   disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
-  const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -67,8 +55,8 @@ const SimpleSelect = <T extends SelectOptionObject>({
 
   const handleOpen = useCallback(() => setIsOpen(true), []);
   const handleClose = useCallback(() => setIsOpen(false), []);
-  const handleChange = useCallback<ChangeEventHandler<{ name?: string; value: unknown }>>(
-    (e) => {
+  const handleChange = useCallback(
+    (e: SelectChangeEvent<unknown>) => {
       const selectedValue = e.target.value === "" ? null : e.target.value;
       onChange(allOptions.find((o) => o.value === selectedValue) ?? null);
     },
@@ -89,11 +77,11 @@ const SimpleSelect = <T extends SelectOptionObject>({
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}
-        className={classes.select}
         MenuProps={menuProps}
         open={isOpen}
         onOpen={handleOpen}
         onClose={handleClose}
+        sx={(theme) => ({ ...theme.typography.caption })}
       >
         {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (

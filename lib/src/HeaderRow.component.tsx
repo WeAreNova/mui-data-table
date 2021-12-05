@@ -1,4 +1,4 @@
-import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
+import { Grow, makeStyles, Popper, TableHead, TableRow } from "@mui/material";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Filter, { InitialFilterValues } from "./Filter";
 import HeaderCell from "./HeaderCell.component";

@@ -1,4 +1,4 @@
-import { Checkbox, debounce } from "@material-ui/core";
+import { Checkbox, debounce } from "@mui/material";
 import { get } from "dot-prop";
 import fileDownload from "js-file-download";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";

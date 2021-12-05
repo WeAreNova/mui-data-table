@@ -1,5 +1,4 @@
-import { debounce, TextField, Typography } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import { debounce, TextField, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import DatePicker from "../Fields/DatePicker.component";
@@ -61,8 +60,8 @@ const ValueField = <
     if (!selected) return setFilterValue(null);
     setFilterValue(selected.value === "true");
   }, []);
-  const handleDateChange = useCallback((value: MaterialUiPickersDate | null) => {
-    const newFilterValue = value && new Date(value);
+  const handleDateChange = useCallback((value: unknown | null) => {
+    const newFilterValue = (value && new Date(value as string | number | Date)) as Date | null;
     setFilterValue(newFilterValue ?? null);
   }, []);
   const handleOtherChange = useCallback(
@@ -82,10 +81,9 @@ const ValueField = <
         return (
           <DatePicker
             {...commonProps}
-            defaultValue={commonProps.defaultValue as MaterialUiPickersDate}
+            defaultValue={commonProps.defaultValue}
             onChange={handleDateChange}
-            variant="dialog"
-            inputVariant={commonProps.variant}
+            renderInput={(props) => <TextField {...props} variant={commonProps.variant} />}
           />
         );
       case "number":

@@ -1,4 +1,4 @@
-import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
+import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@mui/material";
 import type React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";

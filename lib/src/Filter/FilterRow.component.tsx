@@ -1,7 +1,5 @@
-import { debounce, IconButton, makeStyles, Typography } from "@material-ui/core";
-import Close from "@material-ui/icons/Close";
-import { createStyles } from "@material-ui/styles";
-import clsx from "clsx";
+import Close from "@mui/icons-material/Close";
+import { debounce, IconButton, styled, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BaseData, FilterValue } from "..";
@@ -19,41 +17,33 @@ interface Props {
   name: string;
 }
 
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      root: {
-        display: "flex",
-        "& > div": {
-          display: "flex",
-          alignItems: "flex-end",
-          "&:first-child": {
-            flex: 1,
-          },
-          "&:last-child": {
-            flex: 4,
-          },
-        },
-      },
-      field: {
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        height: "100%",
-        "& input": {
-          ...theme.typography.caption,
-        },
-        "&:not(:last-child)": {
-          marginRight: theme.spacing(1),
-        },
-      },
-      operatorField: {
-        flex: 0.5,
-      },
-    }),
-  { name: "DataTable-FilterRow" },
-);
+const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
+  display: "flex",
+  "& > div": {
+    display: "flex",
+    alignItems: "flex-end",
+    "&:first-child": {
+      flex: 1,
+    },
+    "&:last-child": {
+      flex: 4,
+    },
+  },
+});
+
+const FieldContainer = styled("div", { label: "DataTable-FilterRow-FieldContainer" })(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  height: "100%",
+  "& input": {
+    ...theme.typography.caption,
+  },
+  "&:not(:last-child)": {
+    marginRight: theme.spacing(1),
+  },
+}));
 
 export const EMPTY_FILTER = {
   path: null,
@@ -84,7 +74,6 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   name,
   ...props
 }: PropsWithChildren<Props>) => {
-  const classes = useStyles(props);
   const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
@@ -147,7 +136,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, []);
 
   return (
-    <form data-testid={name} className={classes.root}>
+    <Form data-testid={name}>
       <div>
         <IconButton onClick={handleRemove} disabled={last && !value.path} size="small">
           <Close />
@@ -155,7 +144,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         <div></div>
       </div>
       <div>
-        <div className={classes.field}>
+        <FieldContainer>
           <Typography variant="caption">Column</Typography>
           <SimpleSelect
             name="path"
@@ -166,8 +155,8 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Column"
             variant="standard"
           />
-        </div>
-        <div className={clsx([classes.field, classes.operatorField])}>
+        </FieldContainer>
+        <FieldContainer sx={{ flex: 0.5 }}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelect
             name="operator"
@@ -178,14 +167,14 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Operator"
             variant="standard"
           />
-        </div>
+        </FieldContainer>
         {!filter.operator?.includes("exists") && (
-          <div className={classes.field}>
+          <FieldContainer>
             <ValueField value={filter} onChange={handleValueChange} />
-          </div>
+          </FieldContainer>
         )}
       </div>
-    </form>
+    </Form>
   );
 };
 FilterRow.propTypes = {

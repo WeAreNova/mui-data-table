@@ -1,4 +1,4 @@
-import { DatePicker as MUIDatePicker, DatePickerProps as MUIDatePickerProps } from "@material-ui/pickers";
+import MUIDatePicker, { DatePickerProps as MUIDatePickerProps } from "@mui/lab/DatePicker";
 import React, { useCallback, useEffect, useState } from "react";
 
 interface DatePickerProps extends Omit<MUIDatePickerProps, "value"> {

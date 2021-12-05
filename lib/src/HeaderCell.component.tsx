@@ -1,8 +1,7 @@
-import { Divider, IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
-import AcUnit from "@material-ui/icons/AcUnit";
-import FilterList from "@material-ui/icons/FilterList";
-import Visibility from "@material-ui/icons/Visibility";
-import { createStyles } from "@material-ui/styles";
+import AcUnit from "@mui/icons-material/AcUnit";
+import FilterList from "@mui/icons-material/FilterList";
+import Visibility from "@mui/icons-material/Visibility";
+import { Divider, IconButton, makeStyles, TableSortLabel, Tooltip } from "@mui/material";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
@@ -127,9 +126,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   colGroupHeader = false,
   className,
   style,
-  ...props
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
-  const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update, resizeable } =
     useContext<TableState<RowType, AllDataType>>(TableContext);
   const tableCellRef = useRef<HTMLTableCellElement>(null);

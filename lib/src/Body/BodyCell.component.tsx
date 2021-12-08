@@ -1,7 +1,16 @@
 import { createStyles, makeStyles, Tooltip } from "@material-ui/core";
 import clsx from "clsx";
 import { get } from "dot-prop";
-import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TableContext, { TableState } from "../table.context";
 import type { BaseData } from "../table.types";
 import TableCell from "../TableCell.component";
@@ -12,17 +21,29 @@ import EditCell from "./EditCell.component";
 interface BodyCellProps {}
 
 const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      editable: {
+  (theme) => {
+    const focusOutline = {
+      "& > div": {
+        outline: `1px solid ${theme.palette.action.focus}`,
+      },
+    };
+    return createStyles({
+      bodyCell: {
+        outline: "none",
+        "&:focus": focusOutline,
+        "&:focus-within": focusOutline,
         "& > div": {
-          padding: theme.spacing(0.5),
-          "&:hover": {
-            backgroundColor: theme.palette.action.hover,
-          },
+          minHeight: theme.spacing(2),
+          padding: theme.spacing(1),
         },
       },
-    }),
+      editable: {
+        "& > div:hover": {
+          backgroundColor: theme.palette.action.hover,
+        },
+      },
+    });
+  },
   { name: "DataTable-BodyCell" },
 );
 
@@ -48,6 +69,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
     update,
     editable: tableEditable,
   } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const bodyCellRef = useRef<HTMLTableCellElement>(null);
   const [editMode, setEditMode] = useState(false);
 
   const value = useMemo(() => getValue(structure, data, rowId, index), [data, index, rowId, structure]);
@@ -116,15 +138,12 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
   );
 
   const bodyCellClasses = useMemo(
-    () =>
-      clsx({
-        [classes.editable]: Boolean(tableEditable && structure.editable),
-      }),
-    [classes.editable, structure.editable, tableEditable],
+    () => clsx(classes.bodyCell, { [classes.editable]: Boolean(tableEditable && structure.editable) }),
+    [classes.bodyCell, classes.editable, structure.editable, tableEditable],
   );
 
-  const handleEdit = useCallback<MouseEventHandler<HTMLDivElement>>(
-    (e) => {
+  const handleEdit = useCallback(
+    (e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => {
       e.stopPropagation();
       if (!tableEditable || !structure.editable || editMode) return;
       setEditMode(true);
@@ -144,6 +163,17 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
     [editMode, structure.editable, tableEditable],
   );
 
+  useEffect(() => {
+    if (!bodyCellRef.current || editMode) return;
+    const ref = bodyCellRef.current;
+    const onKeyPress = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      handleEdit(e);
+    };
+    ref.addEventListener("keydown", onKeyPress);
+    return () => ref.removeEventListener("keydown", onKeyPress);
+  }, [editMode, handleEdit]);
+
   return (
     <TableCell
       key={structure.key}
@@ -154,6 +184,8 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
       rowSpan={rowSpan}
       align={structure.align}
       className={bodyCellClasses}
+      tabIndex={0}
+      ref={bodyCellRef}
       data-testid="DataTable-BodyCell"
     >
       <div onClick={handleEditClick} onDoubleClick={handleEdit}>

@@ -114,9 +114,10 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
         defaultValue: initialValue,
         error: Boolean(error),
         helperText: error,
-        fullWidth: true,
         variant: "standard",
         margin: "none",
+        fullWidth: true,
+        autoFocus: true,
       } as const),
     [initialValue, error],
   );

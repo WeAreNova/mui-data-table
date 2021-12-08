@@ -62,7 +62,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "email",
     title: "Email",
-    limitWidth: "sm",
     dataIndex: "email",
     editable: true,
     sorter: true,

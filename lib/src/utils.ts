@@ -438,18 +438,14 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
       decimalPlaces = 2,
       minDecimalPlaces,
       maxDecimalPlaces,
-      currency,
-    }: NumericalObject<T> = typeof struct.numerical === "object"
-      ? struct.numerical
-      : {
-          path: struct.numerical,
-        };
+      ...options
+    }: NumericalObject<T> = typeof struct.numerical === "object" ? struct.numerical : { path: struct.numerical };
     const value = get<any>(data, getPath(path, struct));
     if (isNaN(Number(value))) return "";
     return numberFormatter(value, {
-      currency,
       minimumFractionDigits: minDecimalPlaces ?? decimalPlaces,
       maximumFractionDigits: maxDecimalPlaces ?? decimalPlaces,
+      ...options,
     });
   }
   if (struct.render) return struct.render(data, isCSVExport, rowId, dataArrayIndex);

@@ -162,12 +162,13 @@ export type ColGroupDefinition<RowType extends BaseData, AllDataType extends Row
   "colGroup"
 > & { colGroup?: never };
 
-export interface NumericalObject<RowType extends BaseData = BaseData> {
+export interface NumericalObject<RowType extends BaseData = BaseData>
+  extends Omit<Intl.NumberFormatOptions, "currency"> {
   path?: true | PathType<RowType>;
   decimalPlaces?: number;
   minDecimalPlaces?: number;
   maxDecimalPlaces?: number;
-  currency?: boolean | string;
+  currency?: boolean | Intl.NumberFormatOptions["currency"];
 }
 
 export type NumericalValueOptions<RowType extends BaseData = BaseData> =

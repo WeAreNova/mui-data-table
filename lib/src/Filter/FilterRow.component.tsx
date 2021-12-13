@@ -72,7 +72,6 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   onSubmit,
   onRemove,
   name,
-  ...props
 }: PropsWithChildren<Props>) => {
   const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });

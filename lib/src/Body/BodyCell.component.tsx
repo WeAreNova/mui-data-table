@@ -4,35 +4,36 @@ import React, { MouseEventHandler, useCallback, useContext, useEffect, useMemo, 
 import TableContext, { TableState } from "../table.context";
 import type { BaseData } from "../table.types";
 import TableCell from "../TableCell.component";
-import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
 import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 
-const EditableTableCell = styled(TableCell, { label: "DataTable-EditableTableCell" })<{ editable: boolean }>(
-  ({ editable, theme }) => {
-    const focusOutline = {
-      "& > div": {
-        outline: `1px solid ${theme.palette.action.focus}`,
-      },
-    };
-    return {
-      outline: "none",
-      "&:focus": focusOutline,
-      "&:focus-within": focusOutline,
-      "& > div": {
-        minHeight: theme.spacing(2),
-        padding: theme.spacing(1),
-      },
-      ...(!editable
-        ? {}
-        : {
-            "& > div:hover": {
-              backgroundColor: theme.palette.action.hover,
-            },
-          }),
-    };
+const focusOutline = {
+  "& > div": {
+    outline: `1px solid`,
+    outlineColor: "action.focus",
   },
-);
+};
+
+const EditableTableCell = styled(TableCell, {
+  label: "DataTable-EditableTableCell",
+  shouldForwardProp: dontForwardProps("editable"),
+})<{ editable: boolean }>(({ editable, theme }) => [
+  {
+    outline: "none",
+    "&:focus": focusOutline,
+    "&:focus-within": focusOutline,
+    "& > div": {
+      minHeight: theme.spacing(2),
+      padding: theme.spacing(1),
+    },
+  },
+  editable && {
+    "& > div:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+]);
 
 /**
  * The BodyCell component is a wrapper around the custom TableCell component which manages the rendering of the

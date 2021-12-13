@@ -18,9 +18,9 @@ You will also need to have the following packages at the specified minimum versi
 
 ```json
 {
-  "@material-ui/core": "^4.0.0",
-  "@material-ui/icons": "^4.0.0",
-  "@material-ui/pickers": "^3.3.0"
+  "@mui/material": "^5.0.0",
+  "@mui/icons-material": "^5.0.0",
+  "@mui/lab": "^5.0.0-alpha.30"
 }
 ```
 

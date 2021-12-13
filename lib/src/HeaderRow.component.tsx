@@ -1,18 +1,13 @@
-import { Grow, makeStyles, Popper, TableHead, TableRow } from "@mui/material";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Grow, Popper, styled, TableHead, TableRow } from "@mui/material";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Filter, { InitialFilterValues } from "./Filter";
 import HeaderCell from "./HeaderCell.component";
 import TableContext, { TableState } from "./table.context";
 import type { BaseData } from "./table.types";
 
-const useStyles = makeStyles(
-  () => ({
-    filterContainer: {
-      zIndex: 2,
-    },
-  }),
-  { name: "DataTable-HeaderRow" },
-);
+const StyledPopper = styled(Popper)`
+  zindex: 1;
+`;
 
 /**
  * The HeaderRow component is used to render the table header, handle its state and manage other components used in the table header.
@@ -20,10 +15,7 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
-  props: PropsWithChildren<Record<string, never>>,
-) => {
-  const classes = useStyles(props);
+const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() => {
   const { structure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
@@ -90,19 +82,15 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
           )}
         </TableRow>
       )}
-      <Popper
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        transition
-        className={classes.filterContainer}
-      >
+      <StyledPopper open={Boolean(anchorEl)} anchorEl={anchorEl} placement="bottom-start" transition>
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
-            <Filter initialFilter={initialFilter} onClose={handleFilterClose} />
+            <div>
+              <Filter initialFilter={initialFilter} onClose={handleFilterClose} />
+            </div>
           </Grow>
         )}
-      </Popper>
+      </StyledPopper>
     </TableHead>
   );
 };

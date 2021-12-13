@@ -424,7 +424,7 @@ The `actionButtons` field is used to add additional custom action buttons to the
 The value is an array of objects with the type:
 
 ```ts
-import { IconButtonProps } from "@material-ui/core";
+import { IconButtonProps } from "@mui/material";
 
 interface ActionButton extends Omit<IconButtonProps, "size"> {
   key: string;

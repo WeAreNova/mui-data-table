@@ -20,7 +20,7 @@ import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getRowId } from "./utils";
+import { dontForwardProps, getRowId } from "./utils";
 import { RowsPerPageOptionsPropType } from "./_propTypes";
 
 interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
@@ -29,18 +29,21 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
     "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
   > {}
 
-const LoadableTableBody = styled(TableBody, { label: "DataTable-TableBody" })<{ loading: boolean }>(
-  ({ loading, theme }) => ({
+const LoadableTableBody = styled(TableBody, {
+  label: "DataTable-TableBody",
+  shouldForwardProp: dontForwardProps("loading"),
+})<{ loading: boolean }>(({ loading, theme }) => [
+  {
     transition: theme.transitions.create(["opacity", "background-color"], {
       duration: theme.transitions.duration.shortest,
       easing: theme.transitions.easing.easeInOut,
     }),
-    ...(loading && {
-      opacity: 0.4,
-      backgroundColor: "action.hover",
-    }),
-  }),
-);
+  },
+  loading && {
+    opacity: 0.4,
+    backgroundColor: "action.hover",
+  },
+]);
 
 const TableToolbar = styled("div", { label: "DataTable-TableToolbar" })({
   display: "flex",

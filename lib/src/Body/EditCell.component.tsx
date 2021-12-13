@@ -70,7 +70,6 @@ function getInitialValue<RowType extends BaseData, AllDataType extends RowType[]
 
 const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   cancelEdit,
-  ...props
 }: PropsWithChildren<EditCellProps>) => {
   const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);

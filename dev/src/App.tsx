@@ -1,4 +1,7 @@
-import MomentUtils from "@date-io/moment";
+import Brightness4 from "@mui/icons-material/Brightness4";
+import Brightness7 from "@mui/icons-material/Brightness7";
+import { LocalizationProvider } from "@mui/lab";
+import MomentAdapter from "@mui/lab/AdapterMoment";
 import {
   Box,
   createTheme,
@@ -8,10 +11,7 @@ import {
   Switch,
   TableContainer,
   ThemeProvider,
-} from "@material-ui/core";
-import Brightness4 from "@material-ui/icons/Brightness4";
-import Brightness7 from "@material-ui/icons/Brightness7";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+} from "@mui/material";
 import DataTable, { setDefaultCurrency } from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
 import { getData, STRUCTURE, User } from "./utils";
@@ -44,9 +44,9 @@ function App() {
   }, [handleChange]);
 
   return (
-    <ThemeProvider theme={createTheme({ palette: { type: darkMode ? "dark" : "light" } })}>
+    <ThemeProvider theme={createTheme({ palette: { mode: darkMode ? "dark" : "light" } })}>
       <CssBaseline />
-      <MuiPickersUtilsProvider utils={MomentUtils}>
+      <LocalizationProvider dateAdapter={MomentAdapter}>
         <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>
           <IconButton onClick={toggleDarkMode}>{darkMode ? <Brightness7 /> : <Brightness4 />}</IconButton>
           <FormControlLabel
@@ -67,7 +67,7 @@ function App() {
             />
           </TableContainer>
         </Box>
-      </MuiPickersUtilsProvider>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

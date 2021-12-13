@@ -31,7 +31,6 @@ function getInitialFilter(initialFilter?: InitialFilterValues<any> | null) {
 const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   initialFilter = {} as InitialFilterValues<RowType>,
   onClose,
-  ...props
 }: PropsWithChildren<FilterProps<RowType>>) => {
   const { activeFilters, update } = useContext<TableState<RowType, AllTableData>>(TableContext);
   const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>

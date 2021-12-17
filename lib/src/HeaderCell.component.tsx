@@ -31,7 +31,14 @@ const useStyles = makeStyles(
           opacity: 1,
         },
       },
+      alignLeft: {
+        justifyContent: "flex-start",
+        "&$editableOffset": {
+          paddingLeft: theme.spacing(1),
+        },
+      },
       alignCenter: {
+        justifyContent: "center",
         "& > div": {
           flex: 1,
           width: "100%",
@@ -48,6 +55,10 @@ const useStyles = makeStyles(
         },
       },
       alignRight: {
+        justifyContent: "flex-end",
+        "&$editableOffset": {
+          paddingRight: theme.spacing(1),
+        },
         "& > div:nth-child(1)": {
           order: 3,
           textAlign: "right",
@@ -62,6 +73,7 @@ const useStyles = makeStyles(
           order: 1,
         },
       },
+      editableOffset: {},
       filterIconButton: {
         opacity: 0.2,
         transition: theme.transitions.create(["opacity", "color"], {
@@ -233,10 +245,11 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           style={style}
         >
           <div
-            className={clsx(classes.headerCellInner, {
+            className={clsx(classes.headerCellInner, classes.alignLeft, {
               [classes.alignRight]: structure.align === "right",
               [classes.alignCenter]: structure.align === "center",
-              [classes.resizeable]: resizeable,
+              [classes.editableOffset]: Boolean(structure.editable),
+              [classes.resizeable]: !colGroupHeader && resizeable,
             })}
           >
             <div className={classes.headerCellBody}>

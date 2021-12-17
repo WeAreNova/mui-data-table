@@ -209,7 +209,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 <TableRow>
                   {structure.map(({ colGroup, footer, ...struct }) =>
                     colGroup && footer ? (
-                      <TableCell key={struct.key} colSpan={colGroup.length}>
+                      <TableCell key={struct.key} colSpan={colGroup.length} align="center">
                         {footer(allTableData)}
                       </TableCell>
                     ) : null,

@@ -57,6 +57,7 @@ const useStyles = makeStyles(
       alignRight: {
         justifyContent: "flex-end",
         "&$editableOffset": {
+          padding: 0,
           paddingRight: theme.spacing(1),
         },
         "& > div:nth-child(1)": {

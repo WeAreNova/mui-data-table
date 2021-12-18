@@ -22,6 +22,10 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
       csvFilename: "DataTableExport.csv",
       resizeable: false,
       ...props,
+      rowOptions: props.rowOptions && {
+        ...props.rowOptions,
+        alternateRowColour: props.rowOptions.alternateRowColour || props.rowOptions.alternateRowColor,
+      },
       editable:
         props.editable ??
         props.tableStructure.some((c) => c.editable || Boolean(c.colGroup?.some((cg) => cg.editable))),
@@ -48,6 +52,7 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
   onChange: PropTypes.func,
   rowClick: PropTypes.func,
   rowOptions: PropTypes.exact({
+    alternateRowColour: PropTypes.func,
     alternateRowColor: PropTypes.func,
     rowDisabled: PropTypes.func,
   }),

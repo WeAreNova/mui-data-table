@@ -276,8 +276,11 @@ export interface OnChangeObject {
   sortKey: string | null;
 }
 
+type AlternateRowColour = (data: Record<string, any>) => boolean;
+
 export interface RowOptions {
-  alternateRowColour?(data: Record<string, any>): boolean;
+  alternateRowColour?: AlternateRowColour;
+  alternateRowColor?: AlternateRowColour;
   rowDisabled?(data: Record<string, any>): boolean;
 }
 

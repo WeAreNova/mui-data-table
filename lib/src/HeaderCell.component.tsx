@@ -60,8 +60,12 @@ const HeaderTableCell = styled(TableCell, {
   colGroupHeader && pinned && { left: "unset" },
 ]);
 
-const alignmentStyles: Record<Exclude<TableCellAlign, "left">, CSSObject> = {
+const alignmentStyles: Record<TableCellAlign, CSSObject> = {
+  left: {
+    justifyContent: "flex-start",
+  },
   center: {
+    justifyContent: "center",
     "& > div": {
       flex: 1,
       width: "100%",
@@ -78,6 +82,7 @@ const alignmentStyles: Record<Exclude<TableCellAlign, "left">, CSSObject> = {
     },
   },
   right: {
+    justifyContent: "flex-end",
     "& > div:nth-of-type(1)": {
       order: 3,
       textAlign: "right",
@@ -94,16 +99,26 @@ const alignmentStyles: Record<Exclude<TableCellAlign, "left">, CSSObject> = {
   },
 };
 
+const editableOffsetKey: Record<Exclude<TableCellAlign, "center">, string> = {
+  left: "paddingLeft",
+  right: "paddingRight",
+};
+
 const InnerHeaderCell = styled("div", {
   label: "DataTable-InnerHeaderCell",
   shouldForwardProp: dontForwardProps(["alignment", "resizeable"]),
 })<{
   alignment?: TableCellAlign;
+  editableOffset: boolean;
   resizeable: boolean;
-}>(({ alignment, resizeable, theme }) => [
+}>(({ alignment = "left", editableOffset, resizeable, theme }) => [
   { display: "flex", position: "relative" },
   resizeable && { paddingRight: theme.spacing(2), overflow: "hidden" },
-  alignment && alignment !== "left" && alignmentStyles[alignment],
+  alignment && alignmentStyles[alignment],
+  editableOffset &&
+    alignment !== "center" && {
+      [editableOffsetKey[alignment]]: theme.spacing(1),
+    },
 ]);
 
 /**
@@ -215,7 +230,11 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           align={structure.align}
           style={style}
         >
-          <InnerHeaderCell alignment={structure.align} resizeable={resizeable}>
+          <InnerHeaderCell
+            alignment={structure.align}
+            resizeable={!colGroupHeader && resizeable}
+            editableOffset={Boolean(structure.editable)}
+          >
             <Box
               sx={{
                 display: "flex",

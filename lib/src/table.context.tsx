@@ -105,6 +105,7 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
   structure: Structure<RowType, AllDataType>;
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
   resizeable: boolean;
+  rowOptions?: Omit<NonNullable<BaseTableState<RowType, AllDataType>["rowOptions"]>, "alternateRowColor">;
 }
 
 export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<

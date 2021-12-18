@@ -44,7 +44,12 @@ function App() {
   }, [handleChange]);
 
   return (
-    <ThemeProvider theme={createTheme({ palette: { mode: darkMode ? "dark" : "light" } })}>
+    <ThemeProvider
+      theme={createTheme({
+        components: { MuiTextField: { defaultProps: { variant: "standard" } } },
+        palette: { mode: darkMode ? "dark" : "light" },
+      })}
+    >
       <CssBaseline />
       <LocalizationProvider dateAdapter={MomentAdapter}>
         <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>

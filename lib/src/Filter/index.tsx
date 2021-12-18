@@ -110,7 +110,6 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
             bottom: 0,
             borderTop: `1px solid`,
             borderTopColor: "palette.divider",
-            backgroundColor: "inherit",
           }}
         >
           <Button

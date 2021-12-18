@@ -47,7 +47,7 @@ const FilterButton = styled(IconButton, {
 
 const HeaderTableCell = styled(TableCell, {
   label: "DataTable-HeaderTableCell",
-  shouldForwardProp: dontForwardProps(["colGroupHeader", "pinned"]),
+  shouldForwardProp: dontForwardProps("colGroupHeader", "pinned"),
 })<{
   colGroupHeader: boolean;
   pinned: boolean;
@@ -106,7 +106,7 @@ const editableOffsetKey: Record<Exclude<TableCellAlign, "center">, string> = {
 
 const InnerHeaderCell = styled("div", {
   label: "DataTable-InnerHeaderCell",
-  shouldForwardProp: dontForwardProps(["alignment", "resizeable"]),
+  shouldForwardProp: dontForwardProps("alignment", "editableOffset", "resizeable"),
 })<{
   alignment?: TableCellAlign;
   editableOffset: boolean;

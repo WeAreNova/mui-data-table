@@ -22,7 +22,7 @@ const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
   "& > div": {
     display: "flex",
     alignItems: "flex-end",
-    "&:first-child": {
+    "&:first-of-type": {
       flex: 1,
     },
     "&:last-child": {

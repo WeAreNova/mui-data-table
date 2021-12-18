@@ -34,9 +34,8 @@ let defaultCurrency = "GBP";
 
 const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
 
-export function dontForwardProps(propNamesToIgnore: string | string[]) {
-  const names = Array.isArray(propNamesToIgnore) ? propNamesToIgnore : [propNamesToIgnore];
-  return (name: string) => names.indexOf(name) === -1;
+export function dontForwardProps(...propNamesToIgnore: string[]) {
+  return (name: string) => propNamesToIgnore.indexOf(name) === -1;
 }
 
 /**
@@ -274,7 +273,8 @@ export function getSortedData<RowType extends BaseData, AllDataType extends RowT
   } else {
     sortKey = sortColumn.dataIndex;
   }
-  return orderBy([...data], sortKey, sort.direction);
+  if (!sortKey) return data;
+  return orderBy([...data], (data) => get(data, sortKey!), sort.direction);
 }
 /**
  * A function which returns the paginated table data when done client-side

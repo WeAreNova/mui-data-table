@@ -24,10 +24,8 @@ You will also need to have the following packages at the specified minimum versi
 }
 ```
 
-!> Note that mui-data-table is made for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Official support for v5 will come soon.
-
-?> Because this package uses [@material-ui/pickers](https://material-ui-pickers.dev/) you will also want to follow the [installation instructions](https://material-ui-pickers.dev/getting-started/installation) for that package, if you have not already done so.
-The @material-ui/pickers library is used in the filtering of MUI Data Table for date filtering. In the future this package will make the pickers library optional so that it is used if it is installed, else it uses the browser's native date pickers.
+?> Because this package uses [@mui/lab date-time pickers](https://mui.com/components/pickers/) you will also want to follow the [installation instructions](https://mui.com/components/pickers/) for that package, if you have not already done so.
+The @mui/lab library is used in the filtering of MUI Data Table for date filtering. In the future this package will make the pickers library optional so that it is used if it is installed, else it uses the browser's native date pickers.
 
 ## Usage
 

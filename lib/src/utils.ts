@@ -271,7 +271,8 @@ export function getSortedData<RowType extends BaseData, AllDataType extends RowT
   } else {
     sortKey = sortColumn.dataIndex;
   }
-  return orderBy([...data], sortKey, sort.direction);
+  if (!sortKey) return data;
+  return orderBy([...data], (data) => get(data, sortKey!), sort.direction);
 }
 /**
  * A function which returns the paginated table data when done client-side

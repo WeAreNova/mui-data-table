@@ -7,7 +7,7 @@
 
 <div align="center">
 
-Comprehensive data-table component with powerful features out of the box for [MUI v4](https://v4.mui.com/) with support for [MUI v5](https://mui.com/) coming soon.
+Comprehensive data-table component with powerful features out of the box for [MUI v5](https://mui.com/).
 
 [![npm (scoped)](https://img.shields.io/npm/v/@wearenova/mui-data-table?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/@wearenova/mui-data-table) [![npm](https://img.shields.io/npm/dm/@wearenova/mui-data-table?logo=npm&style=for-the-badge)](https://www.npmjs.com/package/@wearenova/mui-data-table) ![GitHub](https://img.shields.io/github/license/WeAreNova/mui-data-table?style=for-the-badge) [![GitHub deployments](https://img.shields.io/github/deployments/WeAreNova/mui-data-table/github-pages?label=Documentation&style=for-the-badge)](https://wearenova.github.io/mui-data-table/#/) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/WeAreNova/mui-data-table/Build%20and%20Publish?logo=github&style=for-the-badge)](https://github.com/WeAreNova/mui-data-table)
 

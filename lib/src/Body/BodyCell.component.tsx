@@ -184,7 +184,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
           )}
         </div>
       </ErrorBoundary>
-    </TableCell>
+    </EditableTableCell>
   );
 };
 

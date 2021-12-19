@@ -70,8 +70,8 @@ it("should render row cells correctly", async function () {
     const rowData = DATA[i];
     STRUCTURE.forEach((column) => {
       const rendered = column.render
-        ? column.render(rowData, false, getRowId(rowData, i), i)
-        : rowData[column.dataIndex as string];
+        ? (column.render(rowData, false, getRowId(rowData, i), i) as string)
+        : (rowData[column.dataIndex as keyof typeof rowData] as string);
       const cell = component.getByText(rendered);
       expect(cell).toBeTruthy();
       expect(rows[i].contains(cell)).toBe(true);

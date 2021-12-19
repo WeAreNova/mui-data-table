@@ -1,6 +1,7 @@
 import { styled, Tooltip } from "@mui/material";
 import { get } from "dot-prop";
 import React, { MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import ErrorBoundary from "../ErrorBoundary.component";
 import TableContext, { TableState } from "../table.context";
 import type { BaseData } from "../table.types";
 import TableCell from "../TableCell.component";
@@ -170,18 +171,20 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
       ref={bodyCellRef}
       data-testid="DataTable-BodyCell"
     >
-      <div onClick={handleEditClick} onDoubleClick={handleEdit}>
-        {editMode ? (
-          <EditCell cancelEdit={handleEditCancel} />
-        ) : structure.limitWidth ? (
-          <Tooltip title={tooltipTitle}>
-            <span>{value}</span>
-          </Tooltip>
-        ) : (
-          value
-        )}
-      </div>
-    </EditableTableCell>
+      <ErrorBoundary>
+        <div onClick={handleEditClick} onDoubleClick={handleEdit}>
+          {editMode ? (
+            <EditCell cancelEdit={handleEditCancel} />
+          ) : structure.limitWidth ? (
+            <Tooltip title={tooltipTitle}>
+              <span>{value}</span>
+            </Tooltip>
+          ) : (
+            value
+          )}
+        </div>
+      </ErrorBoundary>
+    </TableCell>
   );
 };
 

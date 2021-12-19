@@ -451,8 +451,14 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
       ...options,
     });
   }
-  if (struct.render) return struct.render(data, isCSVExport, rowId, dataArrayIndex);
-  return get(data, struct.dataIndex!);
+  let value: ReactNode;
+  if (struct.render) {
+    value = struct.render(data, isCSVExport, rowId, dataArrayIndex);
+  } else {
+    value = get(data, struct.dataIndex!);
+  }
+  if (typeof value === "boolean") return String(value);
+  return value;
 }
 
 /**

@@ -25,6 +25,7 @@
   - [Resizeable Columns](/features#resizeable-columns)
 
 - [**Columns**](/columns#column-definitions)
+
   - [Options](/columns#the-options)
     - [Key - Required](/columns#key-required)
     - [Title - Required](/columns#title-required)
@@ -43,3 +44,6 @@
     - [Pinnable - Optional](/columns#pinnable-optional)
     - [Header Action Buttons - Optional](/columns#header-action-buttons-optional)
     - [Column Groups - Optional](/columns#column-groups-optional)
+
+- **Previous Versions**
+  - [V1 docs (for Material-UI V4)](/v1/getting-started)

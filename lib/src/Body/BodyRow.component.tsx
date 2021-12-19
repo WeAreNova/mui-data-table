@@ -122,13 +122,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
       className={tableRowClasses}
     >
       {structure.flattened.notHidden.map((struct) => (
-        <BodyContextProvider
-          key={struct.key}
-          value={{
-            ...bodyContextValue,
-            structure: struct,
-          }}
-        >
+        <BodyContextProvider key={struct.key} value={{ ...bodyContextValue, structure: struct }}>
           <BodyCell />
         </BodyContextProvider>
       ))}

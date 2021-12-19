@@ -249,7 +249,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     sorter: true,
     filterColumn: true,
     editable: true,
-    render: (record) => (typeof record.isConfirmed === "undefined" ? null : String(record.isConfirmed)),
   },
 ];
 

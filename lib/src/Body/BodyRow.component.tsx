@@ -18,8 +18,8 @@ const StyledTableRow = styled(TableRow, {
   shouldForwardProp: dontForwardProps("altColour", "disabled", "selected"),
 })<{ altColour: boolean; disabled: boolean; selected: boolean }>(({ altColour, disabled, selected, theme }) => [
   altColour && { bgcolor: alpha(theme.palette.error.dark, 0.9) },
-  disabled && { bgcolor: "action.disabledBackground", opacity: theme.palette.action.disabledOpacity },
-  selected && { bgcolor: "action.selected" },
+  disabled && { bgcolor: theme.palette.action.disabledBackground, opacity: theme.palette.action.disabledOpacity },
+  selected && { bgcolor: theme.palette.action.selected },
 ]);
 
 /**

@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - v1.x
+    paths:
+      - lib/src/**/*
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -21,7 +23,7 @@ jobs:
         uses: ./.github/actions/run-tests
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+        uses: sonarsource/sonarqube-scan-action@v1
         with:
           args: >
             -Dsonar.projectVersion=${{ steps.git-tag.outputs.result }}

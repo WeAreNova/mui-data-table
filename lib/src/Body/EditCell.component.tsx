@@ -1,4 +1,4 @@
-import { ClickAwayListener, createStyles, makeStyles, TextField } from "@material-ui/core";
+import { Box, ClickAwayListener, TextField } from "@mui/material";
 import { get, set } from "dot-prop";
 import React, {
   ChangeEventHandler,
@@ -27,23 +27,6 @@ import BodyContext, { BodyState } from "./body.context";
 interface EditCellProps {
   cancelEdit(): void;
 }
-
-const useStyles = makeStyles(
-  () =>
-    createStyles({
-      fieldContainer: {
-        display: "flex",
-        flexDirection: "column",
-        "& > *": {
-          width: "100%",
-        },
-        "& *:not(svg)": {
-          fontSize: "inherit",
-        },
-      },
-    }),
-  { name: "DataTable-EditCell" },
-);
 
 const DEFAULT_VALIDATORS: Record<NonNullable<EditDataTypes>, (value: any, options: SelectOption[]) => void> = {
   string: (value) => {
@@ -87,9 +70,7 @@ function getInitialValue<RowType extends BaseData, AllDataType extends RowType[]
 
 const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   cancelEdit,
-  ...props
 }: PropsWithChildren<EditCellProps>) => {
-  const classes = useStyles(props);
   const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
   const [error, setError] = useState<string | null>(null);
@@ -271,7 +252,20 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   return (
     <ClickAwayListener onClickAway={handleCancelEdit}>
-      <div className={classes.fieldContainer}>{field}</div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          "& > *": {
+            width: "100%",
+          },
+          "& *:not(svg)": {
+            fontSize: "inherit",
+          },
+        }}
+      >
+        {field}
+      </Box>
     </ClickAwayListener>
   );
 };

@@ -1,5 +1,5 @@
-import MomentUtils from "@date-io/moment";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { LocalizationProvider } from "@mui/lab";
+import MomentUtils from "@mui/lab/AdapterMoment";
 import { render, RenderResult } from "@testing-library/react";
 import React from "react";
 import DataTable, { ColumnDefinition } from "../src";
@@ -41,9 +41,9 @@ let component: RenderResult;
 
 beforeEach(() => {
   component = render(
-    <MuiPickersUtilsProvider utils={MomentUtils}>
+    <LocalizationProvider dateAdapter={MomentUtils}>
       <DataTable tableData={DATA} tableStructure={STRUCTURE} />
-    </MuiPickersUtilsProvider>,
+    </LocalizationProvider>,
   );
 });
 

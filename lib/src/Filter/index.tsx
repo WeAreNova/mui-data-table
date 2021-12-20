@@ -1,6 +1,5 @@
-import { Button, ClickAwayListener, makeStyles, Paper } from "@material-ui/core";
-import Add from "@material-ui/icons/Add";
-import { createStyles } from "@material-ui/styles";
+import Add from "@mui/icons-material/Add";
+import { Box, Button, ClickAwayListener, Paper } from "@mui/material";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
 import TableContext, { TableState } from "../table.context";
 import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
@@ -10,29 +9,8 @@ export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<Ro
 
 interface FilterProps<RowType extends BaseData> {
   initialFilter: InitialFilterValues<RowType> | null;
-  onClose(e: React.MouseEvent<Document, MouseEvent>): void;
+  onClose(e: MouseEvent | TouchEvent): void;
 }
-
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      root: {
-        minWidth: 250,
-        maxHeight: 400,
-        overflowY: "auto",
-        "& > div": {
-          padding: theme.spacing(1),
-        },
-      },
-      filterFooter: {
-        position: "sticky",
-        bottom: 0,
-        borderTop: `1px solid ${theme.palette.divider}`,
-        backgroundColor: "inherit",
-      },
-    }),
-  { name: "DataTable-Filter" },
-);
 
 let filterId = 0;
 function uniqueId() {
@@ -53,9 +31,7 @@ function getInitialFilter(initialFilter?: InitialFilterValues<any> | null) {
 const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   initialFilter = {} as InitialFilterValues<RowType>,
   onClose,
-  ...props
 }: PropsWithChildren<FilterProps<RowType>>) => {
-  const classes = useStyles(props);
   const { activeFilters, update } = useContext<TableState<RowType, AllTableData>>(TableContext);
   const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>
     activeFilters.length ? activeFilters : [getInitialFilter(initialFilter)],
@@ -104,7 +80,16 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
 
   return (
     <ClickAwayListener onClickAway={onClose} mouseEvent="onMouseUp" touchEvent="onTouchEnd">
-      <Paper className={classes.root}>
+      <Paper
+        sx={{
+          minWidth: 250,
+          maxHeight: 400,
+          overflowY: "auto",
+          "& > div": {
+            p: 1,
+          },
+        }}
+      >
         <div>
           {filtersArray.map((filter, index) => (
             <Fragment key={filter.id}>
@@ -119,7 +104,14 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
             </Fragment>
           ))}
         </div>
-        <div className={classes.filterFooter}>
+        <Box
+          sx={{
+            position: "sticky",
+            bottom: 0,
+            borderTop: `1px solid`,
+            borderTopColor: "palette.divider",
+          }}
+        >
           <Button
             onClick={handleAddBlankFilter}
             data-testid="addFilter"
@@ -130,7 +122,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
           >
             Add filter
           </Button>
-        </div>
+        </Box>
       </Paper>
     </ClickAwayListener>
   );

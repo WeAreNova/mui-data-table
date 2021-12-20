@@ -1,52 +1,40 @@
-import { createStyles, makeStyles, Tooltip } from "@material-ui/core";
-import clsx from "clsx";
+import { styled, Tooltip } from "@mui/material";
 import { get } from "dot-prop";
-import React, {
-  MouseEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import ErrorBoundary from "../ErrorBoundary.component";
 import TableContext, { TableState } from "../table.context";
 import type { BaseData } from "../table.types";
 import TableCell from "../TableCell.component";
-import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
 import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 
-interface BodyCellProps {}
-
-const useStyles = makeStyles(
-  (theme) => {
-    const focusOutline = {
-      "& > div": {
-        outline: `1px solid ${theme.palette.action.focus}`,
-      },
-    };
-    return createStyles({
-      bodyCell: {
-        outline: "none",
-        "&:focus": focusOutline,
-        "&:focus-within": focusOutline,
-        "& > div": {
-          minHeight: theme.spacing(2),
-          padding: theme.spacing(1),
-        },
-      },
-      editable: {
-        "& > div:hover": {
-          backgroundColor: theme.palette.action.hover,
-        },
-      },
-    });
+const focusOutline = {
+  "& > div": {
+    outline: `1px solid`,
+    outlineColor: "action.focus",
   },
-  { name: "DataTable-BodyCell" },
-);
+};
+
+const EditableTableCell = styled(TableCell, {
+  label: "DataTable-EditableTableCell",
+  shouldForwardProp: dontForwardProps("editable"),
+})<{ editable: boolean }>(({ editable, theme }) => [
+  {
+    outline: "none",
+    "&:focus": focusOutline,
+    "&:focus-within": focusOutline,
+    "& > div": {
+      minHeight: theme.spacing(2),
+      padding: theme.spacing(1),
+    },
+  },
+  editable && {
+    "& > div:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+]);
 
 /**
  * The BodyCell component is a wrapper around the custom TableCell component which manages the rendering of the
@@ -55,8 +43,7 @@ const useStyles = makeStyles(
  * @component
  * @package
  */
-const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
-  const classes = useStyles(props);
+const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => {
   const { structure, data, rowId, index } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
   const {
     rowClick,
@@ -138,11 +125,6 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
     [loading, rowsSelectable, isMacOS, rowClick, data, selectedRows, rowId, rowSpan, update, tableData, index],
   );
 
-  const bodyCellClasses = useMemo(
-    () => clsx(classes.bodyCell, { [classes.editable]: Boolean(tableEditable && structure.editable) }),
-    [classes.bodyCell, classes.editable, structure.editable, tableEditable],
-  );
-
   const handleEdit = useCallback(
     (e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => {
       e.stopPropagation();
@@ -176,15 +158,15 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
   }, [editMode, handleEdit]);
 
   return (
-    <TableCell
+    <EditableTableCell
       key={structure.key}
       onClick={handleRowClick}
+      editable={Boolean(tableEditable && structure.editable)}
       hidden={Boolean(hiddenColumns[structure.key])}
       pinned={pinnedColumn === structure.key}
       maxWidth={structure.limitWidth}
       rowSpan={rowSpan}
       align={structure.align}
-      className={bodyCellClasses}
       tabIndex={0}
       ref={bodyCellRef}
       data-testid="DataTable-BodyCell"
@@ -202,7 +184,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
           )}
         </div>
       </ErrorBoundary>
-    </TableCell>
+    </EditableTableCell>
   );
 };
 

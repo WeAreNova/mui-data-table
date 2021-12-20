@@ -1,7 +1,8 @@
+import Help from "@mui/icons-material/Help";
 import {
+  Box,
   Button,
-  createStyles,
-  makeStyles,
+  styled,
   Table as MUITable,
   TableBody,
   TableContainer,
@@ -10,9 +11,7 @@ import {
   TableRow,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import Help from "@material-ui/icons/Help";
-import clsx from "clsx";
+} from "@mui/material";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
@@ -21,7 +20,7 @@ import HeaderRow from "./HeaderRow.component";
 import TableContext, { TableState } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import TableCell from "./TableCell.component";
-import { getRowId } from "./utils";
+import { dontForwardProps, getRowId } from "./utils";
 import { RowsPerPageOptionsPropType } from "./_propTypes";
 
 interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
@@ -30,54 +29,33 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
     "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
   > {}
 
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      dataLoading: {
-        "& > tbody": {
-          opacity: 0.4,
-          backgroundColor: theme.palette.action.hover,
-        },
-      },
-      footerButtons: {
-        display: "flex",
-        paddingLeft: theme.spacing(1),
-      },
-      selectedRowsFooter: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "flex-end",
-        "& > *": {
-          marginRight: theme.spacing(2.5),
-        },
-      },
-      table: {
-        "& > tbody": {
-          transition: theme.transitions.create(["opacity", "background-color"], {
-            duration: theme.transitions.duration.shortest,
-            easing: theme.transitions.easing.easeInOut,
-          }),
-        },
-      },
-      tableFooter: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        position: "sticky",
-        left: 0,
-        border: `1px solid ${theme.palette.divider}`,
-        borderWidth: "1px 0 1px 0",
-      },
-      tablePagination: {
-        borderBottom: "none",
-        [theme.breakpoints.down("sm")]: {
-          width: "100%",
-        },
-      },
+const LoadableTableBody = styled(TableBody, {
+  label: "DataTable-TableBody",
+  shouldForwardProp: dontForwardProps("loading"),
+})<{ loading: boolean }>(({ loading, theme }) => [
+  {
+    transition: theme.transitions.create(["opacity", "background-color"], {
+      duration: theme.transitions.duration.shortest,
+      easing: theme.transitions.easing.easeInOut,
     }),
-  { name: "DataTable" },
-);
+  },
+  loading && {
+    opacity: 0.4,
+    backgroundColor: "action.hover",
+  },
+]);
+
+const TableToolbar = styled("div", { label: "DataTable-TableToolbar" })({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  flexWrap: "wrap",
+  position: "sticky",
+  left: 0,
+  border: "1px solid",
+  borderColor: "divider",
+  borderWidth: "1px 0 1px 0",
+});
 
 /**
  * This is the internal Table component and should not be used directly.
@@ -91,9 +69,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
   disablePagination = false,
-  ...props
 }: PropsWithChildren<_TableProps<RowType, AllDataType>>) => {
-  const classes = useStyles(props);
   const tableRef = useRef<HTMLTableElement>(null);
   const {
     allTableData,
@@ -179,18 +155,13 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   return (
     <>
       <TableContainer>
-        <MUITable
-          {...tableProps}
-          stickyHeader
-          className={clsx(classes.table, tableProps.className, { [classes.dataLoading]: loading })}
-          ref={tableRef}
-        >
+        <MUITable {...tableProps} stickyHeader ref={tableRef}>
           <HeaderRow />
-          <TableBody>
+          <LoadableTableBody loading={loading}>
             {tableData.map((data, dataIndex) => (
               <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
             ))}
-          </TableBody>
+          </LoadableTableBody>
           {(hasFooter || hasColGroupFooter) && (
             <TableFooter>
               {hasFooter && (
@@ -220,9 +191,14 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
           )}
         </MUITable>
       </TableContainer>
-      <div className={classes.tableFooter}>
+      <TableToolbar>
         <div>
-          <div className={classes.footerButtons}>
+          <Box
+            sx={{
+              display: "flex",
+              pl: 1,
+            }}
+          >
             {exportToCSVOption && (
               <Button variant="text" disabled={loading} onClick={exportToCSV}>
                 CSV Export
@@ -233,12 +209,15 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 Show all
               </Button>
             )}
-          </div>
+          </Box>
         </div>
         <div>
           {!disablePagination && (
             <TablePagination
-              className={classes.tablePagination}
+              sx={{
+                borderBottom: "none",
+                width: { xs: "100%", md: "auto" },
+              }}
               rowsPerPageOptions={rowsPerPageOptions}
               count={count}
               rowsPerPage={rowsPerPage!}
@@ -250,7 +229,16 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
             />
           )}
           {rowsSelectable && (
-            <div className={classes.selectedRowsFooter}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                "& > *": {
+                  mr: 2.5,
+                },
+              }}
+            >
               <Button
                 onClick={handleClearSelection}
                 disabled={!Object.values(selectedRows).length}
@@ -281,10 +269,10 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
               >
                 <Help />
               </Tooltip>
-            </div>
+            </Box>
           )}
         </div>
-      </div>
+      </TableToolbar>
     </>
   );
 };

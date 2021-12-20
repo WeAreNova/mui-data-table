@@ -1,0 +1,45 @@
+- [**Home**](/v1/getting-started)
+
+- [**Demo**](/v1/demo)
+
+- [**Getting Started**](/v1/getting-started)
+
+  - [Installation](/v1/getting-started#installation)
+  - [Peer Dependencies](/v1/getting-started#peer-dependencies)
+  - [Usage](/v1/getting-started#usage)
+
+- [**Rendering**](/v1/rendering)
+
+  - [Path-to-Data Render](/v1/columns#path-render-optional)
+  - [Custom Render](/v1/columns#custom-render-optional)
+  - [Numerical Render](/v1/columns#numerical-render-optional)
+
+- [**Features**](/v1/features#features)
+
+  - [Currency & Number Formatting](/v1/features#currency-amp-number-formatting)
+  - [CSV Export](/v1/features#csv-export)
+  - [Editing](/v1/features#editing)
+    - [Validation](/v1/features#validation)
+    - [Cell Options](/v1/columns#editing-optional)
+  - [Filtering](/v1/columns#filtering-optional)
+  - [Resizeable Columns](/v1/features#resizeable-columns)
+
+- [**Columns**](/v1/columns#column-definitions)
+  - [Options](/v1/columns#the-options)
+    - [Key - Required](/v1/columns#key-required)
+    - [Title - Required](/v1/columns#title-required)
+    - [Path Render - Optional](/v1/columns#path-render-optional)
+    - [Custom Render - Optional](/v1/columns#custom-render-optional)
+    - [Numerical Render - Optional](/v1/columns#numerical-render-optional)
+    - [Data Type - Optional](/v1/columns#data-type-optional)
+    - [Footer - Optional](/v1/columns#footer-optional)
+    - [Grouping - Optional](/v1/columns#grouping-optional)
+    - [Alignment - Optional](/v1/columns#alignment-optional)
+    - [Limit Width - Optional](/v1/columns#limit-width-optional)
+    - [Row Span - Optional](/v1/columns#row-span-optional)
+    - [Sorting - Optional](/v1/columns#sorting-optional)
+    - [Filtering - Optional](/v1/columns#filtering-optional)
+    - [Editing - Optional](/v1/columns#editing-optional)
+    - [Pinnable - Optional](/v1/columns#pinnable-optional)
+    - [Header Action Buttons - Optional](/v1/columns#header-action-buttons-optional)
+    - [Column Groups - Optional](/v1/columns#column-groups-optional)

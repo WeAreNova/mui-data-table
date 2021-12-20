@@ -18,14 +18,16 @@ You will also need to have the following packages at the specified minimum versi
 
 ```json
 {
-  "@mui/material": "^5.0.0",
-  "@mui/icons-material": "^5.0.0",
-  "@mui/lab": "^5.0.0-alpha.30"
+  "@material-ui/core": "^4.0.0",
+  "@material-ui/icons": "^4.0.0",
+  "@material-ui/pickers": "^3.3.0"
 }
 ```
 
-?> Because this package uses [@mui/lab date-time pickers](https://mui.com/components/pickers/) you will also want to follow the [installation instructions](https://mui.com/components/pickers/) for that package, if you have not already done so.
-The @mui/lab library is used in the filtering of MUI Data Table for date filtering. In the future this package will make the pickers library optional so that it is used if it is installed, else it uses the browser's native date pickers.
+!> Please note that these docs are for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Please go to the [v2 docs here](/getting-started) for the up-to-date [@mui](https://mui.com) v5 docs.
+
+?> Because this package uses [@material-ui/pickers](https://material-ui-pickers.dev/) you will also want to follow the [installation instructions](https://material-ui-pickers.dev/getting-started/installation) for that package, if you have not already done so.
+The @material-ui/pickers library is used in the filtering of MUI Data Table for date filtering. In the future this package will make the pickers library optional so that it is used if it is installed, else it uses the browser's native date pickers.
 
 ## Usage
 

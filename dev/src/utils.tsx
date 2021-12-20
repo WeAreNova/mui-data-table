@@ -1,4 +1,4 @@
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { ColumnDefinition, EditComponentProps } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";
@@ -257,7 +257,8 @@ const data = (() => {
     const totalBalance = faker.datatype.number({ min: 0, max: 10_000_000 });
     const investedBalance = faker.datatype.number({ min: 0, max: totalBalance });
     const registrationDate = faker.date.past();
-    return {
+    // eslint-disable-next-line sonarjs/prefer-immediate-return
+    const value = {
       id: faker.datatype.uuid(),
       email: faker.internet.email(),
       title: faker.name.prefix(),
@@ -290,6 +291,7 @@ const data = (() => {
       },
     };
     // return [value, { ...value, id: faker.datatype.uuid() }];
+    return value;
   });
 })();
 

@@ -1,104 +1,81 @@
-import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@material-ui/core";
-import clsx from "clsx";
+import { CSSObject, styled, TableCell as MUITableCell, TableCellProps } from "@mui/material";
 import PropTypes from "prop-types";
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import TableContext from "./table.context";
+import { dontForwardProps } from "./utils";
+
+type Widths = "lg" | "sm";
 
 interface Props extends TableCellProps {
   hidden?: boolean;
   pinned?: boolean;
-  maxWidth?: "lg" | "sm";
+  maxWidth?: Widths;
 }
 
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      hiddenTableCell: {
-        contentVisibility: "hidden",
-        maxWidth: 0,
-        padding: 0,
-        cursor: "pointer",
-        transition: theme.transitions.create("border-right-width", {
-          duration: theme.transitions.duration.shortest,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-        "&:last-child": {
-          borderLeft: `3px solid ${theme.palette.divider}`,
-          "&:hover": {
-            borderLeftWidth: 5,
-          },
-        },
-        "&:not(:last-child)": {
-          "&:not(:hover)": {
-            borderRightWidth: 3,
-          },
-          "&:hover": {
-            borderRightWidth: 5,
-          },
-        },
-      },
-      maxWidthLg: {
-        "& > *": {
-          maxWidth: "20em",
-          display: "block",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        },
-      },
-      maxWidthSm: {
-        "& > *": {
-          maxWidth: "6em",
-          display: "block",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        },
-      },
-      pinnedTableCell: {
-        position: "sticky",
-        left: 0,
-        right: 0,
-        background: theme.palette.background.default,
-        borderLeft: `1px solid ${theme.palette.divider}`,
-        borderRight: `1px solid ${theme.palette.divider}`,
-        "&.MuiTableCell-head": {
-          zIndex: 4,
-        },
-      },
-      resizeable: {
-        overflow: "hidden",
-      },
+const maxWidthStyles: Record<Widths, CSSObject> = {
+  sm: { "& > *": { maxWidth: "6em" } },
+  lg: { "& > *": { maxWidth: "20em" } },
+};
+
+const StyledTableCell = styled(MUITableCell, {
+  label: "DataTable-TableCell",
+  shouldForwardProp: dontForwardProps("hidden", "pinned", "maxWidth", "resizeable"),
+})<Props & { resizeable?: boolean }>(({ hidden = false, pinned = false, maxWidth, resizeable, theme }) => [
+  resizeable && {
+    overflow: "hidden",
+  },
+  hidden && {
+    contentVisibility: "hidden",
+    maxWidth: 0,
+    padding: 0,
+    cursor: "pointer",
+    transition: theme.transitions.create("border-right-width", {
+      duration: theme.transitions.duration.shortest,
+      easing: theme.transitions.easing.easeInOut,
     }),
-  { name: "TableCellComponent" },
-);
+    "&:last-child": {
+      borderLeft: `3px solid ${theme.palette.divider}`,
+      "&:hover": {
+        borderLeftWidth: 5,
+      },
+    },
+    "&:not(:last-child)": {
+      "&:not(:hover)": {
+        borderRightWidth: 3,
+      },
+      "&:hover": {
+        borderRightWidth: 5,
+      },
+    },
+  },
+  pinned && {
+    position: "sticky",
+    left: 0,
+    right: 0,
+    background: theme.palette.background.default,
+    borderLeft: `1px solid ${theme.palette.divider}`,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    "&.MuiTableCell-head": {
+      zIndex: 4,
+    },
+  },
+  maxWidth && {
+    ...maxWidthStyles[maxWidth],
+    display: "block",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+]);
 
 /**
  * Enhanced TableCell component with additional styles
  *
  * @component
  */
-const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
-  { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
-  ref,
-) {
+const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(props: Props, ref) {
   const { resizeable } = useContext(TableContext);
-  const classes = useStyles(props);
-  const cellClasses = useMemo(
-    () =>
-      clsx([
-        className,
-        {
-          [classes.hiddenTableCell]: hidden,
-          [classes.pinnedTableCell]: pinned,
-          [classes.maxWidthLg]: maxWidth === "lg",
-          [classes.maxWidthSm]: maxWidth === "sm",
-          [classes.resizeable]: Boolean(resizeable),
-        },
-      ]),
-    [className, classes, hidden, maxWidth, pinned, resizeable],
-  );
-  return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
+  return <StyledTableCell align="left" {...props} resizeable={resizeable} ref={ref} />;
 });
 TableCell.propTypes = {
   hidden: PropTypes.bool,

@@ -40,4 +40,4 @@ assignees: ''
 * Link to your project:
 
 
-> Issue template generated via [TalAter/open-source-templates](https://github.com/TalAter/open-source-templates)
+<!-- Issue template generated via [TalAter/open-source-templates](https://github.com/TalAter/open-source-templates) -->

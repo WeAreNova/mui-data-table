@@ -13,8 +13,14 @@ Comprehensive data-table component with powerful features out of the box for [MU
 
 </div>
 
+- For the current version of [MUI](https://mui.com/) use v2.x
+- For [Material-UI v4](https://v4.mui.com/) use v1.x
+
+> Both versions are actively maintained and shall continue to include upcoming features, bugfixes and improvements.
+
 #### Features
 
+- Cell Editing
 - Multi-Column Filtering
   - Able to filter by: strings, numbers, booleans and dates by default
 - Single-Column Sorting
@@ -22,7 +28,7 @@ Comprehensive data-table component with powerful features out of the box for [MU
 - Row Selection
 - Column Grouping
 - CSV Export
-- Ability to "Pin" Columns
+- Pinnable/Freezable Columns
 
 ### Installation
 
@@ -36,7 +42,19 @@ npm install --save @wearenova/mui-data-table
 yarn add @wearenova/mui-data-table
 ```
 
-> See full instructions in the documentation.
+> See full instructions in the [documentation](https://wearenova.github.io/mui-data-table/#/).
+
+Or for [Material-UI v4](https://v4.mui.com/)
+
+```shell
+// with npm
+npm install --save @wearenova/mui-data-table@1
+
+// with yarn
+yarn add @wearenova/mui-data-table@1
+```
+
+> See full instructions for [Material-UI v4](https://v4.mui.com/) in the [v1.x documentation](https://wearenova.github.io/mui-data-table/#/v1/).
 
 ### Documentation
 

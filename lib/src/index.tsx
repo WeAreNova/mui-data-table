@@ -64,7 +64,10 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
   rowsSelectable: PropTypes.bool,
   onSelectedRowsChange: PropTypes.func,
   selectGroupBy: PropTypes.string,
-  defaultSort: PropTypes.exact({ key: PropTypes.string, direction: PropTypes.oneOf(["asc", "desc"]) }),
+  defaultSort: PropTypes.exact({
+    key: PropTypes.string,
+    direction: PropTypes.oneOf(["asc", "desc"]),
+  }),
   onEdit: PropTypes.func,
   resizeable: PropTypes.bool,
 };

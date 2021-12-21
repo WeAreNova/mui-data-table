@@ -9,7 +9,6 @@
     "start": "concurrently --names \"rollup,react\" -c \"green,blue\" \"npm run start:rollup\" \"npm run start:dev\"",
     "docs": "docsify serve docs --open",
     "build": "npx rimraf build/ && rollup --config rollup.config.ts",
-    "publish": "cd build && npm publish --access public",
     "test": "jest"
   },
   "workspaces": [

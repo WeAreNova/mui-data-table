@@ -6,6 +6,12 @@
   "types": "lib/index.d.ts",
   "module": "lib/index.js",
   "main": "lib/index.c.js",
+  "homepage": "https://wearenova.github.io/mui-data-table/#/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WeAreNova/mui-data-table",
+    "directory": "lib"
+  },
   "scripts": {
     "build": "npx rimraf lib/ && rollup --config rollup.config.ts --configPlugin typescript"
   },

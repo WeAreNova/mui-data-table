@@ -289,6 +289,8 @@ export interface Sort {
   direction?: "asc" | "desc";
 }
 
+export type DateLike = Date | string | number | null | undefined;
+
 /**
  * A function invoked when a row/cell is edited.
  *

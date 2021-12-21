@@ -208,7 +208,6 @@ const OPERATOR_MAP: Record<OperatorValues, (args: MatchActionArg) => boolean> = 
  * @param filter.value the filter value
  * @param filter.operator the filter operator
  * @param filter.type the filter type
- * @param utils the date utilities from \@material-ui/pickers
  * @returns whether the value matches the filter value given the filter operator and type
  */
 export function getMatch<RowType extends BaseData>(value: RowType[keyof RowType], filter: ActiveFilter): boolean {
@@ -223,7 +222,6 @@ export function getMatch<RowType extends BaseData>(value: RowType[keyof RowType]
  *
  * @param data table data
  * @param filters the filters to apply
- * @param utils the date utilities from \@material-ui/pickers
  * @returns the filtered data
  */
 export function getFilteredData<RowType extends BaseData>(data: RowType[], filters: ActiveFilters<RowType>): RowType[] {

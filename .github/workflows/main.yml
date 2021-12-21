@@ -50,7 +50,7 @@ jobs:
       - name: Publish
         run: |
           cd build
-          npm publish --access public
+          npm publish --access public --tag $([ "${GITHUB_REF#refs/heads/}" = "main" ] && echo "latest" || echo "mui-v4")
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 

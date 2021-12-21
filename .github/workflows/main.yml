@@ -72,5 +72,5 @@ jobs:
           git commit --amend --no-edit
           git tag -d ${{ steps.git-tag.outputs.result }}
           git tag ${{ steps.git-tag.outputs.result }}
-          git push origin main
+          git push origin ${GITHUB_REF#refs/heads/}
           git push origin ${{ steps.git-tag.outputs.result }}

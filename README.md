@@ -54,7 +54,7 @@ npm install --save @wearenova/mui-data-table@1
 yarn add @wearenova/mui-data-table@1
 ```
 
-> See full instructions for [Material-UI v4](https://v4.mui.com/) in the [v1.x documentation](https://wearenova.github.io/mui-data-table/#/v1/).
+> See full instructions for [Material-UI v4](https://v4.mui.com/) in the [v1.x documentation](https://wearenova.github.io/mui-data-table/#/v1/getting-started).
 
 ### Documentation
 

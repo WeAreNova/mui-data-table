@@ -1,3 +1,4 @@
+import MomentUtils from "@date-io/moment";
 import {
   Box,
   createTheme,
@@ -10,6 +11,7 @@ import {
 } from "@material-ui/core";
 import Brightness4 from "@material-ui/icons/Brightness4";
 import Brightness7 from "@material-ui/icons/Brightness7";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DataTable, { setDefaultCurrency } from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
 import { getData, STRUCTURE, User } from "./utils";
@@ -44,26 +46,28 @@ function App() {
   return (
     <ThemeProvider theme={createTheme({ palette: { type: darkMode ? "dark" : "light" } })}>
       <CssBaseline />
-      <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>
-        <IconButton onClick={toggleDarkMode}>{darkMode ? <Brightness7 /> : <Brightness4 />}</IconButton>
-        <FormControlLabel
-          control={<Switch checked={changeServerSide} onChange={toggleChangeServerSide} />}
-          label="simulate server-side change handling?"
-        />
-      </Box>
-      <Box>
-        <TableContainer>
-          <DataTable
-            tableData={data}
-            tableStructure={STRUCTURE}
-            onChange={changeServerSide ? handleChange : undefined}
-            rowClick={(data) => console.log(data)}
-            // onEdit={(...data) => "test"}
-            exportToCSVOption
-            resizeable
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>
+          <IconButton onClick={toggleDarkMode}>{darkMode ? <Brightness7 /> : <Brightness4 />}</IconButton>
+          <FormControlLabel
+            control={<Switch checked={changeServerSide} onChange={toggleChangeServerSide} />}
+            label="simulate server-side change handling?"
           />
-        </TableContainer>
-      </Box>
+        </Box>
+        <Box>
+          <TableContainer>
+            <DataTable
+              tableData={data}
+              tableStructure={STRUCTURE}
+              onChange={changeServerSide ? handleChange : undefined}
+              rowClick={(data) => console.log(data)}
+              // onEdit={(...data) => "test"}
+              exportToCSVOption
+              resizeable
+            />
+          </TableContainer>
+        </Box>
+      </MuiPickersUtilsProvider>
     </ThemeProvider>
   );
 }

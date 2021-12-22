@@ -1,10 +1,9 @@
 import { debounce, TextField, Typography } from "@material-ui/core";
-import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import PropTypes from "prop-types";
 import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import DatePicker from "../Fields/DatePicker.component";
 import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect.component";
-import type { ActiveFilter, NullableActiveFilter } from "../table.types";
+import type { ActiveFilter, DateLike, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
 import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
 
@@ -82,10 +81,9 @@ const ValueField = <
         return (
           <DatePicker
             {...commonProps}
-            defaultValue={commonProps.defaultValue as MaterialUiPickersDate}
+            defaultValue={commonProps.defaultValue as DateLike}
             onChange={handleDateChange}
-            variant="dialog"
-            inputVariant={commonProps.variant}
+            variant={commonProps.variant}
           />
         );
       case "number":

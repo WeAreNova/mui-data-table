@@ -1,8 +1,8 @@
 import { debounce, TextField, Typography } from "@material-ui/core";
 import PropTypes from "prop-types";
-import React, { ChangeEvent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent, type PropsWithChildren } from "react";
 import DatePicker from "../Fields/DatePicker.component";
-import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect.component";
+import SimpleSelect, { type SelectOptionObject } from "../Fields/SimpleSelect.component";
 import type { ActiveFilter, DateLike, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";
 import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
@@ -60,7 +60,7 @@ const ValueField = <
     if (!selected) return setFilterValue(null);
     setFilterValue(selected.value === "true");
   }, []);
-  const handleDateChange = useCallback((value: MaterialUiPickersDate | null) => {
+  const handleDateChange = useCallback((value: DateLike | null) => {
     const newFilterValue = value && new Date(value);
     setFilterValue(newFilterValue ?? null);
   }, []);

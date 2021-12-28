@@ -1,17 +1,23 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TextField, TextFieldProps } from "@material-ui/core";
 import React, { ChangeEvent, Suspense, useCallback, useMemo, useState } from "react";
 import { DateLike } from "../table.types";
 
-const FallbackDatePicker = ({ defaultValue: propDefault, ...props }: TextFieldProps & { defaultValue: DateLike }) => {
+function FallbackDatePicker({
+  defaultValue: propDefault,
+  inputVariant,
+  ...props
+}: TextFieldProps & { defaultValue: DateLike; inputVariant?: string }) {
   const defaultValue = useMemo(() => propDefault && new Date(propDefault).toISOString().split("T")[0], [propDefault]);
   return <TextField {...props} value={undefined} defaultValue={defaultValue ?? ""} type="date" />;
-};
+}
 
-const MUIDatePicker = React.lazy(async () => {
+// @ts-expect-error `@material-ui/pickers` is a weak dependency
+const MUIDatePicker = React.lazy<typeof TextField | typeof import("@material-ui/pickers").DatePicker>(async () => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const module = require("@material-ui/pickers");
-    return { default: module.DatePicker };
+    const { DatePicker: PickerComponent } = require("@material-ui/pickers");
+    return { default: (props: TextFieldProps) => <PickerComponent {...props} defaultValue={undefined} /> };
   } catch (error) {
     return { default: FallbackDatePicker };
   }

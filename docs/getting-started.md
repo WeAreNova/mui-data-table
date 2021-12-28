@@ -23,7 +23,7 @@ You will also need to have the following packages at the specified minimum versi
 }
 ```
 
-!> Note that mui-data-table v1 is made for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Official support for v5 is available in v2.
+!> Note that mui-data-table v1 is made for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Official support for v5 is available in mui-data-table v2.
 
 If you would like to use the date picker from [@material-ui/pickers](https://material-ui-pickers.dev/) rather than the browser's native date picker then you will also need to install the following package at the specified minimum version:
 

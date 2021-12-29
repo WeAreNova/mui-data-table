@@ -14,18 +14,26 @@ yarn add @wearenova/mui-data-table
 
 ## Peer Dependencies
 
-You will also need to have the following packages at the specified minimum versions installed:
+You will also need to have the following packages at the specified minimum versions or higher installed:
 
 ```json
 {
   "@mui/material": "^5.0.0",
-  "@mui/icons-material": "^5.0.0",
+  "@mui/icons-material": "^5.0.0"
+}
+```
+
+!> Note that mui-data-table v2 is made for [@mui](https://mui.com) v5 and not [@material-ui](https://v4.mui.com) v4. Please use mui-data-table v1 if you are using [@material-ui](https://v4.mui.com) v4.
+
+If you would like to use the date picker from [@mui/lab date-time pickers](https://mui.com/components/pickers/) rather than the browser's native date picker then you will also need to install the following package at the specified minimum version or higher:
+
+```json
+{
   "@mui/lab": "^5.0.0-alpha.30"
 }
 ```
 
-?> Because this package uses [@mui/lab date-time pickers](https://mui.com/components/pickers/) you will also want to follow the [installation instructions](https://mui.com/components/pickers/) for that package, if you have not already done so.
-The @mui/lab library is used in the filtering of MUI Data Table for date filtering. In the future this package will make the pickers library optional so that it is used if it is installed, else it uses the browser's native date pickers.
+?> If you decide to use [@mui/lab date-time pickers](https://mui.com/components/pickers/) you will also want to follow the [installation instructions](https://mui.com/components/pickers/) for that package, if you have not already done so. The @mui/lab library is used in the filtering of MUI Data Table for filtering by date.
 
 ## Usage
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TextField, TextFieldProps } from "@material-ui/core";
 import React, { ChangeEvent, Suspense, useCallback, useMemo, useState } from "react";
 import { DateLike } from "../table.types";

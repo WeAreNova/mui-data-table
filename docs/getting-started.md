@@ -23,7 +23,7 @@ You will also need to have the following packages at the specified minimum versi
 }
 ```
 
-!> Note that mui-data-table v1 is made for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Official support for v5 is available in mui-data-table v2.
+!> Note that mui-data-table v1 is made for [@material-ui](https://v4.mui.com) v4 and not [@mui](https://mui.com) v5. Please use mui-data-table v2 if you are using [@mui](https://mui.com) v5.
 
 If you would like to use the date picker from [@material-ui/pickers](https://material-ui-pickers.dev/) rather than the browser's native date picker then you will also need to install the following package at the specified minimum version:
 
@@ -33,7 +33,7 @@ If you would like to use the date picker from [@material-ui/pickers](https://mat
 }
 ```
 
-?> If you intent to use [@material-ui/pickers](https://material-ui-pickers.dev/), you will also want to follow the [installation instructions](https://material-ui-pickers.dev/getting-started/installation) for that package, if you have not already done so. The @material-ui/pickers library is used in the filtering of MUI Data Table for date filtering.
+?> If you decide to use [@material-ui/pickers](https://material-ui-pickers.dev/), you will also want to follow the [installation instructions](https://material-ui-pickers.dev/getting-started/installation) for that package, if you have not already done so. The @material-ui/pickers library is used in the filtering of MUI Data Table for filtering by date.
 
 ## Usage
 

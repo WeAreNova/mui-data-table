@@ -3,7 +3,7 @@
   "version": "1.7.0-rc.1",
   "private": true,
   "scripts": {
-    "start": "react-scripts start --stats-error-details",
+    "start": "react-scripts start",
     "test": "react-script test"
   },
   "browserslist": {

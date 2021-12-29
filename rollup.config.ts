@@ -51,6 +51,6 @@ export default defineConfig({
         { src: "LICENSE", dest: "build" },
       ],
     }),
-    deletePlugin({ targets: ["build/lib/**/*.d.ts", ...KEEP_TYPES], verbose: true, hook: "closeBundle" }),
+    deletePlugin({ targets: ["build/lib/**/*.d.ts", ...KEEP_TYPES], hook: "closeBundle" }),
   ],
 });

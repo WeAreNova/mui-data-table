@@ -23,11 +23,36 @@ interface MUIDatePickerProps extends DatePickerProps {
 const MUIDatePicker = React.lazy<typeof FallbackDatePicker | React.FC<MUIDatePickerProps>>(async () => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const PickerComponent = require("@mui/lab").DatePicker as typeof import("@mui/lab").DatePicker;
+    const PickerComponent = require("@mui/lab/DatePicker").default;
+    const CalendarIcon = await import("@mui/icons-material/CalendarToday");
+    const IconButton = await import("@mui/material/IconButton");
     return {
-      default: ({ defaultValue, ...props }: MUIDatePickerProps) => (
-        <PickerComponent {...props} renderInput={(textFieldProps) => <TextField {...textFieldProps} />} />
-      ),
+      default: (({ defaultValue, ...props }: MUIDatePickerProps) => {
+        const [open, setOpen] = useState(false);
+        const toggleOpen = useCallback(() => setOpen((o) => !o), []);
+        return (
+          <PickerComponent
+            {...props}
+            open={open}
+            onOpen={toggleOpen}
+            onClose={toggleOpen}
+            renderInput={(textFieldProps: TextFieldProps) => (
+              <TextField
+                {...textFieldProps}
+                sx={{ pr: 0.5 }}
+                InputProps={{
+                  ...textFieldProps.InputProps,
+                  endAdornment: (
+                    <IconButton.default onClick={toggleOpen}>
+                      <CalendarIcon.default fontSize="small" />
+                    </IconButton.default>
+                  ),
+                }}
+              />
+            )}
+          />
+        );
+      }) as React.FC<MUIDatePickerProps>,
     };
   } catch (error) {
     return { default: FallbackDatePicker };

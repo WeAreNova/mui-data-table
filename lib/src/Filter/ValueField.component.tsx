@@ -26,7 +26,6 @@ const COMMON_PROPS = {
   name: "value",
   placeholder: "Value",
   size: "small",
-  variant: "standard",
 } as const;
 
 /**
@@ -83,7 +82,6 @@ const ValueField = <
             {...commonProps}
             defaultValue={commonProps.defaultValue as DateLike}
             onChange={handleDateChange}
-            variant={commonProps.variant}
           />
         );
       case "number":

@@ -1,9 +1,15 @@
+import { createTheme, Theme, ThemeOptions } from "@material-ui/core";
+import { ThemeProvider } from "@material-ui/styles";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useMemo } from "react";
+import React, { PropsWithChildren, useCallback, useMemo } from "react";
 import { TableProvider } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "./_propTypes";
 import _Table from "./_Table.component";
+
+const MUI_DATA_TABLE_THEME: ThemeOptions = {
+  props: { MuiTextField: { variant: "standard" }, MuiSelect: { variant: "standard" } },
+};
 
 /**
  * The DataTable component is the entry point for the DataTable library.
@@ -32,15 +38,20 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
     }),
     [props],
   );
+
+  const mergeThemes = useCallback((t: Theme) => createTheme(t, MUI_DATA_TABLE_THEME), []);
+
   return (
-    <TableProvider value={allProps}>
-      <_Table
-        tableProps={props.tableProps}
-        rowsPerPageOptions={props.rowsPerPageOptions}
-        exportToCSVOption={props.exportToCSVOption}
-        disablePagination={props.disablePagination}
-      />
-    </TableProvider>
+    <ThemeProvider theme={mergeThemes}>
+      <TableProvider value={allProps}>
+        <_Table
+          tableProps={props.tableProps}
+          rowsPerPageOptions={props.rowsPerPageOptions}
+          exportToCSVOption={props.exportToCSVOption}
+          disablePagination={props.disablePagination}
+        />
+      </TableProvider>
+    </ThemeProvider>
   );
 };
 (DataTable as React.FC).propTypes = {

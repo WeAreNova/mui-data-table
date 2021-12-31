@@ -1,7 +1,7 @@
 import { debounce, TextField, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent, type PropsWithChildren } from "react";
-import DatePicker from "../Fields/DatePicker.component";
+import DatePicker from "../Fields/DatePicker";
 import SimpleSelect, { type SelectOptionObject } from "../Fields/SimpleSelect.component";
 import type { ActiveFilter, DateLike, NullableActiveFilter } from "../table.types";
 import { getFilterTypeConvertors } from "../utils";

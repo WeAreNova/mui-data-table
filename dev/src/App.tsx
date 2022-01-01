@@ -2,7 +2,16 @@ import Brightness4 from "@mui/icons-material/Brightness4";
 import Brightness7 from "@mui/icons-material/Brightness7";
 import { LocalizationProvider } from "@mui/lab";
 import MomentAdapter from "@mui/lab/AdapterMoment";
-import { Box, CssBaseline, FormControlLabel, IconButton, Switch, TableContainer } from "@mui/material";
+import {
+  Box,
+  createTheme,
+  CssBaseline,
+  FormControlLabel,
+  IconButton,
+  Switch,
+  TableContainer,
+  ThemeProvider,
+} from "@mui/material";
 import DataTable, { setDefaultCurrency } from "@wearenova/mui-data-table";
 import React, { useCallback, useEffect, useState } from "react";
 import { getData, STRUCTURE, User } from "./utils";
@@ -35,31 +44,31 @@ function App() {
   }, [handleChange]);
 
   return (
-    // <ThemeProvider theme={createTheme({ palette: { mode: darkMode ? "dark" : "light" } })}>
-    <LocalizationProvider dateAdapter={MomentAdapter}>
+    <ThemeProvider theme={createTheme({ palette: { mode: darkMode ? "dark" : "light" } })}>
       <CssBaseline />
-      <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>
-        <IconButton onClick={toggleDarkMode}>{darkMode ? <Brightness7 /> : <Brightness4 />}</IconButton>
-        <FormControlLabel
-          control={<Switch checked={changeServerSide} onChange={toggleChangeServerSide} />}
-          label="simulate server-side change handling?"
-        />
-      </Box>
-      <Box>
-        <TableContainer>
-          <DataTable
-            tableData={data}
-            tableStructure={STRUCTURE}
-            onChange={changeServerSide ? handleChange : undefined}
-            rowClick={(data) => console.log(data)}
-            // onEdit={(...data) => "test"}
-            exportToCSVOption
-            resizeable
+      <LocalizationProvider dateAdapter={MomentAdapter}>
+        <Box display="flex" justifyContent="flex-end" marginBottom={2} paddingRight={1} paddingTop={1}>
+          <IconButton onClick={toggleDarkMode}>{darkMode ? <Brightness7 /> : <Brightness4 />}</IconButton>
+          <FormControlLabel
+            control={<Switch checked={changeServerSide} onChange={toggleChangeServerSide} />}
+            label="simulate server-side change handling?"
           />
-        </TableContainer>
-      </Box>
-    </LocalizationProvider>
-    // </ThemeProvider>
+        </Box>
+        <Box>
+          <TableContainer>
+            <DataTable
+              tableData={data}
+              tableStructure={STRUCTURE}
+              onChange={changeServerSide ? handleChange : undefined}
+              rowClick={(data) => console.log(data)}
+              // onEdit={(...data) => "test"}
+              exportToCSVOption
+              resizeable
+            />
+          </TableContainer>
+        </Box>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 }
 

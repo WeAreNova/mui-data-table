@@ -64,7 +64,7 @@
   },
   "peerDependencies": {
     "@mui/icons-material": "^5.0.0",
-    "@mui/lab": "^5.0.0-alpha.30",
+    "@mui/lab": "^5.0.0-alpha.45",
     "@mui/material": "^5.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"

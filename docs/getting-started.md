@@ -29,7 +29,7 @@ If you would like to use the date picker from [@mui/lab date-time pickers](https
 
 ```json
 {
-  "@mui/lab": "^5.0.0-alpha.30"
+  "@mui/lab": "^5.0.0-alpha.45"
 }
 ```
 

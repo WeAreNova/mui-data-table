@@ -59,12 +59,23 @@
       "last 1 safari version"
     ]
   },
+  "browser": {
+    "@mui/lab": false
+  },
   "peerDependencies": {
     "@mui/icons-material": "^5.0.0",
-    "@mui/lab": "^5.0.0-alpha.30",
+    "@mui/lab": "^5.0.0-alpha.45",
     "@mui/material": "^5.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@mui/lab": {
+      "optional": true
+    },
+    "@mui/lab/DatePicker": {
+      "optional": true
+    }
   },
   "dependencies": {
     "dot-prop": "^6.0.1",

@@ -2,6 +2,8 @@ import commonjsPlugin from "@rollup/plugin-commonjs";
 import typeScriptPlugin from "@rollup/plugin-typescript";
 import path from "path";
 import { defineConfig } from "rollup";
+import analyzerPlugin from "rollup-plugin-analyzer";
+import cleanupPlugin from "rollup-plugin-cleanup";
 import copyPlugin from "rollup-plugin-copy";
 import deletePlugin from "rollup-plugin-delete";
 import progressPlugin from "rollup-plugin-progress";
@@ -22,28 +24,25 @@ const KEEP_TYPES = [
   "Fields/SimpleSelect.component.d.ts",
 ].map((path) => `!build/lib/${path}`);
 
-const isExternal = (id) => EXTERNALS_REGEX.test(id);
-
 export default defineConfig({
   input: "lib/src/index.tsx",
-  external: isExternal,
-  output: [
-    {
-      file: path.join("build", packageJSON.module),
-      format: "esm",
-      sourcemap: true,
-    },
-    {
-      file: path.join("build", packageJSON.main),
-      format: "cjs",
-      sourcemap: true,
-      exports: "named",
-    },
-  ],
+  external: EXTERNALS_REGEX,
+  output: {
+    entryFileNames: path.basename(packageJSON.module),
+    chunkFileNames: "chunk-[hash].js",
+    inlineDynamicImports: false,
+    dir: "build/lib",
+    format: "esm",
+    sourcemap: true,
+  },
   plugins: [
     progressPlugin(),
     commonjsPlugin(),
-    typeScriptPlugin({ tsconfig: "lib/tsconfig.json", exclude: ["lib/src/_propTypes.ts"] }),
+    typeScriptPlugin({
+      tsconfig: "lib/tsconfig.json",
+      exclude: ["lib/src/_propTypes.ts"],
+      outDir: "build/lib",
+    }),
     copyPlugin({
       targets: [
         { src: "lib/package.json", dest: "build" },
@@ -51,6 +50,8 @@ export default defineConfig({
         { src: "LICENSE", dest: "build" },
       ],
     }),
-    deletePlugin({ targets: ["build/lib/**/*.d.ts", ...KEEP_TYPES], verbose: true, hook: "closeBundle" }),
+    cleanupPlugin({ extensions: ["js", "jsx", "ts", "tsx"] }),
+    analyzerPlugin(),
+    deletePlugin({ targets: ["build/lib/**/*.d.ts", ...KEEP_TYPES], hook: "closeBundle" }),
   ],
 });

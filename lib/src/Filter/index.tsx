@@ -1,9 +1,8 @@
-import { Button, ClickAwayListener, makeStyles, Paper } from "@material-ui/core";
+import { Button, ClickAwayListener, createStyles, makeStyles, Paper } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
-import { createStyles } from "@material-ui/styles";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
-import TableContext, { TableState } from "../table.context";
-import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
+import TableContext, { TableState } from "table.context";
+import { ActiveFilter, BaseData, NullableActiveFilter } from "table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
 
 export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type" | "operator">;

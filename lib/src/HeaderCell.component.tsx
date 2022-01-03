@@ -1,17 +1,16 @@
-import { Divider, IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
+import { createStyles, Divider, IconButton, makeStyles, TableSortLabel, Tooltip } from "@material-ui/core";
 import AcUnit from "@material-ui/icons/AcUnit";
 import FilterList from "@material-ui/icons/FilterList";
 import Visibility from "@material-ui/icons/Visibility";
-import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
+import { InitialFilterValues } from "Filter";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
-import { InitialFilterValues } from "./Filter";
-import TableContext, { TableState } from "./table.context";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "./table.types";
-import TableCell from "./TableCell.component";
-import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "./utils";
-import { ColumnDefinitionPropType } from "./_propTypes";
+import TableContext, { TableState } from "table.context";
+import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "table.types";
+import TableCell from "TableCell.component";
+import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
+import { ColumnDefinitionPropType } from "_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;

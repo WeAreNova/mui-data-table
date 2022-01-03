@@ -1,11 +1,10 @@
-import { createTheme, Theme, ThemeOptions } from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/styles";
+import { createTheme, ThemeOptions, ThemeProvider, useTheme } from "@material-ui/core";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useMemo } from "react";
-import { TableProvider } from "./table.context";
-import { BaseData, TableProps } from "./table.types";
-import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "./_propTypes";
-import _Table from "./_Table.component";
+import React, { PropsWithChildren, useMemo } from "react";
+import { TableProvider } from "table.context";
+import { BaseData, TableProps } from "table.types";
+import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "_propTypes";
+import _Table from "_Table.component";
 
 const MUI_DATA_TABLE_THEME: ThemeOptions = {
   props: { MuiTextField: { variant: "standard" }, MuiSelect: { variant: "standard" } },
@@ -19,6 +18,8 @@ const MUI_DATA_TABLE_THEME: ThemeOptions = {
 export const DataTable = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, AllDataType>>,
 ) => {
+  const outerTheme = useTheme();
+
   const allProps = useMemo(
     () => ({
       enableHiddenColumns: false,
@@ -39,10 +40,10 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
     [props],
   );
 
-  const mergeThemes = useCallback((t: Theme) => createTheme(t, MUI_DATA_TABLE_THEME), []);
+  const mergedTheme = useMemo(() => createTheme(outerTheme, MUI_DATA_TABLE_THEME), [outerTheme]);
 
   return (
-    <ThemeProvider theme={mergeThemes}>
+    <ThemeProvider theme={mergedTheme}>
       <TableProvider value={allProps}>
         <_Table
           tableProps={props.tableProps}

@@ -12,17 +12,17 @@ import {
   Typography,
 } from "@material-ui/core";
 import Help from "@material-ui/icons/Help";
+import BodyRow from "Body/BodyRow.component";
 import clsx from "clsx";
+import HeaderRow from "HeaderRow.component";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import BodyRow from "./Body/BodyRow.component";
-import HeaderRow from "./HeaderRow.component";
-import TableContext, { TableState } from "./table.context";
-import { BaseData, TableProps } from "./table.types";
-import TableCell from "./TableCell.component";
-import { getRowId } from "./utils";
-import { RowsPerPageOptionsPropType } from "./_propTypes";
+import TableContext, { TableState } from "table.context";
+import { BaseData, TableProps } from "table.types";
+import TableCell from "TableCell.component";
+import { getRowId } from "utils";
+import { RowsPerPageOptionsPropType } from "_propTypes";
 
 interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   extends Pick<

@@ -1,14 +1,13 @@
-import { debounce, IconButton, makeStyles, Typography } from "@material-ui/core";
+import { createStyles, IconButton, makeStyles, Typography } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
-import { createStyles } from "@material-ui/styles";
 import clsx from "clsx";
+import SimpleSelect, { SimpleSelectChangeHandler } from "Fields/SimpleSelect.component";
 import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { BaseData, FilterValue } from "..";
-import SimpleSelect, { SimpleSelectChangeHandler } from "../Fields/SimpleSelect.component";
-import TableContext, { TableState } from "../table.context";
-import type { ActiveFilter, NullableActiveFilter, NullableDataTypes } from "../table.types";
-import { FilterValuePropTypes, OPERATORS } from "../_dataTable.consts";
+import TableContext, { TableState } from "table.context";
+import type { ActiveFilter, BaseData, FilterValue, NullableActiveFilter, NullableDataTypes } from "table.types";
+import { debounce } from "utils";
+import { FilterValuePropTypes, OPERATORS } from "_dataTable.consts";
 import ValueField from "./ValueField.component";
 
 interface Props {

@@ -60,10 +60,9 @@
     ]
   },
   "peerDependencies": {
-    "@material-ui/core": "^4.0.0",
+    "@material-ui/core": "^4.12.0",
     "@material-ui/icons": "^4.0.0",
-    "@material-ui/pickers": "^3.3.0",
-    "@material-ui/styles": "^4.0.0",
+    "@material-ui/pickers": "^3.1.0",
     "react": "^16.8.0 || ^17.0.0",
     "react-dom": "^16.8.0 || ^17.0.0"
   },

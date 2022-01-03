@@ -2,7 +2,7 @@ import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } f
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import React, { useContext, useMemo } from "react";
-import TableContext from "./table.context";
+import TableContext from "table.context";
 
 interface Props extends TableCellProps {
   hidden?: boolean;

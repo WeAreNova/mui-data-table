@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ActiveFilters, OnChangeObject, Sort } from "../table.types";
+import { ActiveFilters, OnChangeObject, Sort } from "table.types";
 
 function useStoredValues(
   defaultSort: Sort,

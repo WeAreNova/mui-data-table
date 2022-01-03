@@ -18,7 +18,7 @@ You will also need to have the following packages at the specified minimum versi
 
 ```json
 {
-  "@material-ui/core": "^4.0.0",
+  "@material-ui/core": "^4.12.0",
   "@material-ui/icons": "^4.0.0"
 }
 ```
@@ -29,7 +29,7 @@ If you would like to use the date picker from [@material-ui/pickers](https://mat
 
 ```json
 {
-  "@material-ui/pickers": "^3.3.0"
+  "@material-ui/pickers": "^3.1.0"
 }
 ```
 

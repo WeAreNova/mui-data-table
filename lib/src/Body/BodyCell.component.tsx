@@ -39,7 +39,7 @@ const useStyles = makeStyles(
       },
       editable: {
         "& > div": {
-          padding: theme.spacing(1),
+          padding: theme.spacing(0, 1),
           "&:hover": {
             backgroundColor: theme.palette.action.hover,
           },

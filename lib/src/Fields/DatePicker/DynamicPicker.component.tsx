@@ -13,7 +13,7 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const PickerComponent = require("@material-ui/pickers").DatePicker;
   MUIPicker = function MUIDatePicker({ defaultValue, ...props }: MUIPickerProps) {
-    return <PickerComponent {...props} defaultValue={undefined} />;
+    return <PickerComponent {...props} defaultValue={undefined} inputVariant="standard" />;
   };
 } catch (error) {
   // `@mui/lab` is not installed

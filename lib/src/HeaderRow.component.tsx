@@ -19,6 +19,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
   const { structure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [initialFilter, setInitialFilter] = useState<InitialFilterValues<RowType> | null>(null);
 
   const hasColGroups = useMemo(
@@ -34,15 +35,20 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
   const handleFilterClick = useCallback(
     (target: HTMLTableCellElement, targetInitFilter: InitialFilterValues<RowType>) => {
       setAnchorEl((currentTarget) => {
-        const newAnchorEl = currentTarget === target ? null : target;
-        if (newAnchorEl) setInitialFilter(targetInitFilter);
-        return newAnchorEl;
+        const isSame = currentTarget === target;
+        if (!isSame) {
+          setInitialFilter(targetInitFilter);
+          setFilterOpen(true);
+        } else {
+          setFilterOpen((s) => !s);
+        }
+        return target;
       });
     },
     [],
   );
 
-  const handleFilterClose = useCallback(() => setAnchorEl(null), []);
+  const handleFilterClose = useCallback(() => setFilterOpen(false), []);
 
   useEffect(() => {
     document.addEventListener("closeFilter", handleFilterClose);
@@ -82,7 +88,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
           )}
         </TableRow>
       )}
-      <StyledPopper open={Boolean(anchorEl)} anchorEl={anchorEl} placement="bottom-start" transition>
+      <StyledPopper open={filterOpen} anchorEl={anchorEl} placement="bottom-start" transition>
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
             <div>

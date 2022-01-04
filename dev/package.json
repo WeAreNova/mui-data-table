@@ -19,11 +19,12 @@
     ]
   },
   "dependencies": {
+    "@date-io/moment": "^2.11.0",
     "@emotion/react": "^11.7.0",
     "@emotion/styled": "^11.6.0",
-    "@mui/icons-material": "^5.2.0",
-    "@mui/material": "^5.2.2",
-    "@mui/styles": "^5.2.2",
+    "@mui/icons-material": "^5.0.0",
+    "@mui/lab": "^5.0.0-alpha.30",
+    "@mui/material": "^5.0.0",
     "@wearenova/mui-data-table": "file:../build/lib",
     "clsx": "^1.0.0",
     "faker": "^5.5.3",

@@ -27,14 +27,25 @@ const KEEP_TYPES = [
 export default defineConfig({
   input: "lib/src/index.tsx",
   external: EXTERNALS_REGEX,
-  output: {
-    entryFileNames: path.basename(packageJSON.module),
-    chunkFileNames: "chunk-[hash].js",
-    inlineDynamicImports: false,
-    dir: "build/lib",
-    format: "esm",
-    sourcemap: true,
-  },
+  output: [
+    {
+      entryFileNames: path.basename(packageJSON.module),
+      chunkFileNames: "chunk-[hash].js",
+      inlineDynamicImports: false,
+      dir: "build/lib",
+      format: "esm",
+      sourcemap: true,
+    },
+    {
+      entryFileNames: path.basename(packageJSON.main),
+      chunkFileNames: "chunk-[hash].c.js",
+      inlineDynamicImports: false,
+      dir: "build/lib",
+      format: "cjs",
+      sourcemap: true,
+      exports: "named",
+    },
+  ],
   plugins: [
     progressPlugin(),
     commonjsPlugin(),

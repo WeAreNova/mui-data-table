@@ -72,7 +72,7 @@
   "peerDependenciesMeta": {
     "@mui/lab": {
       "optional": true
-    },
+    }
   },
   "dependencies": {
     "dot-prop": "^6.0.1",

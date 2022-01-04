@@ -18,7 +18,9 @@ export const NativeDatePicker: React.FC<NativeDatePickerProps> = ({
     (e) => onChange(e.target.value),
     [onChange],
   );
-  return <TextField {...props} defaultValue={defaultValue || ""} onChange={handleChange} type="date" />;
+  return (
+    <TextField {...props} defaultValue={defaultValue || ""} onChange={handleChange} type="date" variant="standard" />
+  );
 };
 
 export default NativeDatePicker;

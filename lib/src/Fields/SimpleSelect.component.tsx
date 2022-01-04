@@ -82,6 +82,7 @@ const SimpleSelect = <T extends SelectOptionObject>({
         onOpen={handleOpen}
         onClose={handleClose}
         sx={(theme) => ({ ...theme.typography.caption })}
+        variant="standard"
       >
         {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (

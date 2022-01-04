@@ -73,9 +73,6 @@
     "@mui/lab": {
       "optional": true
     },
-    "@mui/lab/DatePicker": {
-      "optional": true
-    }
   },
   "dependencies": {
     "dot-prop": "^6.0.1",

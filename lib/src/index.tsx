@@ -13,8 +13,6 @@ import _Table from "./_Table.component";
 export const DataTable = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, AllDataType>>,
 ) => {
-  const outerTheme = useTheme();
-
   const allProps = useMemo(
     () => ({
       enableHiddenColumns: false,
@@ -34,6 +32,7 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
     }),
     [props],
   );
+
   return (
     <TableProvider value={allProps}>
       <_Table

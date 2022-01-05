@@ -32,6 +32,7 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
     }),
     [props],
   );
+
   return (
     <TableProvider value={allProps}>
       <_Table

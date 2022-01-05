@@ -1,6 +1,7 @@
 import { createStyles, makeStyles, Tooltip } from "@material-ui/core";
 import clsx from "clsx";
 import { get } from "dot-prop";
+import ErrorBoundary from "ErrorBoundary.component";
 import React, {
   MouseEventHandler,
   PropsWithChildren,
@@ -11,11 +12,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import ErrorBoundary from "../ErrorBoundary.component";
-import TableContext, { TableState } from "../table.context";
-import type { BaseData } from "../table.types";
-import TableCell from "../TableCell.component";
-import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import TableContext, { TableState } from "table.context";
+import type { BaseData } from "table.types";
+import TableCell from "TableCell.component";
+import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "utils";
 import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 

@@ -1,9 +1,9 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@material-ui/core";
+import { SelectOptionObject } from "Fields/SimpleSelect.component";
 import type React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import type { LiteralUnion, RequireExactlyOne } from "type-fest";
-import { SelectOptionObject } from "./Fields/SimpleSelect.component";
-import { BASE_OPERATORS, DATA_TYPES } from "./_dataTable.consts";
+import { BASE_OPERATORS, DATA_TYPES } from "_dataTable.consts";
 
 export interface BaseData {
   id?: string | null;

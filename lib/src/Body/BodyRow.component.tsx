@@ -1,10 +1,10 @@
 import { alpha, styled, TableRow, useTheme } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
-import TableContext, { TableState } from "../table.context";
-import { BaseData } from "../table.types";
-import { dontForwardProps, getRowId } from "../utils";
-import { RowDataPropType } from "../_propTypes";
+import TableContext, { TableState } from "table.context";
+import { BaseData } from "table.types";
+import { dontForwardProps, getRowId } from "utils";
+import { RowDataPropType } from "_propTypes";
 import { BodyContextProvider, BodyState } from "./body.context";
 import BodyCell from "./BodyCell.component";
 

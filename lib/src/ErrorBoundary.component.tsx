@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { createDTError, DataTableError } from "./utils";
+import { createDTError, DataTableError } from "utils";
 
 interface ErrorBoundaryProps {
   fallback?: ReactNode;

@@ -1,8 +1,8 @@
 import { CSSObject, styled, TableCell as MUITableCell, TableCellProps } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { useContext } from "react";
-import TableContext from "./table.context";
-import { dontForwardProps } from "./utils";
+import TableContext from "table.context";
+import { dontForwardProps } from "utils";
 
 type Widths = "lg" | "sm";
 

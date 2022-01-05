@@ -20,7 +20,7 @@ import {
   Sort,
   Sorter,
   TableCellAlign,
-} from "./table.types";
+} from "table.types";
 
 type FilterValuesType = NonNullable<ReturnType<ReturnType<typeof getFilterTypeConvertors>[DataTypes]>>;
 interface MatchActionArg {
@@ -522,4 +522,17 @@ export async function exportTableToCSV<RowType extends BaseData, AllDataType ext
  */
 export function getUnhiddenColumns<T extends { hidden?: boolean }>(tableStructure: T[]) {
   return tableStructure.filter((c): c is typeof c & { hidden: false | undefined } => !c.hidden);
+}
+
+/**
+ * A function which creates a debounced version of the given function.
+ * @param fn the function to be debounced
+ * @param wait the time to wait before invoking the function
+ */
+export function debounce<T extends (...args: any[]) => any>(fn: T, wait = 250) {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  return (...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), wait);
+  };
 }

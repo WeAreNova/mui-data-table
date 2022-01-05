@@ -300,13 +300,21 @@ describe("getUnhiddenColumns utility function", function () {
 });
 
 describe("debounce utility function", function () {
-  it("should return a debounced function", () => {
-    jest.useFakeTimers();
+  jest.useFakeTimers();
+  it("should return a debounced function that is called after a specified time", () => {
     const mockFunction = jest.fn();
     const debounced = debounce(mockFunction, 100);
     expect(debounced).toBeInstanceOf(Function);
     debounced();
     jest.advanceTimersByTime(100);
+    expect(mockFunction).toHaveBeenCalledTimes(1);
+  });
+  it("should return a debounced function which is only called once and after the default time", () => {
+    const mockFunction = jest.fn();
+    const debounced = debounce(mockFunction);
+    expect(debounced).toBeInstanceOf(Function);
+    for (let count = 0; count < 10; count++) debounced();
+    jest.advanceTimersByTime(250);
     expect(mockFunction).toHaveBeenCalledTimes(1);
   });
 });

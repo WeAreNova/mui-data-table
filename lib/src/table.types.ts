@@ -276,12 +276,12 @@ export interface OnChangeObject {
   sortKey: string | null;
 }
 
-type AlternateRowColour = (data: Record<string, any>) => boolean;
+type AlternateRowColour<RowType extends BaseData> = (data: RowType) => boolean;
 
-export interface RowOptions {
-  alternateRowColour?: AlternateRowColour;
-  alternateRowColor?: AlternateRowColour;
-  rowDisabled?(data: Record<string, any>): boolean;
+export interface RowOptions<RowType extends BaseData> {
+  alternateRowColour?: AlternateRowColour<RowType>;
+  alternateRowColor?: AlternateRowColour<RowType>;
+  rowDisabled?(data: RowType): boolean;
 }
 
 export interface Sort {
@@ -355,7 +355,7 @@ export interface TableProps<RowType extends BaseData, AllDataType extends RowTyp
   /**
    * Options specific to row customisation.
    */
-  rowOptions?: RowOptions;
+  rowOptions?: RowOptions<RowType>;
   /**
    * The table pagination options.
    */

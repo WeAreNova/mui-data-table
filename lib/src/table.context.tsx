@@ -1,8 +1,8 @@
-import { Checkbox, debounce } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { get } from "dot-prop";
+import useStoredValues from "hooks/useStoredValues.hook";
 import fileDownload from "js-file-download";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
-import useStoredValues from "./hooks/useStoredValues.hook";
 import type {
   ActiveFilters,
   BaseData,
@@ -13,8 +13,9 @@ import type {
   OperatorValues,
   Sort,
   TableProps,
-} from "./table.types";
+} from "table.types";
 import {
+  debounce,
   exportTableToCSV,
   getColumnTitle,
   getDataType,
@@ -26,7 +27,7 @@ import {
   getSortedData,
   getTableCellAlignment,
   getUnhiddenColumns,
-} from "./utils";
+} from "utils";
 
 const DYNAMIC_STATE = [
   "sort",
@@ -240,7 +241,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     [baseOnChange, update],
   );
 
-  const handleChange = useMemo(() => baseOnChange && debounce(onChange, 250), [onChange, baseOnChange]);
+  const handleChange = useMemo(() => baseOnChange && debounce(onChange), [onChange, baseOnChange]);
   useEffect(() => {
     handleChange?.(onChangeObject);
   }, [handleChange, onChangeObject]);

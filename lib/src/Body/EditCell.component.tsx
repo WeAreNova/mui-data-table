@@ -1,5 +1,6 @@
 import { Box, ClickAwayListener, TextField } from "@mui/material";
 import { get, set } from "dot-prop";
+import SimpleSelect, { SelectOptionObject } from "Fields/SimpleSelect.component";
 import React, {
   ChangeEventHandler,
   PropsWithChildren,
@@ -9,8 +10,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect.component";
-import TableContext, { TableState } from "../table.context";
+import TableContext, { TableState } from "table.context";
 import {
   BaseData,
   ColGroupDefinition,
@@ -19,9 +19,9 @@ import {
   EditDataTypes,
   PathType,
   SelectOption,
-} from "../table.types";
-import { createDTError, getDataType, getPath, getRowId } from "../utils";
-import { BOOLEAN_OPTIONS } from "../_dataTable.consts";
+} from "table.types";
+import { createDTError, getDataType, getPath, getRowId } from "utils";
+import { BOOLEAN_OPTIONS } from "_dataTable.consts";
 import BodyContext, { BodyState } from "./body.context";
 
 interface EditCellProps {

@@ -2,22 +2,14 @@ import AcUnit from "@mui/icons-material/AcUnit";
 import FilterList from "@mui/icons-material/FilterList";
 import Visibility from "@mui/icons-material/Visibility";
 import { Box, CSSObject, Divider, IconButton, styled, TableSortLabel, Tooltip } from "@mui/material";
+import { InitialFilterValues } from "Filter";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
-import { InitialFilterValues } from "./Filter";
-import TableContext, { TableState } from "./table.context";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "./table.types";
-import { TableCellAlign } from "./table.types";
-import TableCell from "./TableCell.component";
-import {
-  dispatchTableEvent,
-  dontForwardProps,
-  getColumnTitle,
-  getDataType,
-  getDefaultOperator,
-  getPath,
-} from "./utils";
-import { ColumnDefinitionPropType } from "./_propTypes";
+import TableContext, { TableState } from "table.context";
+import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort, TableCellAlign } from "table.types";
+import TableCell from "TableCell.component";
+import { dispatchTableEvent, dontForwardProps, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
+import { ColumnDefinitionPropType } from "_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;

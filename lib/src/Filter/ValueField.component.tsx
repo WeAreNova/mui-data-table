@@ -1,11 +1,11 @@
-import { debounce, TextField, Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
+import DatePicker from "Fields/DatePicker";
+import SimpleSelect, { type SelectOptionObject } from "Fields/SimpleSelect.component";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent, type PropsWithChildren } from "react";
-import DatePicker from "../Fields/DatePicker";
-import SimpleSelect, { type SelectOptionObject } from "../Fields/SimpleSelect.component";
-import type { ActiveFilter, DateLike, NullableActiveFilter } from "../table.types";
-import { getFilterTypeConvertors } from "../utils";
-import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "../_dataTable.consts";
+import type { ActiveFilter, DateLike, NullableActiveFilter } from "table.types";
+import { debounce, getFilterTypeConvertors } from "utils";
+import { BOOLEAN_OPTIONS, FilterValuePropTypes } from "_dataTable.consts";
 
 type FilterValueType<T extends ActiveFilter["type"] | NullableActiveFilter["type"]> = T extends "string"
   ? string

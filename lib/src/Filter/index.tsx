@@ -1,8 +1,8 @@
 import Add from "@mui/icons-material/Add";
 import { Box, Button, ClickAwayListener, Paper } from "@mui/material";
 import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
-import TableContext, { TableState } from "../table.context";
-import { ActiveFilter, BaseData, NullableActiveFilter } from "../table.types";
+import TableContext, { TableState } from "table.context";
+import { ActiveFilter, BaseData, NullableActiveFilter } from "table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
 
 export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type" | "operator">;

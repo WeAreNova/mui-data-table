@@ -99,6 +99,9 @@
     "wait-on": "^6.0.0"
   },
   "dependencies": {
+    "@mui/icons-material": "5.0.0",
+    "@mui/lab": "5.0.0-alpha.45",
+    "@mui/material": "5.0.0",
     "@wearenova/mui-data-table": "file:lib",
     "dev": "^2.0.2"
   }

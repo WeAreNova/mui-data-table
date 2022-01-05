@@ -1,11 +1,11 @@
 import { styled, Tooltip } from "@mui/material";
 import { get } from "dot-prop";
+import ErrorBoundary from "ErrorBoundary.component";
 import React, { MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import ErrorBoundary from "../ErrorBoundary.component";
-import TableContext, { TableState } from "../table.context";
-import type { BaseData } from "../table.types";
-import TableCell from "../TableCell.component";
-import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import TableContext, { TableState } from "table.context";
+import type { BaseData } from "table.types";
+import TableCell from "TableCell.component";
+import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "utils";
 import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 

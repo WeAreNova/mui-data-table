@@ -1,7 +1,7 @@
 import { TextField, TextFieldProps } from "@mui/material";
 import React, { useCallback, useMemo } from "react";
 import { DateLike } from "table.types";
-import { DatePickerProps } from ".";
+import { DatePickerProps } from "./index";
 
 interface NativeDatePickerProps extends DatePickerProps {
   value?: DateLike;

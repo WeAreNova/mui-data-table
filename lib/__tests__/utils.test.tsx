@@ -4,6 +4,7 @@ import { ActiveFilter, BaseData, ColumnDefinition, DataTypes } from "../src";
 import {
   createDTError,
   dataTypeOperatorMap,
+  debounce,
   dispatchTableEvent,
   findIndexFrom,
   findLastIndexFrom,
@@ -295,5 +296,17 @@ describe("getUnhiddenColumns utility function", function () {
   it("should return no columns if all columns are hidden", function () {
     baseColumns.forEach((column) => (column.hidden = true));
     expect(getUnhiddenColumns(baseColumns)).toEqual([]);
+  });
+});
+
+describe("debounce utility function", function () {
+  it("should return a debounced function", () => {
+    jest.useFakeTimers();
+    const mockFunction = jest.fn();
+    const debounced = debounce(mockFunction, 100);
+    expect(debounced).toBeInstanceOf(Function);
+    debounced();
+    jest.advanceTimersByTime(100);
+    expect(mockFunction).toHaveBeenCalledTimes(1);
   });
 });

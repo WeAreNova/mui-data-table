@@ -7,9 +7,10 @@ const DynamicDatePicker = React.lazy(async () => import("./DynamicPicker.compone
 export interface DatePickerProps {
   onChange(date: DateLike): void;
   defaultValue: DateLike;
+  variant?: string;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ defaultValue, onChange, ...props }) => {
+const DatePicker: React.FC<DatePickerProps> = ({ defaultValue, onChange, variant, ...props }) => {
   const [val, setVal] = useState(defaultValue || null);
 
   const handleChange = useCallback(

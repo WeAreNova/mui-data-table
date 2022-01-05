@@ -94,6 +94,7 @@ const SimpleSelect = <T extends SelectOptionObject>({
         open={isOpen}
         onOpen={handleOpen}
         onClose={handleClose}
+        variant="standard"
       >
         {allOptions.map(({ label, value: optionValue }) =>
           !isAccuratePointer ? (

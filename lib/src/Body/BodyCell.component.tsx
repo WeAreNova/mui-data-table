@@ -35,12 +35,14 @@ const useStyles = makeStyles(
         "&:focus-within": focusOutline,
         "& > div": {
           minHeight: theme.spacing(2),
-          padding: theme.spacing(1),
         },
       },
       editable: {
-        "& > div:hover": {
-          backgroundColor: theme.palette.action.hover,
+        "& > div": {
+          padding: theme.spacing(0, 1),
+          "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+          },
         },
       },
     });

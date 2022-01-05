@@ -26,6 +26,7 @@ const COMMON_PROPS = {
   name: "value",
   placeholder: "Value",
   size: "small",
+  variant: "standard",
 } as const;
 
 /**

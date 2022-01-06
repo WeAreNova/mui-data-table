@@ -96,7 +96,6 @@ const useStyles = makeStyles(
       },
       headerCellInner: {
         display: "flex",
-        position: "relative",
       },
       headerCellSortLabel: {
         whiteSpace: "inherit",
@@ -105,14 +104,18 @@ const useStyles = makeStyles(
         },
       },
       resizeable: {
-        paddingRight: theme.spacing(2),
         overflow: "hidden",
       },
+      resizeContainer: {
+        position: "relative",
+      },
       resizeHandle: {
-        cursor: "col-resize",
-        position: "absolute",
-        right: 0,
         width: 3,
+        height: 24,
+        position: "absolute",
+        right: `calc(${theme.spacing(-1)}px - 1.5px)`, // horizontal alignment
+        top: "calc(50% - 12px)", // vertical alignment
+        cursor: "col-resize",
         "&:active,&:hover": {
           backgroundColor: theme.palette.action.active,
         },
@@ -244,66 +247,68 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           className={headerClasses}
           style={style}
         >
-          <div
-            className={clsx(classes.headerCellInner, classes.alignLeft, {
-              [classes.alignRight]: structure.align === "right",
-              [classes.alignCenter]: structure.align === "center",
-              [classes.editableOffset]: Boolean(structure.editable),
-              [classes.resizeable]: !colGroupHeader && resizeable,
-            })}
-          >
-            <div className={classes.headerCellBody}>
-              {structure.sorter ? (
-                <TableSortLabel
-                  onClick={handleSort}
-                  className={classes.headerCellSortLabel}
-                  active={
-                    sort.direction &&
-                    (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
-                  }
-                  direction={
-                    sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
-                      ? sort.direction
-                      : undefined
-                  }
-                >
-                  {headerTitle}
-                </TableSortLabel>
-              ) : (
-                headerTitle
-              )}
+          <div className={classes.resizeContainer}>
+            <div
+              className={clsx(classes.headerCellInner, classes.alignLeft, {
+                [classes.alignRight]: structure.align === "right",
+                [classes.alignCenter]: structure.align === "center",
+                [classes.editableOffset]: Boolean(structure.editable),
+                [classes.resizeable]: !colGroupHeader && resizeable,
+              })}
+            >
+              <div className={classes.headerCellBody}>
+                {structure.sorter ? (
+                  <TableSortLabel
+                    onClick={handleSort}
+                    className={classes.headerCellSortLabel}
+                    active={
+                      sort.direction &&
+                      (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
+                    }
+                    direction={
+                      sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
+                        ? sort.direction
+                        : undefined
+                    }
+                  >
+                    {headerTitle}
+                  </TableSortLabel>
+                ) : (
+                  headerTitle
+                )}
+              </div>
+              <div className={classes.headerCellButtonGroup}>
+                {enableHiddenColumns && (
+                  <IconButton onClick={handleHiddenColumnsChange} size="small">
+                    <Visibility />
+                  </IconButton>
+                )}
+                {structure.pinnable && (
+                  <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
+                    <AcUnit />
+                  </IconButton>
+                )}
+                {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
+                  <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
+                    {icon}
+                  </IconButton>
+                ))}
+                {filterEnabled && (
+                  <IconButton
+                    onClick={handleFilterClick}
+                    onMouseUp={stopPropagation}
+                    onTouchEnd={stopPropagation}
+                    data-testid="tableFilterButton"
+                    color={filterActive ? "primary" : "default"}
+                    size="small"
+                    className={clsx({ [classes.filterIconButton]: !filterActive })}
+                  >
+                    <FilterList />
+                  </IconButton>
+                )}
+              </div>
+              <div />
             </div>
-            <div className={classes.headerCellButtonGroup}>
-              {enableHiddenColumns && (
-                <IconButton onClick={handleHiddenColumnsChange} size="small">
-                  <Visibility />
-                </IconButton>
-              )}
-              {structure.pinnable && (
-                <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
-                  <AcUnit />
-                </IconButton>
-              )}
-              {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
-                <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
-                  {icon}
-                </IconButton>
-              ))}
-              {filterEnabled && (
-                <IconButton
-                  onClick={handleFilterClick}
-                  onMouseUp={stopPropagation}
-                  onTouchEnd={stopPropagation}
-                  data-testid="tableFilterButton"
-                  color={filterActive ? "primary" : "default"}
-                  size="small"
-                  className={clsx({ [classes.filterIconButton]: !filterActive })}
-                >
-                  <FilterList />
-                </IconButton>
-              )}
-            </div>
-            <div />
             {!colGroupHeader && resizeable && (
               <Divider id="DataTable-ResizeHandle" className={classes.resizeHandle} orientation="vertical" />
             )}

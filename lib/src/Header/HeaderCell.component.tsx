@@ -306,10 +306,10 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                 id="DataTable-ResizeHandle"
                 orientation="vertical"
                 sx={{
-                  width: 3,
                   height: 24,
+                  borderRightWidth: 3,
                   position: "absolute",
-                  right: (theme) => `calc(${theme.spacing(-1)}px - 1.5px)`, // horizontal alignment
+                  right: (theme) => `calc(${theme.spacing(-1)} - 1.5px)`, // horizontal alignment
                   top: "calc(50% - 12px)", // vertical alignment
                   cursor: "col-resize",
                   "&:active,&:hover": {

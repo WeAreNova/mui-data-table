@@ -26,12 +26,14 @@ const EditableTableCell = styled(TableCell, {
     "&:focus-within": focusOutline,
     "& > div": {
       minHeight: theme.spacing(2),
-      padding: theme.spacing(1),
     },
   },
   editable && {
-    "& > div:hover": {
-      backgroundColor: theme.palette.action.hover,
+    "& > div": {
+      padding: theme.spacing(0.5, 1),
+      "&:hover": {
+        backgroundColor: theme.palette.action.hover,
+      },
     },
   },
 ]);

@@ -143,9 +143,9 @@ type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Red
 const TableContext = React.createContext<TableState<any, any>>({} as TableState);
 TableContext.displayName = "DataTableContext";
 
-const pick = <T extends { [key: string]: any }, K extends Array<keyof T> | ReadonlyArray<keyof T>>(obj: T, keys: K) => {
-  const res = {} as Pick<T, K[number]>;
-  keys.forEach((key) => {
+const filterUpdates = <T extends { [key: string]: any }>(obj: T) => {
+  const res = {} as Pick<T, typeof DYNAMIC_STATE[number]>;
+  DYNAMIC_STATE.forEach((key) => {
     if (key in obj) res[key] = obj[key];
   });
   return res;
@@ -153,7 +153,7 @@ const pick = <T extends { [key: string]: any }, K extends Array<keyof T> | Reado
 
 const reducer: TableReducer<any, any> = (state, action) =>
   typeof action === "function"
-    ? { ...state, ...pick(action(state), DYNAMIC_STATE) }
+    ? { ...state, ...filterUpdates(action(state)) }
     : {
         ...state,
         ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
@@ -198,7 +198,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     function updateFunction(
       partialState: Partial<DynamicState> | ((currState: DynamicState) => Partial<DynamicState>),
     ) {
-      dispatch(typeof partialState === "function" ? partialState : pick(partialState, DYNAMIC_STATE));
+      dispatch(typeof partialState === "function" ? partialState : filterUpdates(partialState));
     }
     DYNAMIC_STATE.forEach((curr) => {
       (updateFunction as any)[curr] = (

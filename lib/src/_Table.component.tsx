@@ -14,7 +14,7 @@ import {
 import Help from "@material-ui/icons/Help";
 import BodyRow from "Body/BodyRow.component";
 import clsx from "clsx";
-import HeaderRow from "HeaderRow.component";
+import HeaderRow from "Header/HeaderRow.component";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
@@ -101,9 +101,10 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     structure,
     enableHiddenColumns,
     rowsSelectable,
+    selectedRows,
+    numRowsSelected,
     rowsPerPage,
     page,
-    selectedRows,
     onSelectedRowsChange,
     hiddenColumns,
     update,
@@ -251,16 +252,11 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
           )}
           {rowsSelectable && (
             <div className={classes.selectedRowsFooter}>
-              <Button
-                onClick={handleClearSelection}
-                disabled={!Object.values(selectedRows).length}
-                variant="text"
-                size="small"
-              >
+              <Button onClick={handleClearSelection} disabled={!numRowsSelected} variant="text" size="small">
                 Clear Selection
               </Button>
               <Typography variant="body2" align="right">
-                {Object.values(selectedRows).length} of {rowsPerPage} selected
+                {numRowsSelected} of {rowsPerPage} selected
               </Typography>
               <Tooltip
                 title={

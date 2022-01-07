@@ -1,6 +1,6 @@
 import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
 import Filter, { InitialFilterValues } from "Filter";
-import HeaderCell from "HeaderCell.component";
+import HeaderCell from "Header/HeaderCell.component";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import TableContext, { TableState } from "table.context";
 import type { BaseData } from "table.types";

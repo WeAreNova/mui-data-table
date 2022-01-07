@@ -1,9 +1,9 @@
 import Close from "@mui/icons-material/Close";
 import { IconButton, styled, Typography } from "@mui/material";
 import SimpleSelect, { SimpleSelectChangeHandler } from "Fields/SimpleSelect.component";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, BaseData, FilterValue, NullableActiveFilter, NullableDataTypes } from "table.types";
 import { debounce } from "utils";
 import { FilterValuePropTypes, OPERATORS } from "_dataTable.consts";
@@ -73,7 +73,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   onRemove,
   name,
 }: PropsWithChildren<Props>) => {
-  const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { filterOptions } = useTableContext<RowType, AllDataType>();
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
 

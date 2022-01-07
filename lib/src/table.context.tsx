@@ -1,5 +1,5 @@
-import { Checkbox } from "@mui/material";
-import { get } from "dot-prop";
+import BodyCheckbox from "Body/BodyCheckbox.component";
+import HeaderCheckbox from "Header/HeaderCheckbox.component";
 import useStoredValues from "hooks/useStoredValues.hook";
 import fileDownload from "js-file-download";
 import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
@@ -23,7 +23,6 @@ import {
   getFilteredData,
   getPagedData,
   getPath,
-  getRowId,
   getSortedData,
   getTableCellAlignment,
   getUnhiddenColumns,
@@ -107,6 +106,7 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
   resizeable: boolean;
   rowOptions?: Omit<NonNullable<BaseTableState<RowType, AllDataType>["rowOptions"]>, "alternateRowColor">;
+  numRowsSelected: number;
 }
 
 export type TableContextValue<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -143,9 +143,17 @@ type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Red
 const TableContext = React.createContext<TableState<any, any>>({} as TableState);
 TableContext.displayName = "DataTableContext";
 
+const filterUpdates = <T extends { [key: string]: any }>(obj: T) => {
+  const res = {} as Pick<T, typeof DYNAMIC_STATE[number]>;
+  DYNAMIC_STATE.forEach((key) => {
+    if (key in obj) res[key] = obj[key];
+  });
+  return res;
+};
+
 const reducer: TableReducer<any, any> = (state, action) =>
   typeof action === "function"
-    ? { ...state, ...action(state) }
+    ? { ...state, ...filterUpdates(action(state)) }
     : {
         ...state,
         ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
@@ -187,14 +195,10 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 
   const [state, dispatch] = useReducer<TableReducer<RowType, AllDataType>>(reducer, tableState);
   const update = useMemo(() => {
-    function updateFunction(partialState: Partial<Pick<BaseTableState, typeof DYNAMIC_STATE[number]>>) {
-      dispatch(
-        Object.entries(partialState).reduce(
-          (prev, [key, updateValue]) =>
-            DYNAMIC_STATE.includes(key as typeof DYNAMIC_STATE[number]) ? { ...prev, [key]: updateValue } : prev,
-          {},
-        ),
-      );
+    function updateFunction(
+      partialState: Partial<DynamicState> | ((currState: DynamicState) => Partial<DynamicState>),
+    ) {
+      dispatch(typeof partialState === "function" ? partialState : filterUpdates(partialState));
     }
     DYNAMIC_STATE.forEach((curr) => {
       (updateFunction as any)[curr] = (
@@ -278,89 +282,44 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     fileDownload(csvString, filename, "text/csv;charset=utf-16;");
   }, [csvFilename, onChange, onChangeObject, baseOnChange, state.tableData, tableState.tableStructure]);
 
-  const handleSelectedChange = useCallback(
-    (data: RowType, rowId: string, dataArrayIndex: number, e: React.MouseEvent) => {
-      e.stopPropagation();
-      const updatedSelectedRows = { ...state.selectedRows };
-      if (updatedSelectedRows[rowId]) {
-        delete updatedSelectedRows[rowId];
-      } else {
-        updatedSelectedRows[rowId] = data;
-      }
-      if (tableState.selectGroupBy) {
-        const extraRows = [...tableData]
-          .slice(dataArrayIndex + 1)
-          .filter((row) => get(data, tableState.selectGroupBy!) === get(row, tableState.selectGroupBy!));
-        extraRows.forEach((row, extraRowIndex) => {
-          const extraRowId = getRowId(row, dataArrayIndex + (extraRowIndex + 1));
-          if (updatedSelectedRows[extraRowId]) {
-            delete updatedSelectedRows[extraRowId];
-          } else {
-            updatedSelectedRows[extraRowId] = row;
-          }
-        });
-      }
-      update.selectedRows(updatedSelectedRows);
-    },
-    [tableData, state.selectedRows, tableState.selectGroupBy, update],
+  const numRowsSelected = useMemo(() => Object.values(state.selectedRows).length, [state.selectedRows]);
+
+  const fullStructure = useMemo<Structure<RowType, AllDataType>>(
+    () =>
+      [
+        ...(!tableState.rowsSelectable
+          ? []
+          : [
+              {
+                key: "selectCheckbox",
+                align: "center",
+                groupBy: tableState.selectGroupBy,
+                title: <HeaderCheckbox />,
+                render: (data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number) => (
+                  <BodyCheckbox record={data} isCSVExport={isCSVExport} rowId={rowId} dataArrayIndex={dataArrayIndex} />
+                ),
+              },
+            ]),
+        ...tableState.tableStructure.map(
+          (column) =>
+            ({
+              ...column,
+              ...(!column.colGroup
+                ? { align: getTableCellAlignment(column, tableData?.[0]) }
+                : {
+                    align: "center",
+                    colGroup: column.colGroup.map((colGroupColumn) => ({
+                      ...colGroupColumn,
+                      align: getTableCellAlignment(colGroupColumn, tableData?.[0]),
+                    })),
+                  }),
+            } as const),
+        ),
+      ] as Structure<RowType, AllDataType>,
+    [tableData, tableState.rowsSelectable, tableState.selectGroupBy, tableState.tableStructure],
   );
 
-  const noRowsSelected = useMemo(() => Object.values(state.selectedRows).length, [state.selectedRows]);
-
-  const handleSelectAll = useCallback(() => {
-    if (noRowsSelected) return update.selectedRows({});
-    update((currState) => ({
-      ...currState,
-      selectedRows: currState.tableData.reduce(
-        (prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }),
-        {},
-      ),
-    }));
-  }, [noRowsSelected, update]);
-
-  const structure = useMemo<Structure<RowType, AllDataType>>(() => {
-    const fullStructure = [
-      ...(!tableState.rowsSelectable
-        ? []
-        : [
-            {
-              key: "selectCheckbox",
-              align: "center",
-              groupBy: tableState.selectGroupBy,
-              title: (
-                <Checkbox
-                  onClick={handleSelectAll}
-                  checked={Boolean(noRowsSelected)}
-                  indeterminate={noRowsSelected > 0 && noRowsSelected < tableData.length}
-                />
-              ),
-              render: (data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number) => {
-                if (isCSVExport || !tableState.rowsSelectable) return null;
-                return (
-                  <Checkbox
-                    onClick={(e) => handleSelectedChange(data, rowId, dataArrayIndex, e)}
-                    checked={Boolean(state.selectedRows[rowId])}
-                  />
-                );
-              },
-            } as const,
-          ]),
-      ...tableState.tableStructure.map(
-        (column) =>
-          ({
-            ...column,
-            ...(!column.colGroup
-              ? { align: getTableCellAlignment(column, tableData?.[0]) }
-              : {
-                  align: "center",
-                  colGroup: column.colGroup.map((colGroupColumn) => ({
-                    ...colGroupColumn,
-                    align: getTableCellAlignment(colGroupColumn, tableData?.[0]),
-                  })),
-                }),
-          } as const),
-      ),
-    ] as Structure<RowType, AllDataType>;
+  const structure = useMemo(() => {
     fullStructure.notHidden = getUnhiddenColumns(fullStructure);
 
     fullStructure.flattened = fullStructure.flatMap<FlattenedStructure<RowType, AllDataType>[number]>((struct) => {
@@ -374,17 +333,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     fullStructure.flattened.notHidden = getUnhiddenColumns(fullStructure.flattened);
 
     return fullStructure;
-  }, [
-    handleSelectAll,
-    handleSelectedChange,
-    noRowsSelected,
-    state.hiddenColumns,
-    state.selectedRows,
-    tableData,
-    tableState.rowsSelectable,
-    tableState.selectGroupBy,
-    tableState.tableStructure,
-  ]);
+  }, [fullStructure, state.hiddenColumns]);
 
   const filterOptions = useMemo(
     () =>
@@ -425,8 +374,9 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         structure,
         update,
         filterOptions,
+        numRowsSelected,
       } as TableState),
-    [exportToCSV, filterOptions, handleChange, state, structure, tableCount, tableData, update],
+    [exportToCSV, filterOptions, handleChange, numRowsSelected, state, structure, tableCount, tableData, update],
   );
 
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;

@@ -13,11 +13,11 @@ import {
   Typography,
 } from "@mui/material";
 import BodyRow from "Body/BodyRow.component";
-import HeaderRow from "HeaderRow.component";
+import HeaderRow from "Header/HeaderRow.component";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { BaseData, TableProps } from "table.types";
 import TableCell from "TableCell.component";
 import { dontForwardProps, getRowId } from "utils";
@@ -77,9 +77,10 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     structure,
     enableHiddenColumns,
     rowsSelectable,
+    selectedRows,
+    numRowsSelected,
     rowsPerPage,
     page,
-    selectedRows,
     onSelectedRowsChange,
     hiddenColumns,
     update,
@@ -88,7 +89,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     count,
     isMacOS,
     resizeable,
-  } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  } = useTableContext<RowType, AllDataType>();
 
   const allColumnsVisible = useMemo(() => {
     const values = Object.values(hiddenColumns);
@@ -239,16 +240,11 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 },
               }}
             >
-              <Button
-                onClick={handleClearSelection}
-                disabled={!Object.values(selectedRows).length}
-                variant="text"
-                size="small"
-              >
+              <Button onClick={handleClearSelection} disabled={!numRowsSelected} variant="text" size="small">
                 Clear Selection
               </Button>
               <Typography variant="body2" align="right">
-                {Object.values(selectedRows).length} of {rowsPerPage} selected
+                {numRowsSelected} of {tableData.length} selected
               </Typography>
               <Tooltip
                 title={

@@ -1,9 +1,9 @@
 import { Grow, Popper, styled, TableHead, TableRow } from "@mui/material";
 import Filter, { InitialFilterValues } from "Filter";
-import HeaderCell from "HeaderCell.component";
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import TableContext, { TableState } from "table.context";
 import type { BaseData } from "table.types";
+import HeaderCell from "./HeaderCell.component";
 
 const StyledPopper = styled(Popper)`
   zindex: 1;

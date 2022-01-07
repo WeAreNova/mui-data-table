@@ -1,12 +1,12 @@
-import { CSSObject, styled, TableCell as MUITableCell, TableCellProps } from "@mui/material";
+import { CSSObject, styled, TableCell as MUITableCell, TableCellProps as MUITableCellProps } from "@mui/material";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { useContext } from "react";
-import TableContext from "table.context";
+import React from "react";
 import { dontForwardProps } from "utils";
 
 type Widths = "lg" | "sm";
 
-interface Props extends TableCellProps {
+interface TableCellProps extends MUITableCellProps {
   hidden?: boolean;
   pinned?: boolean;
   maxWidth?: Widths;
@@ -20,7 +20,7 @@ const maxWidthStyles: Record<Widths, CSSObject> = {
 const StyledTableCell = styled(MUITableCell, {
   label: "DataTable-TableCell",
   shouldForwardProp: dontForwardProps("hidden", "pinned", "maxWidth", "resizeable"),
-})<Props & { resizeable?: boolean }>(({ hidden = false, pinned = false, maxWidth, resizeable, theme }) => [
+})<TableCellProps & { resizeable?: boolean }>(({ hidden = false, pinned = false, maxWidth, resizeable, theme }) => [
   resizeable && {
     overflow: "hidden",
   },
@@ -73,8 +73,8 @@ const StyledTableCell = styled(MUITableCell, {
  *
  * @component
  */
-const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(props: Props, ref) {
-  const { resizeable } = useContext(TableContext);
+const TableCell: React.FC<TableCellProps> = React.forwardRef(function _TableCell(props: TableCellProps, ref) {
+  const { resizeable } = useTableContext();
   return <StyledTableCell align="left" {...props} resizeable={resizeable} ref={ref} />;
 });
 TableCell.propTypes = {

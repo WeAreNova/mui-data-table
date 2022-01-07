@@ -1,7 +1,7 @@
 import { alpha, styled, TableRow, useTheme } from "@mui/material";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { MouseEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
 import { BaseData } from "table.types";
 import { dontForwardProps, getRowId } from "utils";
 import { RowDataPropType } from "_propTypes";
@@ -34,8 +34,8 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   data,
 }: PropsWithChildren<BodyRowProps<RowType>>) => {
   const theme = useTheme();
-  const { structure, rowClick, rowOptions, rowsSelectable, selectedRows } =
-    useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { structure, rowClick, rowOptions, rowsSelectable, selectedRows } = useTableContext<RowType, AllDataType>();
+
   const rowId = useMemo(() => getRowId(data, index), [data, index]);
   const isAlternateRowColour = useMemo(() => rowOptions?.alternateRowColour?.(data) ?? false, [data, rowOptions]);
   const isDisabledRow = useMemo(() => rowOptions?.rowDisabled?.(data) ?? false, [data, rowOptions]);

@@ -104,8 +104,8 @@ const InnerHeaderCell = styled("div", {
   editableOffset: boolean;
   resizeable: boolean;
 }>(({ alignment = "left", editableOffset, resizeable, theme }) => [
-  { display: "flex", position: "relative" },
-  resizeable && { paddingRight: theme.spacing(2), overflow: "hidden" },
+  { display: "flex" },
+  resizeable && { overflow: "hidden" },
   alignment && alignmentStyles[alignment],
   editableOffset &&
     alignment !== "center" && {
@@ -222,99 +222,103 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           align={structure.align}
           style={style}
         >
-          <InnerHeaderCell
-            alignment={structure.align}
-            resizeable={!colGroupHeader && resizeable}
-            editableOffset={Boolean(structure.editable)}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                whiteSpace: "pre",
-              }}
+          <Box sx={{ position: "relative" }}>
+            <InnerHeaderCell
+              alignment={structure.align}
+              resizeable={!colGroupHeader && resizeable}
+              editableOffset={Boolean(structure.editable)}
             >
-              {structure.sorter ? (
-                <TableSortLabel
-                  onClick={handleSort}
-                  active={
-                    sort.direction &&
-                    (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
-                  }
-                  direction={
-                    sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
-                      ? sort.direction
-                      : undefined
-                  }
-                  sx={{
-                    whiteSpace: "inherit",
-                    "& > svg.MuiTableSortLabel-icon": {
-                      opacity: 0.2,
-                    },
-                  }}
-                >
-                  {headerTitle}
-                </TableSortLabel>
-              ) : (
-                headerTitle
-              )}
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                "& svg": {
-                  fontSize: "1rem",
-                },
-              }}
-            >
-              {enableHiddenColumns && (
-                <IconButton onClick={handleHiddenColumnsChange} size="small">
-                  <Visibility />
-                </IconButton>
-              )}
-              {structure.pinnable && (
-                <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
-                  <AcUnit />
-                </IconButton>
-              )}
-              {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
-                <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
-                  {icon}
-                </IconButton>
-              ))}
-              {filterEnabled && (
-                <FilterButton
-                  onClick={handleFilterClick}
-                  onMouseUp={stopPropagation}
-                  onTouchEnd={stopPropagation}
-                  data-testid="tableFilterButton"
-                  color={filterActive ? "primary" : "default"}
-                  active={filterActive}
-                  size="small"
-                >
-                  <FilterList />
-                </FilterButton>
-              )}
-            </Box>
-            <div />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  whiteSpace: "pre",
+                }}
+              >
+                {structure.sorter ? (
+                  <TableSortLabel
+                    onClick={handleSort}
+                    active={
+                      sort.direction &&
+                      (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
+                    }
+                    direction={
+                      sort.key === id || sort.key === structure.sorter || sort.key === structure.dataIndex
+                        ? sort.direction
+                        : undefined
+                    }
+                    sx={{
+                      whiteSpace: "inherit",
+                      "& > svg.MuiTableSortLabel-icon": {
+                        opacity: 0.2,
+                      },
+                    }}
+                  >
+                    {headerTitle}
+                  </TableSortLabel>
+                ) : (
+                  headerTitle
+                )}
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  "& svg": {
+                    fontSize: "1rem",
+                  },
+                }}
+              >
+                {enableHiddenColumns && (
+                  <IconButton onClick={handleHiddenColumnsChange} size="small">
+                    <Visibility />
+                  </IconButton>
+                )}
+                {structure.pinnable && (
+                  <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
+                    <AcUnit />
+                  </IconButton>
+                )}
+                {structure.actionButtons?.map(({ key, icon, onClick, ...actionButtonProps }: ActionButton) => (
+                  <IconButton key={key} onClick={onClick} {...actionButtonProps} size="small">
+                    {icon}
+                  </IconButton>
+                ))}
+                {filterEnabled && (
+                  <FilterButton
+                    onClick={handleFilterClick}
+                    onMouseUp={stopPropagation}
+                    onTouchEnd={stopPropagation}
+                    data-testid="tableFilterButton"
+                    color={filterActive ? "primary" : "default"}
+                    active={filterActive}
+                    size="small"
+                  >
+                    <FilterList />
+                  </FilterButton>
+                )}
+              </Box>
+              <div />
+            </InnerHeaderCell>
             {!colGroupHeader && resizeable && (
               <Divider
                 id="DataTable-ResizeHandle"
                 orientation="vertical"
                 sx={{
-                  cursor: "col-resize",
+                  width: 3,
+                  height: 24,
                   position: "absolute",
-                  right: 0,
-                  borderRightWidth: 3,
+                  right: (theme) => `calc(${theme.spacing(-1)}px - 1.5px)`, // horizontal alignment
+                  top: "calc(50% - 12px)", // vertical alignment
+                  cursor: "col-resize",
                   "&:active,&:hover": {
                     borderColor: "action.active",
                   },
                 }}
               />
             )}
-          </InnerHeaderCell>
+          </Box>
         </HeaderTableCell>
       </Tooltip>
     </Fragment>

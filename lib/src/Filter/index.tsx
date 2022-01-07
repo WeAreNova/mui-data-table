@@ -1,7 +1,7 @@
 import Add from "@mui/icons-material/Add";
 import { Box, Button, ClickAwayListener, Paper } from "@mui/material";
-import React, { Fragment, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
-import TableContext, { TableState } from "table.context";
+import useTableContext from "hooks/useTableContext.hook";
+import React, { Fragment, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import { ActiveFilter, BaseData, NullableActiveFilter } from "table.types";
 import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
 
@@ -32,7 +32,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   initialFilter = {} as InitialFilterValues<RowType>,
   onClose,
 }: PropsWithChildren<FilterProps<RowType>>) => {
-  const { activeFilters, update } = useContext<TableState<RowType, AllTableData>>(TableContext);
+  const { activeFilters, update } = useTableContext<RowType, AllTableData>();
   const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>
     activeFilters.length ? activeFilters : [getInitialFilter(initialFilter)],
   );

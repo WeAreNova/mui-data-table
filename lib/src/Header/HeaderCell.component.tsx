@@ -4,9 +4,9 @@ import FilterList from "@material-ui/icons/FilterList";
 import Visibility from "@material-ui/icons/Visibility";
 import clsx from "clsx";
 import { InitialFilterValues } from "Filter";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useMemo, useRef } from "react";
 import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "table.types";
 import TableCell from "TableCell.component";
 import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
@@ -146,7 +146,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
   const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update, resizeable } =
-    useContext<TableState<RowType, AllDataType>>(TableContext);
+    useTableContext<RowType, AllDataType>();
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);

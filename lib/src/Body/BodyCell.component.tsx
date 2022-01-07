@@ -2,21 +2,12 @@ import { createStyles, makeStyles, Tooltip } from "@material-ui/core";
 import clsx from "clsx";
 import { get } from "dot-prop";
 import ErrorBoundary from "ErrorBoundary.component";
-import React, {
-  MouseEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import TableContext, { TableState } from "table.context";
+import useBodyContext from "hooks/useBodyContext.hook";
+import useTableContext from "hooks/useTableContext.hook";
+import React, { MouseEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BaseData } from "table.types";
 import TableCell from "TableCell.component";
 import { dispatchTableEvent, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "utils";
-import BodyContext, { BodyState } from "./body.context";
 import EditCell from "./EditCell.component";
 
 interface BodyCellProps {}
@@ -59,19 +50,18 @@ const useStyles = makeStyles(
  */
 const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props: PropsWithChildren<BodyCellProps>) => {
   const classes = useStyles(props);
-  const { structure, data, rowId, index } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
+  const { structure, data, rowId, index } = useBodyContext<RowType, AllDataType>();
   const {
     rowClick,
     hiddenColumns,
     pinnedColumn,
     tableData,
     rowsSelectable,
-    selectedRows,
     isMacOS,
     loading,
     update,
     editable: tableEditable,
-  } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  } = useTableContext<RowType, AllDataType>();
   const bodyCellRef = useRef<HTMLTableCellElement>(null);
   const [editMode, setEditMode] = useState(false);
 
@@ -98,21 +88,31 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
     return 1;
   }, [data, groupBy, index, structure, tableData]);
 
-  const handleRowClick = useCallback(
+  const handleRowsSelect = useCallback(
     (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatchTableEvent("*");
-      if (loading) return;
-      if (rowsSelectable && (isMacOS ? e.metaKey : e.ctrlKey)) {
-        const updatedSelectedRows = { ...selectedRows };
+      e.preventDefault();
+      update((currState) => {
+        const updatedSelectedRows = { ...currState.selectedRows };
+        if (e.shiftKey) {
+          const lastIndex = findLastIndexFrom(currState.tableData, (v, i) => {
+            return Boolean(currState.selectedRows[getRowId(v, i)]);
+          });
+          const indexOfSelected =
+            rowSpan - 1 + findLastIndexFrom(currState.tableData, (v, i) => rowId === getRowId(v, i));
+          const allIncludes = currState.tableData.slice(lastIndex + 1, indexOfSelected + 1);
+          allIncludes.forEach((row) => (updatedSelectedRows[getRowId(row, index)] = row));
+          return { selectedRows: updatedSelectedRows };
+        }
+
         const setAsSelected = !updatedSelectedRows[rowId];
-        if (updatedSelectedRows[rowId]) {
+        if (!setAsSelected) {
           delete updatedSelectedRows[rowId];
         } else {
           updatedSelectedRows[rowId] = data;
         }
+
         if (rowSpan > 1) {
-          const extraRows = [...tableData].splice(index + 1, rowSpan - 1);
+          const extraRows = [...currState.tableData].splice(index + 1, rowSpan - 1);
           extraRows.forEach((row, extraRowIndex) => {
             const extraRowId = getRowId(row, index + (extraRowIndex + 1));
             if (setAsSelected) {
@@ -122,22 +122,21 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
             delete updatedSelectedRows[extraRowId];
           });
         }
-        return update.selectedRows(updatedSelectedRows);
-      }
-      if (rowsSelectable && e.shiftKey) {
-        const updatedSelectedRows = { ...selectedRows };
-        const lastIndex = findLastIndexFrom(tableData, (v, i) => Boolean(selectedRows[getRowId(v, i)]), index);
-        const indexOfSelected = findLastIndexFrom(tableData, (v, i) => rowId === getRowId(v, i)) + (rowSpan - 1);
-        const allIncludes = tableData.slice(lastIndex + 1, indexOfSelected + 1);
-        allIncludes.forEach((row) => {
-          const currentId = getRowId(row, index);
-          updatedSelectedRows[currentId] = row;
-        });
-        return update.selectedRows(updatedSelectedRows);
-      }
+        return { selectedRows: updatedSelectedRows };
+      });
+    },
+    [data, index, rowId, rowSpan, update],
+  );
+
+  const handleRowClick = useCallback(
+    (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>) => {
+      e.stopPropagation();
+      dispatchTableEvent("*");
+      if (loading) return;
+      if (rowsSelectable && (e.shiftKey || (isMacOS ? e.metaKey : e.ctrlKey))) return handleRowsSelect(e);
       rowClick?.(data, e);
     },
-    [loading, rowsSelectable, isMacOS, rowClick, data, selectedRows, rowId, rowSpan, update, tableData, index],
+    [loading, rowsSelectable, isMacOS, handleRowsSelect, rowClick, data],
   );
 
   const bodyCellClasses = useMemo(

@@ -1,8 +1,8 @@
 import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } from "@material-ui/core";
 import clsx from "clsx";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { useContext, useMemo } from "react";
-import TableContext from "table.context";
+import React, { useMemo } from "react";
 
 interface Props extends TableCellProps {
   hidden?: boolean;
@@ -82,7 +82,7 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
   { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
   ref,
 ) {
-  const { resizeable } = useContext(TableContext);
+  const { resizeable } = useTableContext();
   const classes = useStyles(props);
   const cellClasses = useMemo(
     () =>

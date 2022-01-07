@@ -1,16 +1,9 @@
 import { ClickAwayListener, createStyles, makeStyles, TextField } from "@material-ui/core";
 import { get, set } from "dot-prop";
 import SimpleSelect, { SelectOptionObject } from "Fields/SimpleSelect.component";
-import React, {
-  ChangeEventHandler,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import TableContext, { TableState } from "table.context";
+import useBodyContext from "hooks/useBodyContext.hook";
+import useTableContext from "hooks/useTableContext.hook";
+import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import {
   BaseData,
   ColGroupDefinition,
@@ -22,7 +15,6 @@ import {
 } from "table.types";
 import { createDTError, getDataType, getPath, getRowId } from "utils";
 import { BOOLEAN_OPTIONS } from "_dataTable.consts";
-import BodyContext, { BodyState } from "./body.context";
 
 interface EditCellProps {
   cancelEdit(): void;
@@ -90,8 +82,8 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   ...props
 }: PropsWithChildren<EditCellProps>) => {
   const classes = useStyles(props);
-  const { onEdit, update, allTableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
-  const { structure, data, rowId } = useContext<BodyState<RowType, AllDataType>>(BodyContext);
+  const { onEdit, update, allTableData } = useTableContext<RowType, AllDataType>();
+  const { structure, data, rowId } = useBodyContext<RowType, AllDataType>();
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 

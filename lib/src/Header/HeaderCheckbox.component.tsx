@@ -1,11 +1,11 @@
 import { Checkbox } from "@material-ui/core";
-import React, { useCallback, useContext } from "react";
-import TableContext, { TableState } from "table.context";
+import useTableContext from "hooks/useTableContext.hook";
+import React, { useCallback } from "react";
 import { BaseData } from "table.types";
 import { getRowId } from "utils";
 
 const HeaderCheckbox: React.FC = <RowType extends BaseData, AllDataType extends RowType[]>() => {
-  const { update, numRowsSelected, tableData } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { update, numRowsSelected, tableData } = useTableContext<RowType, AllDataType>();
 
   const handleSelectAll = useCallback(() => {
     update.selectedRows((currSelectedRows) => {

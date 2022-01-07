@@ -1,8 +1,8 @@
 import { Grow, makeStyles, Popper, TableHead, TableRow } from "@material-ui/core";
 import Filter, { InitialFilterValues } from "Filter";
 import HeaderCell from "Header/HeaderCell.component";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import TableContext, { TableState } from "table.context";
+import useTableContext from "hooks/useTableContext.hook";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BaseData } from "table.types";
 
 const useStyles = makeStyles(
@@ -24,7 +24,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
   props: PropsWithChildren<Record<string, never>>,
 ) => {
   const classes = useStyles(props);
-  const { structure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { structure, hiddenColumns } = useTableContext<RowType, AllDataType>();
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
   const [initialFilter, setInitialFilter] = useState<InitialFilterValues<RowType> | null>(null);

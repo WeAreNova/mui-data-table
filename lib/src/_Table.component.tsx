@@ -15,10 +15,10 @@ import Help from "@material-ui/icons/Help";
 import BodyRow from "Body/BodyRow.component";
 import clsx from "clsx";
 import HeaderRow from "Header/HeaderRow.component";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { BaseData, TableProps } from "table.types";
 import TableCell from "TableCell.component";
 import { getRowId } from "utils";
@@ -113,7 +113,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     count,
     isMacOS,
     resizeable,
-  } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  } = useTableContext<RowType, AllDataType>();
 
   const allColumnsVisible = useMemo(() => {
     const values = Object.values(hiddenColumns);

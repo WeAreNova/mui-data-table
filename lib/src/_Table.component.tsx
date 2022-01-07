@@ -256,7 +256,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 Clear Selection
               </Button>
               <Typography variant="body2" align="right">
-                {numRowsSelected} of {rowsPerPage} selected
+                {numRowsSelected} of {tableData.length} selected
               </Typography>
               <Tooltip
                 title={

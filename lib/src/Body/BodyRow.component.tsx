@@ -14,7 +14,7 @@ interface BodyRowProps<RowType extends BaseData> {
 }
 
 const StyledTableRow = styled(TableRow, {
-  label: "DataTable-BodyRow",
+  name: "DTBodyRow-root",
   shouldForwardProp: dontForwardProps("altColour", "disabled", "selected"),
 })<{ altColour: boolean; disabled: boolean; selected: boolean }>(({ altColour, disabled, selected, theme }) => [
   altColour && { bgcolor: alpha(theme.palette.error.dark, 0.9) },

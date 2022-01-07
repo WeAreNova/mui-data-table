@@ -22,7 +22,7 @@ interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[
 }
 
 const FilterButton = styled(IconButton, {
-  label: "DataTable-FilterButton",
+  name: "DTHeaderCell-filterButton",
   shouldForwardProp: dontForwardProps("active"),
 })<{ active: boolean }>(({ active, theme }) => [
   {
@@ -38,7 +38,7 @@ const FilterButton = styled(IconButton, {
 ]);
 
 const HeaderTableCell = styled(TableCell, {
-  label: "DataTable-HeaderTableCell",
+  name: "DTHeaderCell-root",
   shouldForwardProp: dontForwardProps("colGroupHeader", "pinned"),
 })<{
   colGroupHeader: boolean;
@@ -97,7 +97,7 @@ const editableOffsetKey: Record<Exclude<TableCellAlign, "center">, string> = {
 };
 
 const InnerHeaderCell = styled("div", {
-  label: "DataTable-InnerHeaderCell",
+  name: "DTHeaderCell-inner",
   shouldForwardProp: dontForwardProps("alignment", "editableOffset", "resizeable"),
 })<{
   alignment?: TableCellAlign;

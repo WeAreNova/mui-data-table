@@ -5,7 +5,7 @@ import TableContext, { TableState } from "table.context";
 import type { BaseData } from "table.types";
 import HeaderCell from "./HeaderCell.component";
 
-const StyledPopper = styled(Popper)`
+const StyledPopper = styled(Popper, { name: "DTHeaderRow-popper" })`
   zindex: 1;
 `;
 

@@ -17,7 +17,7 @@ const focusOutline = {
 };
 
 const EditableTableCell = styled(TableCell, {
-  label: "DataTable-EditableTableCell",
+  name: "DTBodyCell-root",
   shouldForwardProp: dontForwardProps("editable"),
 })<{ editable: boolean }>(({ editable, theme }) => [
   {

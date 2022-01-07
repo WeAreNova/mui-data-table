@@ -17,7 +17,7 @@ interface Props {
   name: string;
 }
 
-const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
+const Form = styled("form", { name: "DTFilterRow-root" })({
   display: "flex",
   "& > div": {
     display: "flex",
@@ -31,7 +31,7 @@ const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
   },
 });
 
-const FieldContainer = styled("div", { label: "DataTable-FilterRow-FieldContainer" })(({ theme }) => ({
+const FieldContainer = styled("div", { name: "DTFilterRow-fieldContainer" })(({ theme }) => ({
   flex: 1,
   display: "flex",
   flexDirection: "column",

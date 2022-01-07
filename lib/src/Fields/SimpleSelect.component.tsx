@@ -29,7 +29,7 @@ const useStyles = makeStyles(
         ...theme.typography.caption,
       },
     }),
-  { name: "DataTable-SimpleSelectField" },
+  { name: "DTSimpleSelect" },
 );
 
 /**

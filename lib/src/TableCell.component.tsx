@@ -70,7 +70,7 @@ const useStyles = makeStyles(
         overflow: "hidden",
       },
     }),
-  { name: "TableCellComponent" },
+  { name: "DTTableCell" },
 );
 
 /**

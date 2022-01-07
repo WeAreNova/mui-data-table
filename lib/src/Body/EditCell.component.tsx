@@ -34,7 +34,7 @@ const useStyles = makeStyles(
         },
       },
     }),
-  { name: "DataTable-EditCell" },
+  { name: "DTEditCell" },
 );
 
 const DEFAULT_VALIDATORS: Record<NonNullable<EditDataTypes>, (value: any, options: SelectOption[]) => void> = {

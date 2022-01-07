@@ -38,7 +38,7 @@ const useStyles = makeStyles(
       },
     });
   },
-  { name: "DataTable-BodyCell" },
+  { name: "DTBodyCell" },
 );
 
 /**

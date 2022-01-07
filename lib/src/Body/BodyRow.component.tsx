@@ -32,7 +32,7 @@ const useStyles = makeStyles(
         backgroundColor: theme.palette.action.selected,
       },
     }),
-  { name: "DataTable-BodyRow" },
+  { name: "DTBodyRow" },
 );
 
 /**

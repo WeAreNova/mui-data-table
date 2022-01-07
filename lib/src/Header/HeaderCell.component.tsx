@@ -124,7 +124,7 @@ const useStyles = makeStyles(
         left: "unset",
       },
     }),
-  { name: "DataTable-HeaderCell" },
+  { name: "DTHeaderCell" },
 );
 
 /**

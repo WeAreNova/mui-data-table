@@ -76,7 +76,7 @@ const useStyles = makeStyles(
         },
       },
     }),
-  { name: "DataTable" },
+  { name: "DTTable" },
 );
 
 /**

@@ -11,7 +11,7 @@ const useStyles = makeStyles(
       zIndex: 2,
     },
   }),
-  { name: "DataTable-HeaderRow" },
+  { name: "DTHeaderRow" },
 );
 
 /**

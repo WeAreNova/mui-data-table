@@ -30,7 +30,7 @@ const useStyles = makeStyles(
         backgroundColor: "inherit",
       },
     }),
-  { name: "DataTable-Filter" },
+  { name: "DTFilter" },
 );
 
 let filterId = 0;

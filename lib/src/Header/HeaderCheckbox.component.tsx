@@ -8,11 +8,16 @@ const HeaderCheckbox: React.FC = <RowType extends BaseData, AllDataType extends 
   const { update, numRowsSelected, tableData } = useTableContext<RowType, AllDataType>();
 
   const handleSelectAll = useCallback(() => {
-    update.selectedRows((currSelectedRows) => {
-      if (Object.values(currSelectedRows).length) return {};
-      return tableData.reduce((prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }), {});
+    update((currState) => {
+      if (Object.values(currState.selectedRows).length) return { selectedRows: {} };
+      return {
+        selectedRows: currState.tableData.reduce(
+          (prev, row, rowIndex) => ({ ...prev, [getRowId(row, rowIndex)]: row }),
+          {},
+        ),
+      };
     });
-  }, [tableData, update]);
+  }, [update]);
 
   return (
     <Checkbox

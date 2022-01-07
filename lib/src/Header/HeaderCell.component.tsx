@@ -309,8 +309,8 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   height: 24,
                   borderRightWidth: 3,
                   position: "absolute",
-                  right: (theme) => `calc(${theme.spacing(-1)} - 1.5px)`, // horizontal alignment
-                  top: "calc(50% - 12px)", // vertical alignment
+                  right: (theme) => `calc(${theme.spacing(-1)} - 1.5px)`, // 1.5 = borderRightWidth / 2
+                  top: "calc(50% - 12px)", // 12 = height / 2
                   cursor: "col-resize",
                   "&:active,&:hover": {
                     borderColor: "action.active",

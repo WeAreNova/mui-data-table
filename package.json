@@ -16,6 +16,9 @@
     "lib",
     "dev"
   ],
+  "engines": {
+    "npm": ">=8.0.0"
+  },
   "author": {
     "name": "David Parrish",
     "url": "https://github.com/dvprrsh"

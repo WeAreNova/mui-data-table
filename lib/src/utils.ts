@@ -34,8 +34,8 @@ let defaultCurrency = "GBP";
 
 const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
 
-export function dontForwardProps(...propNamesToIgnore: string[]) {
-  return (name: string) => propNamesToIgnore.indexOf(name) === -1;
+export function dontForwardProps(...propsToIgnore: string[]) {
+  return (name: string) => propsToIgnore.indexOf(name) === -1;
 }
 
 /**

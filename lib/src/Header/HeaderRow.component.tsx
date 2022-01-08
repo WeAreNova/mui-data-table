@@ -1,11 +1,11 @@
 import { Grow, Popper, styled, TableHead, TableRow } from "@mui/material";
 import Filter, { InitialFilterValues } from "Filter";
-import HeaderCell from "HeaderCell.component";
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import TableContext, { TableState } from "table.context";
 import type { BaseData } from "table.types";
+import HeaderCell from "./HeaderCell.component";
 
-const StyledPopper = styled(Popper)`
+const DTFilterPopper = styled(Popper, { name: "DTFilter", slot: "Popper" })`
   zindex: 1;
 `;
 
@@ -88,7 +88,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
           )}
         </TableRow>
       )}
-      <StyledPopper open={filterOpen} anchorEl={anchorEl} placement="bottom-start" transition>
+      <DTFilterPopper open={filterOpen} anchorEl={anchorEl} placement="bottom-start" transition>
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>
             <div>
@@ -96,7 +96,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
             </div>
           </Grow>
         )}
-      </StyledPopper>
+      </DTFilterPopper>
     </TableHead>
   );
 };

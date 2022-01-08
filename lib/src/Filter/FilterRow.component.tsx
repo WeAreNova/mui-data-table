@@ -1,9 +1,9 @@
 import Close from "@mui/icons-material/Close";
 import { IconButton, styled, Typography } from "@mui/material";
 import SimpleSelect, { SimpleSelectChangeHandler } from "Fields/SimpleSelect.component";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import type { ActiveFilter, BaseData, FilterValue, NullableActiveFilter, NullableDataTypes } from "table.types";
 import { debounce } from "utils";
 import { FilterValuePropTypes, OPERATORS } from "_dataTable.consts";
@@ -17,7 +17,10 @@ interface Props {
   name: string;
 }
 
-const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
+const DTFilterRow = styled("form", {
+  name: "DTFilterRow",
+  slot: "Root",
+})({
   display: "flex",
   "& > div": {
     display: "flex",
@@ -31,7 +34,7 @@ const Form = styled("form", { label: "DataTable-FilterRow-Form" })({
   },
 });
 
-const FieldContainer = styled("div", { label: "DataTable-FilterRow-FieldContainer" })(({ theme }) => ({
+const DTFieldContainer = styled("div", { name: "DTFilterRow", slot: "FieldContainer" })(({ theme }) => ({
   flex: 1,
   display: "flex",
   flexDirection: "column",
@@ -73,7 +76,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   onRemove,
   name,
 }: PropsWithChildren<Props>) => {
-  const { filterOptions } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { filterOptions } = useTableContext<RowType, AllDataType>();
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
   const [errors, setErrors] = useState({ path: false, operator: false, value: false });
 
@@ -135,7 +138,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, []);
 
   return (
-    <Form data-testid={name}>
+    <DTFilterRow data-testid={name}>
       <div>
         <IconButton onClick={handleRemove} disabled={last && !value.path} size="small">
           <Close />
@@ -143,7 +146,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         <div></div>
       </div>
       <div>
-        <FieldContainer>
+        <DTFieldContainer>
           <Typography variant="caption">Column</Typography>
           <SimpleSelect
             name="path"
@@ -154,8 +157,8 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Column"
             variant="standard"
           />
-        </FieldContainer>
-        <FieldContainer sx={{ flex: 0.5 }}>
+        </DTFieldContainer>
+        <DTFieldContainer sx={{ flex: 0.5 }}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelect
             name="operator"
@@ -166,14 +169,14 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Operator"
             variant="standard"
           />
-        </FieldContainer>
+        </DTFieldContainer>
         {!filter.operator?.includes("exists") && (
-          <FieldContainer>
+          <DTFieldContainer>
             <ValueField value={filter} onChange={handleValueChange} />
-          </FieldContainer>
+          </DTFieldContainer>
         )}
       </div>
-    </Form>
+    </DTFilterRow>
   );
 };
 FilterRow.propTypes = {

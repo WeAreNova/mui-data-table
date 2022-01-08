@@ -23,7 +23,7 @@ interface EditCellProps {
 const useStyles = makeStyles(
   () =>
     createStyles({
-      fieldContainer: {
+      root: {
         display: "flex",
         flexDirection: "column",
         "& > *": {
@@ -263,7 +263,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   return (
     <ClickAwayListener onClickAway={handleCancelEdit}>
-      <div className={classes.fieldContainer}>{field}</div>
+      <div className={classes.root}>{field}</div>
     </ClickAwayListener>
   );
 };

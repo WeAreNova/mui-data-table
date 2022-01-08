@@ -34,7 +34,7 @@ const useStyles = makeStyles(
           },
         },
       },
-      field: {
+      fieldContainer: {
         flex: 1,
         display: "flex",
         flexDirection: "column",
@@ -154,7 +154,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         <div></div>
       </div>
       <div>
-        <div className={classes.field}>
+        <div className={classes.fieldContainer}>
           <Typography variant="caption">Column</Typography>
           <SimpleSelect
             name="path"
@@ -166,7 +166,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             variant="standard"
           />
         </div>
-        <div className={clsx([classes.field, classes.operatorField])}>
+        <div className={clsx([classes.fieldContainer, classes.operatorField])}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelect
             name="operator"
@@ -179,7 +179,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
           />
         </div>
         {!filter.operator?.includes("exists") && (
-          <div className={classes.field}>
+          <div className={classes.fieldContainer}>
             <ValueField value={filter} onChange={handleValueChange} />
           </div>
         )}

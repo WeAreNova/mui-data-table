@@ -20,7 +20,7 @@ const useStyles = makeStyles(
       },
     };
     return createStyles({
-      bodyCell: {
+      root: {
         outline: "none",
         "&:focus": focusOutline,
         "&:focus-within": focusOutline,
@@ -140,8 +140,8 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
   );
 
   const bodyCellClasses = useMemo(
-    () => clsx(classes.bodyCell, { [classes.editable]: Boolean(tableEditable && structure.editable) }),
-    [classes.bodyCell, classes.editable, structure.editable, tableEditable],
+    () => clsx(classes.root, { [classes.editable]: Boolean(tableEditable && structure.editable) }),
+    [classes.root, classes.editable, structure.editable, tableEditable],
   );
 
   const handleEdit = useCallback(

@@ -13,7 +13,7 @@ interface Props extends TableCellProps {
 const useStyles = makeStyles(
   (theme) =>
     createStyles({
-      hiddenTableCell: {
+      hidden: {
         contentVisibility: "hidden",
         maxWidth: 0,
         padding: 0,
@@ -55,7 +55,7 @@ const useStyles = makeStyles(
           whiteSpace: "nowrap",
         },
       },
-      pinnedTableCell: {
+      pinned: {
         position: "sticky",
         left: 0,
         right: 0,
@@ -89,8 +89,8 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
       clsx([
         className,
         {
-          [classes.hiddenTableCell]: hidden,
-          [classes.pinnedTableCell]: pinned,
+          [classes.hidden]: hidden,
+          [classes.pinned]: pinned,
           [classes.maxWidthLg]: maxWidth === "lg",
           [classes.maxWidthSm]: maxWidth === "sm",
           [classes.resizeable]: Boolean(resizeable),

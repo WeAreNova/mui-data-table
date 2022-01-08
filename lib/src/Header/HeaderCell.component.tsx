@@ -25,8 +25,8 @@ interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[
 const useStyles = makeStyles(
   (theme) =>
     createStyles({
-      tableCell: {
-        "&:hover $filterIconButton": {
+      root: {
+        "&:hover $filterButton": {
           opacity: 1,
         },
       },
@@ -62,7 +62,7 @@ const useStyles = makeStyles(
         "& > div:nth-child(1)": {
           order: 3,
           textAlign: "right",
-          "&  $headerCellSortLabel": {
+          "& $sortLabel": {
             flexDirection: "row-reverse",
           },
         },
@@ -73,35 +73,29 @@ const useStyles = makeStyles(
           order: 1,
         },
       },
-      editableOffset: {},
-      filterIconButton: {
-        opacity: 0.2,
-        transition: theme.transitions.create(["opacity", "color"], {
-          duration: theme.transitions.duration.shorter,
-          easing: theme.transitions.easing.easeInOut,
-        }),
-      },
-      headerCellBody: {
+      body: {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         whiteSpace: "pre",
       },
-      headerCellButtonGroup: {
+      buttonGroup: {
         display: "flex",
         alignItems: "center",
         "& svg": {
           fontSize: "1rem",
         },
       },
-      headerCellInner: {
-        display: "flex",
+      editableOffset: {},
+      filterButton: {
+        opacity: 0.2,
+        transition: theme.transitions.create(["opacity", "color"], {
+          duration: theme.transitions.duration.shorter,
+          easing: theme.transitions.easing.easeInOut,
+        }),
       },
-      headerCellSortLabel: {
-        whiteSpace: "inherit",
-        "& > svg.MuiTableSortLabel-icon": {
-          opacity: 0.2,
-        },
+      inner: {
+        display: "flex",
       },
       resizeable: {
         overflow: "hidden",
@@ -120,7 +114,13 @@ const useStyles = makeStyles(
           backgroundColor: theme.palette.action.active,
         },
       },
-      stickyColGroupHeader: {
+      sortLabel: {
+        whiteSpace: "inherit",
+        "& > svg.MuiTableSortLabel-icon": {
+          opacity: 0.2,
+        },
+      },
+      stickyColGroup: {
         left: "unset",
       },
     }),
@@ -210,10 +210,10 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
 
   const headerClasses = useMemo(
     () =>
-      clsx(classes.tableCell, className, {
-        [classes.stickyColGroupHeader]: colGroupHeader && pinnedColumn !== id,
+      clsx(classes.root, className, {
+        [classes.stickyColGroup]: colGroupHeader && pinnedColumn !== id,
       }),
-    [className, classes.stickyColGroupHeader, classes.tableCell, colGroupHeader, id, pinnedColumn],
+    [className, classes.stickyColGroup, classes.root, colGroupHeader, id, pinnedColumn],
   );
 
   const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -249,18 +249,18 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
         >
           <div className={classes.resizeContainer}>
             <div
-              className={clsx(classes.headerCellInner, classes.alignLeft, {
+              className={clsx(classes.inner, classes.alignLeft, {
                 [classes.alignRight]: structure.align === "right",
                 [classes.alignCenter]: structure.align === "center",
                 [classes.editableOffset]: Boolean(structure.editable),
                 [classes.resizeable]: !colGroupHeader && resizeable,
               })}
             >
-              <div className={classes.headerCellBody}>
+              <div className={classes.body}>
                 {structure.sorter ? (
                   <TableSortLabel
                     onClick={handleSort}
-                    className={classes.headerCellSortLabel}
+                    className={classes.sortLabel}
                     active={
                       sort.direction &&
                       (sort.key === structure.sorter || sort.key === structure.dataIndex || sort.key === id)
@@ -277,7 +277,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   headerTitle
                 )}
               </div>
-              <div className={classes.headerCellButtonGroup}>
+              <div className={classes.buttonGroup}>
                 {enableHiddenColumns && (
                   <IconButton onClick={handleHiddenColumnsChange} size="small">
                     <Visibility />
@@ -301,7 +301,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                     data-testid="tableFilterButton"
                     color={filterActive ? "primary" : "default"}
                     size="small"
-                    className={clsx({ [classes.filterIconButton]: !filterActive })}
+                    className={clsx({ [classes.filterButton]: !filterActive })}
                   >
                     <FilterList />
                   </IconButton>

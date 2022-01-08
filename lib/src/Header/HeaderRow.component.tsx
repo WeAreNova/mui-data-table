@@ -7,11 +7,11 @@ import type { BaseData } from "table.types";
 
 const useStyles = makeStyles(
   () => ({
-    filterContainer: {
+    popper: {
       zIndex: 2,
     },
   }),
-  { name: "DTHeaderRow" },
+  { name: "DTFilter" },
 );
 
 /**
@@ -95,7 +95,7 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
         anchorEl={anchorEl}
         placement="bottom-start"
         transition
-        className={classes.filterContainer}
+        className={classes.popper}
       >
         {({ TransitionProps }) => (
           <Grow {...TransitionProps}>

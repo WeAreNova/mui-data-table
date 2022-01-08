@@ -1,8 +1,6 @@
 import {
-  createStyles,
   FormControl,
   FormHelperText,
-  makeStyles,
   MenuItem,
   Select,
   SelectProps,
@@ -21,16 +19,6 @@ interface SimpleSelectProps<T extends SelectOptionObject> extends Omit<SelectPro
   helperText?: string | null;
   disablePortal?: boolean;
 }
-
-const useStyles = makeStyles(
-  (theme) =>
-    createStyles({
-      select: {
-        ...theme.typography.caption,
-      },
-    }),
-  { name: "DTSimpleSelect" },
-);
 
 /**
  * The SimpleSelectField is used to render a basic select field without autocomplete
@@ -51,7 +39,6 @@ const SimpleSelect = <T extends SelectOptionObject>({
   disablePortal = false,
   ...selectProps
 }: PropsWithChildren<SimpleSelectProps<T>>) => {
-  const classes = useStyles(selectProps);
   const isAccuratePointer = useMediaQuery("(pointer: fine)");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -89,7 +76,6 @@ const SimpleSelect = <T extends SelectOptionObject>({
         onChange={handleChange}
         displayEmpty={Boolean(placeholder)}
         native={!isAccuratePointer}
-        className={classes.select}
         MenuProps={menuProps}
         open={isOpen}
         onOpen={handleOpen}

@@ -17,18 +17,18 @@ interface BodyRowProps<RowType extends BaseData> {
 const useStyles = makeStyles(
   (theme) =>
     createStyles({
-      alternateRowColour: {
+      altColor: {
         backgroundColor: alpha(theme.palette.error.dark, 0.9),
       },
-      disabledRow: {
+      disabled: {
         backgroundColor: theme.palette.action.disabledBackground,
         opacity: theme.palette.action.disabledOpacity,
       },
-      rowHover: {
+      hover: {
         cursor: "pointer",
         backgroundColor: theme.palette.action.hover,
       },
-      selectedRow: {
+      selected: {
         backgroundColor: theme.palette.action.selected,
       },
     }),
@@ -56,14 +56,14 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   const tableRowClasses = useMemo(
     () =>
       clsx({
-        [classes.alternateRowColour]: isAlternateRowColour,
-        [classes.disabledRow]: isDisabledRow,
-        [classes.selectedRow]: rowsSelectable && Boolean(selectedRows[rowId]),
+        [classes.altColor]: isAlternateRowColour,
+        [classes.disabled]: isDisabledRow,
+        [classes.selected]: rowsSelectable && Boolean(selectedRows[rowId]),
       }),
     [
-      classes.alternateRowColour,
-      classes.disabledRow,
-      classes.selectedRow,
+      classes.altColor,
+      classes.disabled,
+      classes.selected,
       isAlternateRowColour,
       isDisabledRow,
       rowId,
@@ -75,7 +75,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   const onHover = useCallback<MouseEventHandler<HTMLTableRowElement>>(
     (e) => {
       if (!rowClick) return;
-      e.currentTarget.classList.add(classes.rowHover);
+      e.currentTarget.classList.add(classes.hover);
       if (!e.currentTarget.parentNode) return;
       const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
       for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
@@ -84,22 +84,22 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         const rowsBetween = hoverRowIndex - rowIndex;
         row.querySelectorAll("td[rowspan]").forEach((cell) => {
           const rowSpan = Number(cell.getAttribute("rowspan"));
-          if (rowSpan > rowsBetween) cell.classList.add(classes.rowHover);
+          if (rowSpan > rowsBetween) cell.classList.add(classes.hover);
         });
       }
     },
-    [classes.rowHover, rowClick],
+    [classes.hover, rowClick],
   );
 
   const onUnHover = useCallback<React.MouseEventHandler<HTMLTableRowElement>>(
     (e) => {
       if (!rowClick) return;
-      e.currentTarget.classList.remove(classes.rowHover);
+      e.currentTarget.classList.remove(classes.hover);
       for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
-        row.querySelectorAll("td[rowspan]").forEach((cell) => cell.classList.remove(classes.rowHover));
+        row.querySelectorAll("td[rowspan]").forEach((cell) => cell.classList.remove(classes.hover));
       }
     },
-    [classes.rowHover, rowClick],
+    [classes.hover, rowClick],
   );
 
   const bodyContextValue = useMemo(

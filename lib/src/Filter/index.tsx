@@ -23,7 +23,7 @@ const useStyles = makeStyles(
           padding: theme.spacing(1),
         },
       },
-      filterFooter: {
+      footer: {
         position: "sticky",
         bottom: 0,
         borderTop: `1px solid ${theme.palette.divider}`,
@@ -118,7 +118,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
             </Fragment>
           ))}
         </div>
-        <div className={classes.filterFooter}>
+        <div className={classes.footer}>
           <Button
             onClick={handleAddBlankFilter}
             data-testid="addFilter"

@@ -18,7 +18,7 @@ const maxWidthStyles: Record<Widths, CSSObject> = {
 };
 
 const StyledTableCell = styled(MUITableCell, {
-  name: "DTCell-root",
+  name: "DTTableCell-root",
   shouldForwardProp: dontForwardProps("hidden", "pinned", "maxWidth", "resizeable"),
 })<TableCellProps & { resizeable?: boolean }>(({ hidden = false, pinned = false, maxWidth, resizeable, theme }) => [
   resizeable && {

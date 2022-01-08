@@ -30,7 +30,7 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   > {}
 
 const LoadableTableBody = styled(TableBody, {
-  name: "DTBody-root",
+  name: "DTTableBody-root",
   shouldForwardProp: dontForwardProps("loading"),
 })<{ loading: boolean }>(({ loading, theme }) => [
   {

@@ -48,10 +48,14 @@ Or for [Material-UI v4](https://v4.mui.com/)
 
 ```shell
 // with npm
-npm install --save @wearenova/mui-data-table@1
+npm install --save @wearenova/mui-data-table@mui-v4
+// or
+npm install --save @wearenova/mui-data-table@^1
 
 // with yarn
-yarn add @wearenova/mui-data-table@1
+yarn add @wearenova/mui-data-table@mui-v4
+// or
+yarn add @wearenova/mui-data-table@^1
 ```
 
 > See full instructions for [Material-UI v4](https://v4.mui.com/) in the [v1.x documentation](https://wearenova.github.io/mui-data-table/#/v1/getting-started).

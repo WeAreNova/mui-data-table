@@ -29,8 +29,9 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
     "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
   > {}
 
-const LoadableTableBody = styled(TableBody, {
-  name: "DTTableBody-root",
+const DTTableBody = styled(TableBody, {
+  name: "DTBody",
+  slot: "Root",
   shouldForwardProp: dontForwardProps("loading"),
 })<{ loading: boolean }>(({ loading, theme }) => [
   {
@@ -45,7 +46,10 @@ const LoadableTableBody = styled(TableBody, {
   },
 ]);
 
-const TableToolbar = styled("div", { name: "DTToolbar-root" })({
+const DTToolbar = styled("div", {
+  name: "DTToolbar",
+  slot: "Root",
+})({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -158,11 +162,11 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
       <TableContainer>
         <MUITable {...tableProps} stickyHeader ref={tableRef}>
           <HeaderRow />
-          <LoadableTableBody loading={loading}>
+          <DTTableBody loading={loading}>
             {tableData.map((data, dataIndex) => (
               <BodyRow key={getRowId(data, dataIndex)} index={dataIndex} data={data} />
             ))}
-          </LoadableTableBody>
+          </DTTableBody>
           {(hasFooter || hasColGroupFooter) && (
             <TableFooter>
               {hasFooter && (
@@ -192,7 +196,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
           )}
         </MUITable>
       </TableContainer>
-      <TableToolbar>
+      <DTToolbar>
         <div>
           <Box
             sx={{
@@ -268,7 +272,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
             </Box>
           )}
         </div>
-      </TableToolbar>
+      </DTToolbar>
     </>
   );
 };

@@ -17,7 +17,10 @@ interface Props {
   name: string;
 }
 
-const Form = styled("form", { name: "DTFilterRow-root" })({
+const DTFilterRow = styled("form", {
+  name: "DTFilterRow",
+  slot: "Root",
+})({
   display: "flex",
   "& > div": {
     display: "flex",
@@ -31,7 +34,7 @@ const Form = styled("form", { name: "DTFilterRow-root" })({
   },
 });
 
-const FieldContainer = styled("div", { name: "DTFilterRow-fieldContainer" })(({ theme }) => ({
+const DTFieldContainer = styled("div", { name: "DTFilterRow", slot: "FieldContainer" })(({ theme }) => ({
   flex: 1,
   display: "flex",
   flexDirection: "column",
@@ -135,7 +138,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, []);
 
   return (
-    <Form data-testid={name}>
+    <DTFilterRow data-testid={name}>
       <div>
         <IconButton onClick={handleRemove} disabled={last && !value.path} size="small">
           <Close />
@@ -143,7 +146,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         <div></div>
       </div>
       <div>
-        <FieldContainer>
+        <DTFieldContainer>
           <Typography variant="caption">Column</Typography>
           <SimpleSelect
             name="path"
@@ -154,8 +157,8 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Column"
             variant="standard"
           />
-        </FieldContainer>
-        <FieldContainer sx={{ flex: 0.5 }}>
+        </DTFieldContainer>
+        <DTFieldContainer sx={{ flex: 0.5 }}>
           <Typography variant="caption">Operator</Typography>
           <SimpleSelect
             name="operator"
@@ -166,14 +169,14 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             placeholder="Operator"
             variant="standard"
           />
-        </FieldContainer>
+        </DTFieldContainer>
         {!filter.operator?.includes("exists") && (
-          <FieldContainer>
+          <DTFieldContainer>
             <ValueField value={filter} onChange={handleValueChange} />
-          </FieldContainer>
+          </DTFieldContainer>
         )}
       </div>
-    </Form>
+    </DTFilterRow>
   );
 };
 FilterRow.propTypes = {

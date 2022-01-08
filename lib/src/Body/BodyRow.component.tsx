@@ -13,8 +13,9 @@ interface BodyRowProps<RowType extends BaseData> {
   data: RowType;
 }
 
-const StyledTableRow = styled(TableRow, {
-  name: "DTBodyRow-root",
+const DTBodyRow = styled(TableRow, {
+  name: "DTBodyRow",
+  slot: "Root",
   shouldForwardProp: dontForwardProps("altColour", "disabled", "selected"),
 })<{ altColour: boolean; disabled: boolean; selected: boolean }>(({ altColour, disabled, selected, theme }) => [
   altColour && { bgcolor: alpha(theme.palette.error.dark, 0.9) },
@@ -79,7 +80,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   );
 
   return (
-    <StyledTableRow
+    <DTBodyRow
       key={rowId}
       data-testid="tableRow"
       onMouseOver={onHover}
@@ -101,7 +102,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
           <BodyCell />
         </BodyContextProvider>
       ))}
-    </StyledTableRow>
+    </DTBodyRow>
   );
 };
 BodyRow.propTypes = {

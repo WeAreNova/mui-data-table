@@ -17,8 +17,9 @@ const maxWidthStyles: Record<Widths, CSSObject> = {
   lg: { "& > *": { maxWidth: "20em" } },
 };
 
-const StyledTableCell = styled(MUITableCell, {
-  name: "DTTableCell-root",
+const DTTableCell = styled(MUITableCell, {
+  name: "DTTableCell",
+  slot: "Root",
   shouldForwardProp: dontForwardProps("hidden", "pinned", "maxWidth", "resizeable"),
 })<TableCellProps & { resizeable?: boolean }>(({ hidden = false, pinned = false, maxWidth, resizeable, theme }) => [
   resizeable && {
@@ -75,7 +76,7 @@ const StyledTableCell = styled(MUITableCell, {
  */
 const TableCell: React.FC<TableCellProps> = React.forwardRef(function _TableCell(props: TableCellProps, ref) {
   const { resizeable } = useTableContext();
-  return <StyledTableCell align="left" {...props} resizeable={resizeable} ref={ref} />;
+  return <DTTableCell align="left" {...props} resizeable={resizeable} ref={ref} />;
 });
 TableCell.propTypes = {
   hidden: PropTypes.bool,

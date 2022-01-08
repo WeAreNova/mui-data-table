@@ -16,8 +16,9 @@ const focusOutline = {
   },
 };
 
-const EditableTableCell = styled(TableCell, {
-  name: "DTBodyCell-root",
+const DTBodyCell = styled(TableCell, {
+  name: "DTBodyCell",
+  slot: "Root",
   shouldForwardProp: dontForwardProps("editable"),
 })<{ editable: boolean }>(({ editable, theme }) => [
   {
@@ -168,7 +169,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
   }, [editMode, handleEdit]);
 
   return (
-    <EditableTableCell
+    <DTBodyCell
       key={structure.key}
       onClick={handleRowClick}
       editable={Boolean(tableEditable && structure.editable)}
@@ -194,7 +195,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
           )}
         </div>
       </ErrorBoundary>
-    </EditableTableCell>
+    </DTBodyCell>
   );
 };
 

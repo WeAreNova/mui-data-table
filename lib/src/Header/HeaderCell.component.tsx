@@ -21,8 +21,9 @@ interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[
   style?: React.CSSProperties;
 }
 
-const FilterButton = styled(IconButton, {
-  name: "DTHeaderCell-filterButton",
+const DTFilterButton = styled(IconButton, {
+  name: "DTHeaderCell",
+  slot: "FilterButton",
   shouldForwardProp: dontForwardProps("active"),
 })<{ active: boolean }>(({ active, theme }) => [
   {
@@ -37,15 +38,16 @@ const FilterButton = styled(IconButton, {
   },
 ]);
 
-const HeaderTableCell = styled(TableCell, {
-  name: "DTHeaderCell-root",
+const DTHeaderCell = styled(TableCell, {
+  name: "DTHeaderCell",
+  slot: "Root",
   shouldForwardProp: dontForwardProps("colGroupHeader", "pinned"),
 })<{
   colGroupHeader: boolean;
   pinned: boolean;
 }>(({ colGroupHeader, pinned }) => [
   {
-    [`&:hover ${FilterButton}`]: {
+    [`&:hover ${DTFilterButton}`]: {
       opacity: 1,
     },
   },
@@ -96,8 +98,9 @@ const editableOffsetKey: Record<Exclude<TableCellAlign, "center">, string> = {
   right: "paddingRight",
 };
 
-const InnerHeaderCell = styled("div", {
-  name: "DTHeaderCell-inner",
+const DTInnerHeaderCell = styled("div", {
+  name: "DTHeaderCell",
+  slot: "Inner",
   shouldForwardProp: dontForwardProps("alignment", "editableOffset", "resizeable"),
 })<{
   alignment?: TableCellAlign;
@@ -211,7 +214,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   return (
     <Fragment key={id}>
       <Tooltip title={isHidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
-        <HeaderTableCell
+        <DTHeaderCell
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
@@ -223,7 +226,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           style={style}
         >
           <Box sx={{ position: "relative" }}>
-            <InnerHeaderCell
+            <DTInnerHeaderCell
               alignment={structure.align}
               resizeable={!colGroupHeader && resizeable}
               editableOffset={Boolean(structure.editable)}
@@ -286,7 +289,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   </IconButton>
                 ))}
                 {filterEnabled && (
-                  <FilterButton
+                  <DTFilterButton
                     onClick={handleFilterClick}
                     onMouseUp={stopPropagation}
                     onTouchEnd={stopPropagation}
@@ -296,11 +299,11 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                     size="small"
                   >
                     <FilterList />
-                  </FilterButton>
+                  </DTFilterButton>
                 )}
               </Box>
               <div />
-            </InnerHeaderCell>
+            </DTInnerHeaderCell>
             {!colGroupHeader && resizeable && (
               <Divider
                 id="DataTable-ResizeHandle"
@@ -319,7 +322,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
               />
             )}
           </Box>
-        </HeaderTableCell>
+        </DTHeaderCell>
       </Tooltip>
     </Fragment>
   );

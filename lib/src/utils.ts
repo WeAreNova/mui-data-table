@@ -271,7 +271,7 @@ export function getSortedData<RowType extends BaseData, AllDataType extends RowT
   } else if (typeof sortColumn.sorter === "string") {
     sortKey = sortColumn.sorter;
   } else {
-    sortKey = sortColumn.dataIndex;
+    sortKey = getPath(sortColumn.numerical, sortColumn);
   }
   if (!sortKey) return data;
   return orderBy([...data], (data) => get(data, sortKey!), sort.direction);
@@ -336,6 +336,20 @@ export function getDefaultOperator<RowType extends BaseData>(
 }
 
 /**
+ * A utility function to get the default path.
+ *
+ * @param struct the definition of the table column
+ * @returns the path if available
+ */
+export function getDefaultPath<RowType extends BaseData, AllDataType extends RowType[]>(
+  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+): PathType<RowType> | undefined {
+  if (struct.dataIndex) return struct.dataIndex;
+  if (typeof struct.numerical === "string") return struct.numerical;
+  if (typeof struct.numerical === "object") return struct.numerical.path as string;
+}
+
+/**
  * A utility function which returns the path to the data to be rendered when the given value could be `true | string | undefined`
  *
  * @param value the value of one of the properties in the definition of the table column
@@ -347,7 +361,7 @@ export function getPath<RowType extends BaseData, AllDataType extends RowType[] 
   struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
 ): PathType<RowType> {
   const path = typeof value === "object" ? value.path : value;
-  if (path === true || path === undefined) return struct.dataIndex!;
+  if (path === true || path === undefined) return getDefaultPath(struct)!;
   return path;
 }
 

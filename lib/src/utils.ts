@@ -342,7 +342,9 @@ export function getDefaultPath<RowType extends BaseData, AllDataType extends Row
 ): PathType<RowType> | undefined {
   if (struct.dataIndex) return struct.dataIndex;
   if (typeof struct.numerical === "string") return struct.numerical;
-  if (typeof struct.numerical === "object") return struct.numerical.path as string;
+  if (typeof struct.numerical === "object" && typeof struct.numerical.path === "string") {
+    return struct.numerical.path as string;
+  }
 }
 
 /**

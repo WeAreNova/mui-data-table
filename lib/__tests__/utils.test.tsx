@@ -11,6 +11,7 @@ import {
   getColumnTitle,
   getDataType,
   getDefaultOperator,
+  getDefaultPath,
   getFilteredData,
   getFilterTypeConvertors,
   getPath,
@@ -316,5 +317,26 @@ describe("debounce utility function", function () {
     for (let count = 0; count < 10; count++) debounced();
     jest.advanceTimersByTime(250);
     expect(mockFunction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("getDefaultPath utility function", function () {
+  it("should prioritise the dataIndex field", () => {
+    expect(getDefaultPath({ dataIndex: "test" })).toBe("test");
+  });
+  it("should return the value of numerical if it is a string and dataIndex is undefined", () => {
+    expect(getDefaultPath({ numerical: "test" })).toBe("test");
+  });
+  it("should return numerical.path if it is a string and dataIndex is undefined", () => {
+    expect(getDefaultPath({ numerical: { path: "test" } })).toBe("test");
+  });
+  it("should return the value of dataIndex if numerical is true or numerical.path is true or undefined", () => {
+    expect(getDefaultPath({ dataIndex: "test", numerical: true })).toBe("test");
+    expect(getDefaultPath({ dataIndex: "test", numerical: { path: true } })).toBe("test");
+    expect(getDefaultPath({ dataIndex: "test", numerical: {} })).toBe("test");
+  });
+  it("should return undefined if dataIndex is undefined and numerical or numerical.path is undefined", () => {
+    expect(getDefaultPath({ dataIndex: undefined, numerical: undefined })).toBeUndefined();
+    expect(getDefaultPath({ dataIndex: undefined, numerical: { path: undefined } })).toBeUndefined();
   });
 });

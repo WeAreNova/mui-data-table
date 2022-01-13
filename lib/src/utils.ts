@@ -34,6 +34,13 @@ let defaultCurrency = "GBP";
 
 const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
 
+export function getWindow() {
+  return typeof window !== "undefined" ? window : null;
+}
+export function getDocument() {
+  return typeof document !== "undefined" ? document : null;
+}
+
 export function dontForwardProps(...propsToIgnore: string[]) {
   return (name: string) => propsToIgnore.indexOf(name) === -1;
 }
@@ -44,8 +51,10 @@ export function dontForwardProps(...propsToIgnore: string[]) {
  * @param event the custom event to dispatch.
  */
 export function dispatchTableEvent(event?: typeof TABLE_EVENTS[number]) {
-  if (event && event !== "*") return document.dispatchEvent(new CustomEvent(event));
-  TABLE_EVENTS.forEach((e) => document.dispatchEvent(new CustomEvent(e)));
+  const doc = getDocument();
+  if (!doc) return;
+  if (event && event !== "*") return doc.dispatchEvent(new CustomEvent(event));
+  TABLE_EVENTS.forEach((e) => doc.dispatchEvent(new CustomEvent(e)));
 }
 
 /**
@@ -392,7 +401,7 @@ export function numberFormatter(
   } else if (currency) {
     currencySymbol = defaultCurrency;
   }
-  return new Intl.NumberFormat(window.navigator.language, {
+  return new Intl.NumberFormat(getWindow()?.navigator.language, {
     style: currency ? "currency" : undefined,
     currency: currencySymbol,
     minimumFractionDigits: decimalPlaces ?? 2,

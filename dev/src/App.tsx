@@ -20,7 +20,7 @@ setDefaultCurrency("USD");
 
 function App() {
   const [darkMode, setDarkMode] = useState(window.localStorage.getItem("darkMode") === "true");
-  const [changeServerSide, setChangeServerSide] = useState(false);
+  const [changeServerSide, setChangeServerSide] = useState(true);
   const [data, setData] = useState<User[]>([]);
 
   const toggleDarkMode = useCallback(() => setDarkMode((currDarkMode) => !currDarkMode), []);
@@ -60,8 +60,8 @@ function App() {
               tableData={data}
               tableStructure={STRUCTURE}
               onChange={changeServerSide ? handleChange : undefined}
-              rowClick={(data: any) => console.log(data)}
-              // onEdit={(...data) => "test"}
+              rowClick={(data) => console.log(data)}
+              // onEdit={() => "test"}
               exportToCSVOption
               rowsSelectable
               resizeable

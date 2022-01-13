@@ -1,4 +1,4 @@
-import { TextField } from "@mui/material";
+import { FormHelperText, TextField } from "@material-ui/core";
 import { ColumnDefinition, EditComponentProps } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";
@@ -86,7 +86,17 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     filterColumn: "personalDetails.addressHistory.addressLineOne",
     editable: {
       path: "personalDetails.addressHistory",
-      component: ({ defaultValue, onChange, disabled }: EditComponentProps<Address[]>) =>
+      validate: (value) =>
+        Yup.array(
+          Yup.object({
+            addressLineOne: Yup.string().required("Address line one is required"),
+            addressLineTwo: Yup.string(),
+            city: Yup.string().required("City is required"),
+            country: Yup.string().required("Country is required"),
+            postcode: Yup.string().required("Postcode is required"),
+          }),
+        ).validate(value),
+      component: ({ defaultValue, onChange, disabled, helperText }: EditComponentProps<Address[]>) =>
         defaultValue.map((value, index) => {
           const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
             onChange((v) => {
@@ -132,6 +142,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
                 placeholder="Postcode"
                 disabled={disabled}
               />
+              <FormHelperText error>{helperText}</FormHelperText>
             </Fragment>
           );
         }),

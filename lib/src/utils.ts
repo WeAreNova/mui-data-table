@@ -388,7 +388,7 @@ export function numberFormatter(
   } else if (currency) {
     currencySymbol = defaultCurrency;
   }
-  return new Intl.NumberFormat(window.navigator.language, {
+  return new Intl.NumberFormat(typeof window !== "undefined" ? window.navigator.language : undefined, {
     style: currency ? "currency" : undefined,
     currency: currencySymbol,
     minimumFractionDigits: decimalPlaces ?? 2,

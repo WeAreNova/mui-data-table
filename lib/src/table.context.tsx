@@ -26,6 +26,7 @@ import {
   getSortedData,
   getTableCellAlignment,
   getUnhiddenColumns,
+  getWindow,
 } from "utils";
 
 const DYNAMIC_STATE = [
@@ -176,7 +177,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
   value: TableContextValue<RowType, AllDataType>;
 }>) => {
   const stored = useStoredValues(defaultSort, rowsPerPageDefault);
-  const isMacOS = useMemo(() => typeof window !== "undefined" && window.navigator.userAgent.indexOf("Mac") !== -1, []);
+  const isMacOS = useMemo(() => getWindow()?.navigator.userAgent.indexOf("Mac") !== -1, []);
   const tableState = useMemo(
     () => ({
       ...value,

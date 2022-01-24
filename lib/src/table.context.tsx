@@ -136,23 +136,21 @@ function getStoredValues(
   defaultRowsPerPage = 25,
 ): StoredValues {
   const win = getWindow();
-  const defaultStored = {
+  const defaults = {
     sort: defaultSort,
     rowsPerPage: defaultRowsPerPage,
     activeFilters: [] as ActiveFilters,
   };
-  if (!win) return defaultStored;
+  if (!win) return defaults;
   const sessionChangeObjStr = sessionStorage.getItem(win.location.pathname);
-  if (!sessionChangeObjStr) return defaultStored;
+  if (!sessionChangeObjStr) return defaults;
 
   const parsed = JSON.parse(sessionChangeObjStr) as OnChangeObject;
-  const filters = parsed.columnFilters || defaultStored.activeFilters;
+  const filters = parsed.columnFilters || defaults.activeFilters;
   return {
     sort:
-      parsed.sortKey && parsed.sortDirection
-        ? { key: parsed.sortKey, direction: parsed.sortDirection }
-        : defaultStored.sort,
-    rowsPerPage: parsed.limit || defaultStored.rowsPerPage,
+      parsed.sortKey && parsed.sortDirection ? { key: parsed.sortKey, direction: parsed.sortDirection } : defaults.sort,
+    rowsPerPage: parsed.limit || defaults.rowsPerPage,
     activeFilters: filters,
   };
 }

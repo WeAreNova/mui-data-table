@@ -60,8 +60,8 @@ function App() {
               tableData={data}
               tableStructure={STRUCTURE}
               onChange={changeServerSide ? handleChange : undefined}
-              rowClick={(data: any) => console.log(data)}
-              // onEdit={(...data) => "test"}
+              rowClick={(data) => console.log(data)}
+              // onEdit={() => "test"}
               exportToCSVOption
               rowsSelectable
               resizeable

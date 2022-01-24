@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useMemo } from "react";
+import React, { PropsWithChildren } from "react";
 import { TableProvider } from "./table.context";
 import { BaseData, TableProps } from "./table.types";
 import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "./_propTypes";
@@ -13,28 +13,8 @@ import _Table from "./_Table.component";
 export const DataTable = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   props: PropsWithChildren<TableProps<RowType, AllDataType>>,
 ) => {
-  const allProps = useMemo(
-    () => ({
-      enableHiddenColumns: false,
-      rowsSelectable: false,
-      defaultSort: { key: null, direction: undefined },
-      rowsPerPageDefault: 25,
-      csvFilename: "DataTableExport.csv",
-      resizeable: false,
-      ...props,
-      rowOptions: props.rowOptions && {
-        ...props.rowOptions,
-        alternateRowColour: props.rowOptions.alternateRowColour || props.rowOptions.alternateRowColor,
-      },
-      editable:
-        props.editable ??
-        props.tableStructure.some((c) => c.editable || Boolean(c.colGroup?.some((cg) => cg.editable))),
-    }),
-    [props],
-  );
-
   return (
-    <TableProvider value={allProps}>
+    <TableProvider value={props}>
       <_Table
         tableProps={props.tableProps}
         rowsPerPageOptions={props.rowsPerPageOptions}

@@ -1,8 +1,7 @@
-import { SelectOptionObject } from "Fields/SimpleSelect.component";
 import PropTypes from "prop-types";
 import { Operator } from "table.types";
 
-export const BOOLEAN_OPTIONS: SelectOptionObject[] = ["true", "false"].map((value) => ({ value, label: value }));
+export const BOOLEAN_OPTIONS = ["true", "false"];
 
 export const DATA_TYPES = ["string", "number", "boolean", "date"] as const;
 

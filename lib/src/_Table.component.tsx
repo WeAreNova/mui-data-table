@@ -95,6 +95,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
 }: PropsWithChildren<_TableProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
   const tableRef = useRef<HTMLTableElement>(null);
+  const resized = useRef(false);
   const {
     allTableData,
     tableData,
@@ -149,7 +150,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [onSelectedRowsChange, selectedRows]);
 
   useEffect(() => {
-    if (!resizeable || !tableRef.current) return;
+    if (resized.current || !tableData?.length || !resizeable || !tableRef.current) return;
     tableRef.current.style.tableLayout = "auto";
     const columns = tableRef.current.getElementsByTagName("th");
     Array.from(columns).forEach((column) => {
@@ -175,6 +176,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
       resizeHandle.addEventListener("mousedown", handleMouseDown);
     });
     tableRef.current.style.tableLayout = "fixed";
+    resized.current = true;
   }, [resizeable, tableData]);
 
   return (

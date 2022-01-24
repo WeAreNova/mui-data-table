@@ -292,5 +292,5 @@ _Table.propTypes = {
   exportToCSVOption: PropTypes.bool,
   disablePagination: PropTypes.bool,
 };
-_Table.whyDidYouRender = true;
+
 export default _Table;

@@ -79,6 +79,8 @@ const useStyles = makeStyles(
   { name: "DTTable" },
 );
 
+let resized = false;
+
 /**
  * This is the internal Table component and should not be used directly.
  * Use the default export from `@wearenova/mui-data-table` instead.
@@ -149,7 +151,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, [onSelectedRowsChange, selectedRows]);
 
   useEffect(() => {
-    if (!resizeable || !tableRef.current) return;
+    if (resized || !tableData?.length || !resizeable || !tableRef.current) return;
     tableRef.current.style.tableLayout = "auto";
     const columns = tableRef.current.getElementsByTagName("th");
     Array.from(columns).forEach((column) => {
@@ -175,6 +177,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
       resizeHandle.addEventListener("mousedown", handleMouseDown);
     });
     tableRef.current.style.tableLayout = "fixed";
+    resized = true;
   }, [resizeable, tableData]);
 
   return (
@@ -290,5 +293,5 @@ _Table.propTypes = {
   exportToCSVOption: PropTypes.bool,
   disablePagination: PropTypes.bool,
 };
-
+_Table.whyDidYouRender = true;
 export default _Table;

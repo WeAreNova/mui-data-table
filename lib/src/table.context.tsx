@@ -200,6 +200,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     value,
     initialise,
   );
+  useEffect(() => dispatch(value), [value]);
 
   const update = useMemo(() => {
     function updateFunction(

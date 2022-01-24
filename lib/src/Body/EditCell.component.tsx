@@ -172,18 +172,11 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   const handleKeyPress = useCallback(
     async (e: KeyboardEvent | React.KeyboardEvent) => {
-      switch (e.key) {
-        case "Escape":
-          return handleCancelEdit();
-        case "Tab":
-        case "Enter":
-          setIsSaving(true);
-          await handleEdit();
-          setIsSaving(false);
-          return;
-        default:
-          return;
-      }
+      if (e.key === "Escape") return handleCancelEdit();
+      if (e.key !== "Enter" && e.key !== "Tab") return;
+      setIsSaving(true);
+      await handleEdit();
+      setIsSaving(false);
     },
     [handleCancelEdit, handleEdit],
   );
@@ -202,12 +195,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     setEditValue(initialValue);
   }, [initialValue]);
 
-  useEffect(
-    () => () => {
-      setIsSaving(false);
-    },
-    [],
-  );
+  useEffect(() => () => setIsSaving(false), []);
 
   const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => {
     setEditValue(e.target.value);
@@ -215,9 +203,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   const handleSelectChange = useCallback(
     (selected: SelectOptionObject | null) => {
       if (!selected) return setEditValue(null);
-      if (editType === "boolean") {
-        return setEditValue(selected.value === "true");
-      }
+      if (editType === "boolean") return setEditValue(selected.value === "true");
       setEditValue(selected.value);
     },
     [editType],

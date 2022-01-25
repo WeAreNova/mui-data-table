@@ -10,11 +10,12 @@ import _Table from "./_Table.component";
  *
  * @component
  */
-export const DataTable = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
-  props: PropsWithChildren<TableProps<RowType, AllDataType>>,
-) => {
+export const DataTable = <RowType extends BaseData, AllDataType extends RowType[] = RowType[]>({
+  onChange,
+  ...props
+}: PropsWithChildren<TableProps<RowType, AllDataType>>) => {
   return (
-    <TableProvider value={props}>
+    <TableProvider value={props} onChange={onChange}>
       <_Table
         tableProps={props.tableProps}
         rowsPerPageOptions={props.rowsPerPageOptions}

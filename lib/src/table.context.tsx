@@ -1,7 +1,7 @@
 import BodyCheckbox from "Body/BodyCheckbox.component";
 import HeaderCheckbox from "Header/HeaderCheckbox.component";
 import fileDownload from "js-file-download";
-import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer } from "react";
+import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type {
   ActiveFilters,
   BaseData,
@@ -40,19 +40,35 @@ const DYNAMIC_STATE = [
   "tableData",
 ] as const;
 
-type DynamicState = Pick<BaseTableState, typeof DYNAMIC_STATE[number]>;
+const DYNAMIC_STATE_MAP = DYNAMIC_STATE.reduce(
+  (prev, key) => ({ ...prev, [key]: true } as const),
+  {} as { [key in typeof DYNAMIC_STATE[number]]: true } & {
+    [key in keyof Omit<BaseTableState, typeof DYNAMIC_STATE[number]>]: false;
+  },
+);
 
-type TableAction =
-  | Partial<DynamicState>
-  | ((currState: DynamicState) => Partial<DynamicState>)
-  | Partial<{ [key in keyof DynamicState]: DynamicState[key] | ((currState: DynamicState[key]) => DynamicState[key]) }>;
+type DynamicState<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
+  BaseTableState<RowType, AllDataType>,
+  typeof DYNAMIC_STATE[number] | "tableStructure"
+>;
 
-type Update = {
-  [key in keyof DynamicState]: (
-    value: DynamicState[key] | ((currState: DynamicState[key]) => DynamicState[key]),
-  ) => void;
+type TableAction<
+  RowType extends BaseData,
+  AllDataType extends RowType[],
+  R extends DynamicState<RowType, AllDataType> = DynamicState<RowType, AllDataType>,
+> =
+  | Partial<R>
+  | ((currState: R) => Partial<R>)
+  | Partial<{ [key in keyof R]: R[key] | ((currState: R[key]) => R[key]) }>;
+
+type Update<
+  RowType extends BaseData,
+  AllDataType extends RowType[],
+  R extends DynamicState<RowType, AllDataType> = DynamicState<RowType, AllDataType>,
+> = {
+  [key in keyof Omit<R, "tableStructure">]: (value: R[key] | ((currState: R[key]) => R[key])) => void;
 } & {
-  (value: TableAction): void;
+  (value: TableAction<RowType, AllDataType>): void;
 };
 
 interface StoredValues {
@@ -94,7 +110,7 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
   count: number;
   onChange?(queryParams?: OnChangeObject): Promise<AllDataType>;
   allTableData: AllDataType;
-  update: Update;
+  update: Update<RowType, AllDataType>;
   structure: Structure<RowType, AllDataType>;
   filterOptions: Array<{ label: string; value: string; type: DataTypes; defaultOperator: OperatorValues }>;
   resizeable: boolean;
@@ -104,7 +120,7 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
 
 type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Reducer<
   BaseTableState<RowType, AllDataType>,
-  TableAction
+  TableAction<RowType, AllDataType>
 >;
 
 const TableContext = React.createContext<TableState<any, any>>({} as TableState);
@@ -118,17 +134,23 @@ const filterUpdates = <T extends { [key: string]: any }>(obj: T) => {
   return res;
 };
 
-const reducer: TableReducer<any, any> = (state, action) =>
+const reducer = <RowType extends BaseData, AllDataType extends RowType[]>(
+  state: BaseTableState<RowType, AllDataType>,
+  action: TableAction<RowType, AllDataType>,
+) =>
   typeof action === "function"
     ? { ...state, ...filterUpdates(action(state)) }
     : {
         ...state,
-        ...Object.entries(action).reduce<Partial<DynamicState>>((prev, [key, value]) => {
+        ...Object.entries(action).reduce((prev, [key, value]) => {
           return {
             ...prev,
-            [key]: typeof value === "function" ? value(state[key as keyof BaseTableState] as never) : value,
+            [key]:
+              typeof value === "function" && DYNAMIC_STATE_MAP[key as keyof typeof DYNAMIC_STATE_MAP]
+                ? value(state[key as keyof BaseTableState] as never)
+                : value,
           };
-        }, {} as Partial<DynamicState>),
+        }, {} as Partial<typeof state>),
       };
 
 function getStoredValues(
@@ -159,6 +181,7 @@ function initialise<RowType extends BaseData, AllDataType extends RowType[]>(
   state: TableProps<RowType, AllDataType>,
 ): BaseTableState<RowType, AllDataType> {
   const stored = getStoredValues(state.defaultSort, state.rowsPerPageDefault);
+
   const initialEditable =
     state.editable ?? state.tableStructure.some((c) => c.editable || Boolean(c.colGroup?.some((cg) => cg.editable)));
   return {
@@ -191,18 +214,34 @@ function initialise<RowType extends BaseData, AllDataType extends RowType[]>(
  */
 export const TableProvider = <RowType extends BaseData, AllDataType extends RowType[]>({
   value,
+  onChange: _onChange,
   ...props
-}: PropsWithChildren<{ value: TableProps<RowType, AllDataType> }>) => {
+}: PropsWithChildren<{
+  value: Omit<TableProps<RowType, AllDataType>, "onChange">;
+  onChange: TableProps<RowType, AllDataType>["onChange"];
+}>) => {
+  const initRendered = useRef(false);
+  const baseOnChange = useRef(_onChange);
   const [state, dispatch] = useReducer<TableReducer<RowType, AllDataType>, TableProps<RowType, AllDataType>>(
     reducer,
     value,
     initialise,
   );
-  useEffect(() => dispatch(value), [value]);
+  useEffect(() => {
+    if (initRendered.current) dispatch(value);
+  }, [value]);
+  useEffect(() => {
+    if (initRendered.current) baseOnChange.current = _onChange;
+  }, [_onChange]);
+  useEffect(() => {
+    initRendered.current = true;
+  }, []);
 
   const update = useMemo(() => {
     function updateFunction(
-      partialState: Partial<DynamicState> | ((currState: DynamicState) => Partial<DynamicState>),
+      partialState:
+        | Partial<DynamicState<RowType, AllDataType>>
+        | ((currState: DynamicState<RowType, AllDataType>) => Partial<DynamicState<RowType, AllDataType>>),
     ) {
       dispatch(typeof partialState === "function" ? partialState : filterUpdates(partialState));
     }
@@ -211,7 +250,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         arg: BaseTableState[typeof curr] | ((currState: BaseTableState[typeof curr]) => BaseTableState[typeof curr]),
       ) => dispatch({ [curr]: arg });
     });
-    return updateFunction as Update;
+    return updateFunction as Update<RowType, AllDataType>;
   }, []);
 
   const onChangeObject = useMemo<OnChangeObject>(
@@ -231,34 +270,34 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 
   const onChange = useCallback(
     async (queryParams = {}, isExport = false) => {
-      if (!value.onChange) return;
+      if (!baseOnChange.current) return;
       if (!isExport) update.loading(true);
-      const data = await value.onChange({ ...queryParams }, isExport);
+      const data = await baseOnChange.current({ ...queryParams }, isExport);
       if (!isExport) update.loading(false);
       return data;
     },
-    [update, value],
+    [update],
   );
-  const debouncedOnChange = useMemo(() => value.onChange && debounce(onChange), [onChange, value.onChange]);
+  const debouncedOnChange = useMemo(() => baseOnChange.current && debounce(onChange), [onChange]);
 
   useEffect(() => {
     debouncedOnChange?.(onChangeObject);
   }, [debouncedOnChange, onChangeObject]);
 
   const _filtered = useMemo(
-    () => (value.onChange ? state.tableData : getFilteredData(state.tableData, state.activeFilters)),
-    [state.activeFilters, state.tableData, value.onChange],
+    () => (baseOnChange.current ? state.tableData : getFilteredData(state.tableData, state.activeFilters)),
+    [state.activeFilters, state.tableData],
   );
   const _sorted = useMemo(
-    () => (value.onChange ? _filtered : getSortedData(_filtered, state.sort, state.tableStructure)),
-    [_filtered, state.sort, state.tableStructure, value.onChange],
+    () => (baseOnChange.current ? _filtered : getSortedData(_filtered, state.sort, state.tableStructure)),
+    [_filtered, state.sort, state.tableStructure],
   );
   const tableData = useMemo(
     () =>
-      value.onChange || state.disablePagination
+      baseOnChange.current || state.disablePagination
         ? _sorted
         : getPagedData(_sorted, { limit: state.rowsPerPage, page: state.page }),
-    [_sorted, state.disablePagination, state.page, state.rowsPerPage, value.onChange],
+    [_sorted, state.disablePagination, state.page, state.rowsPerPage],
   );
   const tableCount = useMemo(() => {
     const numberCount = value.count && Number(value.count);
@@ -267,14 +306,14 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
 
   const exportToCSV = useCallback(async () => {
     let data = state.tableData;
-    if (value.onChange) {
+    if (baseOnChange.current) {
       data = await onChange({ ...onChangeObject, limit: undefined, skip: 0 }, true);
       await onChange(onChangeObject);
     }
     const csvString = await exportTableToCSV(data, state.tableStructure);
     const filename = state.csvFilename.endsWith(".csv") ? state.csvFilename : `${state.csvFilename}.csv`;
     fileDownload(csvString, filename, "text/csv;charset=utf-16;");
-  }, [onChange, onChangeObject, state.csvFilename, state.tableData, state.tableStructure, value.onChange]);
+  }, [onChange, onChangeObject, state.csvFilename, state.tableData, state.tableStructure]);
 
   const numRowsSelected = useMemo(() => Object.values(state.selectedRows).length, [state.selectedRows]);
 
@@ -354,7 +393,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     [state.tableStructure, value.tableData],
   );
 
-  const providerValue = useMemo<TableState>(
+  const providerValue = useMemo(
     () =>
       ({
         ...state,
@@ -367,7 +406,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         update,
         filterOptions,
         numRowsSelected,
-      } as TableState),
+      } as TableState<RowType, AllDataType>),
     [debouncedOnChange, exportToCSV, filterOptions, numRowsSelected, state, structure, tableCount, tableData, update],
   );
 

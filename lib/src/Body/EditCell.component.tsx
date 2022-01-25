@@ -159,7 +159,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
           const newData = [...currTableData];
           const updatedValue = set({ ...newData[index] }, editPath, newValue ?? editValue);
           newData[index] = { ...updatedValue };
-          return newData;
+          return newData as AllDataType;
         });
       }
       cancelEdit();

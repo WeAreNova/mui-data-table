@@ -298,7 +298,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                     onClick={handleFilterClick}
                     onMouseUp={stopPropagation}
                     onTouchEnd={stopPropagation}
-                    data-testid="tableFilterButton"
+                    data-testid="DT-FilterButton"
                     color={filterActive ? "primary" : "default"}
                     size="small"
                     className={clsx({ [classes.filterButton]: !filterActive })}
@@ -310,7 +310,12 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
               <div />
             </div>
             {!colGroupHeader && resizeable && (
-              <Divider id="DataTable-ResizeHandle" className={classes.resizeHandle} orientation="vertical" />
+              <Divider
+                id="DT-ResizeHandle"
+                className={classes.resizeHandle}
+                orientation="vertical"
+                data-testid="DT-ResizeHandle"
+              />
             )}
           </div>
         </TableCell>

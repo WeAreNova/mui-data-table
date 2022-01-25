@@ -11,7 +11,7 @@ let MUIPicker: React.FC<MUIPickerProps> | undefined;
 
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const PickerComponent = require("@material-ui/pickers").DatePicker;
+  const PickerComponent = require("@material-ui/pickers").KeyboardDatePicker;
   MUIPicker = function MUIDatePicker({ defaultValue, ...props }: MUIPickerProps) {
     return <PickerComponent {...props} defaultValue={undefined} inputVariant="standard" />;
   };

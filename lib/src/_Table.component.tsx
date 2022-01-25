@@ -155,7 +155,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     const columns = tableRef.current.getElementsByTagName("th");
     Array.from(columns).forEach((column) => {
       column.style.width = column.clientWidth + "px";
-      const resizeHandle = column.querySelector<HTMLHRElement>("hr#DataTable-ResizeHandle");
+      const resizeHandle = column.querySelector<HTMLHRElement>("hr#DT-ResizeHandle");
       if (!resizeHandle) return;
       let initialX = 0;
       let width = 0;

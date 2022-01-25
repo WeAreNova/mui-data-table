@@ -121,7 +121,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
         <div className={classes.footer}>
           <Button
             onClick={handleAddBlankFilter}
-            data-testid="addFilter"
+            data-testid="DT-AddFilterButton"
             startIcon={<Add />}
             size="small"
             variant="text"

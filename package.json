@@ -76,6 +76,7 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-typescript": "^8.3.0",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^14.0.0-beta",
     "@types/jest": "^27.0.3",
     "@types/node": "^16.11.6",
     "@types/webpack-env": "^1.16.3",

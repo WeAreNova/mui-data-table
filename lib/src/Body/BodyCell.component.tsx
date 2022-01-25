@@ -188,7 +188,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
       className={bodyCellClasses}
       tabIndex={0}
       ref={bodyCellRef}
-      data-testid="DataTable-BodyCell"
+      data-testid="DT-BodyCell"
     >
       <ErrorBoundary>
         <div onClick={handleEditClick} onDoubleClick={handleEdit}>

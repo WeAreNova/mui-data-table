@@ -115,7 +115,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   return (
     <TableRow
       key={rowId}
-      data-testid="tableRow"
+      data-testid="DT-TableRow"
       onMouseOver={onHover}
       onMouseOut={onUnHover}
       className={tableRowClasses}

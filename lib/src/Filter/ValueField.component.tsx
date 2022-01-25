@@ -52,7 +52,13 @@ const ValueField = <
 
   const specifiable = useMemo(() => !filter.operator?.includes("exists"), [filter.operator]);
   const commonProps = useMemo(
-    () => ({ ...COMMON_PROPS, defaultValue: filter.value, error: hasError, autoFocus: true }),
+    () => ({
+      ...COMMON_PROPS,
+      defaultValue: filter.value,
+      error: hasError,
+      autoFocus: true,
+      inputProps: { "data-testid": "DT-FilterValueInput" },
+    }),
     [filter.value, hasError],
   );
 

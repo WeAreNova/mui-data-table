@@ -146,9 +146,14 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   }, []);
 
   return (
-    <form data-testid={name} className={classes.root}>
+    <form name={name} data-testid="DT-FilterRow" className={classes.root}>
       <div>
-        <IconButton onClick={handleRemove} disabled={last && !value.path} size="small">
+        <IconButton
+          onClick={handleRemove}
+          disabled={last && !value.path}
+          size="small"
+          data-testid="DT-RemoveFilterButton"
+        >
           <Close />
         </IconButton>
         <div></div>
@@ -164,6 +169,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             error={errors.path}
             placeholder="Column"
             variant="standard"
+            data-testid="DT-FilterColumnSelect"
           />
         </div>
         <div className={clsx([classes.fieldContainer, classes.operatorField])}>
@@ -176,6 +182,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
             error={errors.operator}
             placeholder="Operator"
             variant="standard"
+            data-testid="DT-FilterOperatorSelect"
           />
         </div>
         {!filter.operator?.includes("exists") && (

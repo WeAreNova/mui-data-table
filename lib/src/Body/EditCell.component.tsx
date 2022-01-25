@@ -197,9 +197,14 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
 
   useEffect(() => () => setIsSaving(false), []);
 
-  const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>((e) => {
-    setEditValue(e.target.value);
-  }, []);
+  const handleOtherChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (e) => {
+      let parsed: string | number = e.target.value;
+      if (editType === "number") parsed = Number(parsed);
+      setEditValue(parsed);
+    },
+    [editType],
+  );
   const handleSelectChange = useCallback(
     (selected: SelectOptionObject | null) => {
       if (!selected) return setEditValue(null);

@@ -7,14 +7,14 @@ import { InitialFilterValues } from "Filter";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useMemo, useRef } from "react";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort } from "table.types";
+import type { ActionButton, BaseData, FullColDef, FullColGroupDef, Sort } from "table.types";
 import TableCell from "TableCell.component";
 import { dispatchTableEvent, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
 import { ColumnDefinitionPropType } from "_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;
-  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
+  structure: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>;
   onFilterClick(target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
@@ -240,7 +240,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
-          pinned={pinnedColumn === id}
+          pinned={pinnedColumn === id || pinnedColumn === structure.parentKey}
           colSpan={colSpan}
           rowSpan={rowSpan}
           align={structure.align}

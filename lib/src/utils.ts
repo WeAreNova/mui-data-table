@@ -5,13 +5,13 @@ import {
   ActiveFilter,
   ActiveFilters,
   BaseData,
-  ColGroupDefinition,
-  ColumnDefinition,
   ColumnDefinitionTitle,
   DataTableErrorType,
   DataTypes,
   EditDataTypes,
   FilterColumn,
+  FullColDef,
+  FullColGroupDef,
   NullableDataTypes,
   NumericalObject,
   OperatorValues,
@@ -254,12 +254,12 @@ export function getFilteredData<RowType extends BaseData>(data: RowType[], filte
 export function getSortedData<RowType extends BaseData, AllDataType extends RowType[]>(
   data: RowType[],
   sort: Sort,
-  tableStructure?: ColumnDefinition<RowType, AllDataType>[],
+  tableStructure?: FullColDef<RowType, AllDataType>[],
 ): RowType[] {
   if (!sort.key || !sort.direction) return data;
 
   const sortColumn = tableStructure
-    ?.flatMap<ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>>((c) => [
+    ?.flatMap<FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>>((c) => [
       c,
       ...(c.colGroup ?? []),
     ])
@@ -304,10 +304,7 @@ export function getDataType<
   RowType extends BaseData,
   AllDataType extends RowType[],
   T extends { type?: NullableDataTypes } | { type?: EditDataTypes } = { type?: NullableDataTypes },
->(
-  value: PathValueType<RowType> | T,
-  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
-) {
+>(value: PathValueType<RowType> | T, struct: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>) {
   const dataType = (typeof value === "object" && value.type) || struct.dataType;
   return (dataType ?? "string") as NonNullable<T["type"]>;
 }
@@ -347,7 +344,7 @@ export function getDefaultOperator<RowType extends BaseData>(
  * @returns the path if available
  */
 export function getDefaultPath<RowType extends BaseData, AllDataType extends RowType[]>(
-  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+  struct: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>,
 ): PathType<RowType> | undefined {
   if (struct.dataIndex) return struct.dataIndex;
   if (typeof struct.numerical === "string") return struct.numerical;
@@ -365,7 +362,7 @@ export function getDefaultPath<RowType extends BaseData, AllDataType extends Row
  */
 export function getPath<RowType extends BaseData, AllDataType extends RowType[] = RowType[]>(
   value: PathValueType<RowType> | { path?: PathValueType<RowType> },
-  struct: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+  struct: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>,
 ): PathType<RowType> {
   const path = typeof value === "object" ? value.path : value;
   if (path === true || path === undefined) return getDefaultPath(struct)!;
@@ -450,7 +447,7 @@ export function getColumnTitle<T extends BaseData[]>(title: ColumnDefinitionTitl
  * @returns the rendered value
  */
 export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
-  struct: ColumnDefinition<T, AllDataType> | ColGroupDefinition<T, AllDataType>,
+  struct: FullColDef<T, AllDataType> | FullColGroupDef<T, AllDataType>,
   data: T,
   rowId: string,
   dataArrayIndex: number,
@@ -491,7 +488,7 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
  * @returns the cell alignment
  */
 export function getTableCellAlignment<RowType extends BaseData, AllDataType extends RowType[]>(
-  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>,
+  structure: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>,
   data?: RowType,
   index = 0,
 ): TableCellAlign {
@@ -510,9 +507,9 @@ export function getTableCellAlignment<RowType extends BaseData, AllDataType exte
  */
 export async function exportTableToCSV<RowType extends BaseData, AllDataType extends RowType[]>(
   tableData: AllDataType,
-  tableStructure: ColumnDefinition<RowType, AllDataType>[] = [],
+  tableStructure: FullColDef<RowType, AllDataType>[] = [],
 ) {
-  const getTitle = (c: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>) => {
+  const getTitle = (c: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>) => {
     if (typeof c.title === "function") return c.title(tableData);
     return c.title;
   };

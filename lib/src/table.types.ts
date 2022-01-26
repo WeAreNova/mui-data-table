@@ -125,14 +125,6 @@ interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends Row
    * e.g. an Id field
    */
   hidden?: boolean;
-  /**
-   * @private internal use only
-   */
-  isColGroup?: true;
-  /**
-   * @private internal use only
-   */
-  hasColGroupFooter?: boolean;
 }
 
 type WithDataIndex<RowType extends BaseData, AllDataType extends RowType[]> = BaseColumnDefinition<
@@ -157,10 +149,46 @@ export type ColumnDefinition<RowType extends BaseData, AllDataType extends RowTy
   AllDataType
 >;
 
+export type FullColDef<RowType extends BaseData, AllDataType extends RowType[]> = ColumnDefinition<
+  RowType,
+  AllDataType
+> & {
+  /**
+   * @private internal use only
+   */
+  parentKey?: never;
+  /**
+   * @private internal use only
+   */
+  isColGroup?: false;
+  /**
+   * @private internal use only
+   */
+  hasColGroupFooter?: never;
+};
+
 export type ColGroupDefinition<RowType extends BaseData, AllDataType extends RowType[] = RowType[]> = Omit<
-  WithDataIndex<RowType, AllDataType> | WithExactlyOne<RowType, AllDataType, "numerical" | "render">,
+  WithDataIndex<RowType, AllDataType> | WithExactlyOne<RowType, AllDataType>,
   "colGroup"
 > & { colGroup?: never };
+
+export type FullColGroupDef<RowType extends BaseData, AllDataType extends RowType[]> = ColGroupDefinition<
+  RowType,
+  AllDataType
+> & {
+  /**
+   * @private internal use only
+   */
+  parentKey?: string;
+  /**
+   * @private internal use only
+   */
+  isColGroup?: true;
+  /**
+   * @private internal use only
+   */
+  hasColGroupFooter?: boolean;
+};
 
 export interface NumericalObject<RowType extends BaseData = BaseData>
   extends Omit<Intl.NumberFormatOptions, "currency"> {

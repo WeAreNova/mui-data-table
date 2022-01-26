@@ -2,9 +2,10 @@ import { createStyles, makeStyles, TableCell as MUITableCell, TableCellProps } f
 import clsx from "clsx";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 interface Props extends TableCellProps {
+  className?: string;
   hidden?: boolean;
   pinned?: boolean;
   maxWidth?: "lg" | "sm";
@@ -78,10 +79,11 @@ const useStyles = makeStyles(
  *
  * @component
  */
-const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
+const TableCell = React.forwardRef<HTMLTableCellElement, Props>(function _TableCell(
   { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
-  ref,
+  forwardedRef,
 ) {
+  const cellRef = useRef<HTMLTableCellElement>();
   const { resizeable } = useTableContext();
   const classes = useStyles(props);
   const cellClasses = useMemo(
@@ -98,7 +100,39 @@ const TableCell: React.FC<Props> = React.forwardRef(function _TableCell(
       ]),
     [className, classes, hidden, maxWidth, pinned, resizeable],
   );
-  return <MUITableCell align="center" {...props} ref={ref} className={cellClasses} />;
+
+  const handleRef = useCallback(
+    (r: HTMLTableCellElement) => {
+      cellRef.current = r;
+      if (!forwardedRef) return;
+      if (typeof forwardedRef === "function") return forwardedRef(r);
+      forwardedRef.current = r;
+    },
+    [forwardedRef],
+  );
+
+  const getPinnedOffset = useCallback(
+    (cell: HTMLTableCellElement, offset: "left" | "right") => {
+      const getNextCell = (c: HTMLTableCellElement) => {
+        return (offset === "right" ? c.nextElementSibling : c.previousElementSibling) as HTMLTableCellElement | null;
+      };
+      let totalOffset = 0;
+      for (let nextCell = getNextCell(cell); nextCell; nextCell = getNextCell(nextCell)) {
+        if (nextCell.classList.contains(classes.pinned)) totalOffset += nextCell.offsetWidth;
+      }
+      return `${totalOffset}px`;
+    },
+    [classes.pinned],
+  );
+
+  useEffect(() => {
+    if (!pinned || typeof cellRef === "function" || !cellRef?.current) return;
+    const cell = cellRef.current;
+    cell.style.right = getPinnedOffset(cell, "right");
+    cell.style.left = getPinnedOffset(cell, "left");
+  }, [getPinnedOffset, pinned]);
+
+  return <MUITableCell align="center" {...props} ref={handleRef} className={cellClasses} />;
 });
 TableCell.propTypes = {
   hidden: PropTypes.bool,

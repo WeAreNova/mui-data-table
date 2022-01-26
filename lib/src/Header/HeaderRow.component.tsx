@@ -72,21 +72,17 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>(
       </TableRow>
       {hasColGroups && (
         <TableRow>
-          {structure.notHidden.map(({ colGroup, ...containerStructure }) =>
-            colGroup && !hiddenColumns[containerStructure.key]
-              ? colGroup
-                  .filter((cg) => !cg.hidden)
-                  .map((colGroupStructure) => (
-                    <HeaderCell
-                      key={colGroupStructure.key}
-                      id={colGroupStructure.key}
-                      structure={colGroupStructure}
-                      onFilterClick={handleFilterClick}
-                      style={topHeaderOffsetStyle()}
-                      colGroupHeader
-                    />
-                  ))
-              : null,
+          {structure.flattened.notHidden.map((struct) =>
+            struct.isColGroup && !hiddenColumns[struct.key] ? (
+              <HeaderCell
+                key={struct.key}
+                id={struct.key}
+                structure={struct}
+                onFilterClick={handleFilterClick}
+                style={topHeaderOffsetStyle()}
+                colGroupHeader
+              />
+            ) : null,
           )}
         </TableRow>
       )}

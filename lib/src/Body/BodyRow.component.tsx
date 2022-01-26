@@ -78,7 +78,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
       e.currentTarget.classList.add(classes.hover);
       if (!e.currentTarget.parentNode) return;
       const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
+      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
         if (!row.parentNode) continue;
         const rowIndex = Array.from(row.parentNode.children).indexOf(row);
         const rowsBetween = hoverRowIndex - rowIndex;
@@ -95,7 +95,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
     (e) => {
       if (!rowClick) return;
       e.currentTarget.classList.remove(classes.hover);
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
+      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
         row.querySelectorAll("td[rowspan]").forEach((cell) => cell.classList.remove(classes.hover));
       }
     },

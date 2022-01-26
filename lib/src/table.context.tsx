@@ -6,8 +6,9 @@ import type {
   ActiveFilters,
   BaseData,
   ColGroupDefinition,
-  ColumnDefinition,
   DataTypes,
+  FullColDef,
+  FullColGroupDef,
   OnChangeObject,
   OperatorValues,
   Sort,
@@ -94,15 +95,12 @@ interface BaseTableState<RowType extends BaseData = BaseData, AllDataType extend
 }
 
 type FlattenedStructure<RowType extends BaseData, AllDataType extends RowType[]> = Array<
-  ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>
+  FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>
 > & { notHidden: Array<FlattenedStructure<RowType, AllDataType>[number] & { hidden: false | undefined }> };
 
-export type Structure<RowType extends BaseData, AllDataType extends RowType[]> = ColumnDefinition<
-  RowType,
-  AllDataType
->[] & {
+export type Structure<RowType extends BaseData, AllDataType extends RowType[]> = FullColDef<RowType, AllDataType>[] & {
   flattened: FlattenedStructure<RowType, AllDataType>;
-  notHidden: Array<ColumnDefinition<RowType, AllDataType> & { hidden: false | undefined }>;
+  notHidden: Array<FullColDef<RowType, AllDataType> & { hidden: false | undefined }>;
 };
 
 export interface TableState<RowType extends BaseData = BaseData, AllDataType extends RowType[] = RowType[]>
@@ -360,6 +358,7 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         ...colGroup,
         isColGroup: true,
         hasColGroupFooter: Boolean(struct.footer),
+        parentKey: struct.key,
       }));
     }) as FlattenedStructure<RowType, AllDataType>;
     fullStructure.flattened.notHidden = getUnhiddenColumns(fullStructure.flattened);

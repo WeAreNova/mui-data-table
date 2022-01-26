@@ -6,10 +6,10 @@ import useTableContext from "hooks/useTableContext.hook";
 import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import {
   BaseData,
-  ColGroupDefinition,
-  ColumnDefinition,
   DataTableErrorType,
   EditDataTypes,
+  FullColDef,
+  FullColGroupDef,
   PathType,
   SelectOption,
 } from "table.types";
@@ -46,7 +46,7 @@ function getInitialValue<RowType extends BaseData, AllDataType extends RowType[]
   path,
   type,
 }: {
-  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
+  structure: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>;
   data: RowType;
   path: PathType<RowType>;
   type: EditDataTypes;

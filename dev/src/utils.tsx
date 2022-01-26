@@ -215,6 +215,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     key: "balances",
     groupBy: "email",
     title: "Cash Balance",
+    pinnable: true,
     colGroup: [
       {
         key: "balances.total",

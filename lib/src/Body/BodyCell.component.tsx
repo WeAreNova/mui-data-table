@@ -176,6 +176,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>(props
     return () => ref.removeEventListener("keydown", onKeyPress);
   }, [editMode, handleEdit]);
 
+  if (!rowSpan) return null;
   return (
     <TableCell
       key={structure.key}

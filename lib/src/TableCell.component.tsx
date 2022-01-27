@@ -56,10 +56,9 @@ const useStyles = makeStyles(
           whiteSpace: "nowrap",
         },
       },
-      pinned: {
+      pinned: {},
+      pinnedStyling: {
         position: "sticky",
-        left: 0,
-        right: 0,
         background: theme.palette.background.default,
         borderLeft: `1px solid ${theme.palette.divider}`,
         borderRight: `1px solid ${theme.palette.divider}`,
@@ -92,13 +91,24 @@ const TableCell = React.forwardRef<HTMLTableCellElement, Props>(function _TableC
         className,
         {
           [classes.hidden]: hidden,
-          [classes.pinned]: pinned,
           [classes.maxWidthLg]: maxWidth === "lg",
           [classes.maxWidthSm]: maxWidth === "sm",
           [classes.resizeable]: Boolean(resizeable),
+          [classes.pinned]: pinned,
         },
       ]),
-    [className, classes, hidden, maxWidth, pinned, resizeable],
+    [
+      className,
+      classes.hidden,
+      classes.maxWidthLg,
+      classes.maxWidthSm,
+      classes.pinned,
+      classes.resizeable,
+      hidden,
+      maxWidth,
+      pinned,
+      resizeable,
+    ],
   );
 
   const handleRef = useCallback(
@@ -130,7 +140,19 @@ const TableCell = React.forwardRef<HTMLTableCellElement, Props>(function _TableC
     const cell = cellRef.current;
     cell.style.right = getPinnedOffset(cell, "right");
     cell.style.left = getPinnedOffset(cell, "left");
-  }, [getPinnedOffset, pinned]);
+    cell.classList.add(classes.pinnedStyling);
+  }, [classes.pinned, classes.pinnedStyling, getPinnedOffset, pinned]);
+
+  useEffect(
+    () => () => {
+      if (!cellRef.current) return;
+      const cell = cellRef.current;
+      cell.classList.remove(classes.pinnedStyling);
+      cell.style.right = "";
+      cell.style.left = "";
+    },
+    [classes.pinnedStyling, pinned],
+  );
 
   return <MUITableCell align="center" {...props} ref={handleRef} className={cellClasses} />;
 });

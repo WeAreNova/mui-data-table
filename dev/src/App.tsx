@@ -20,7 +20,7 @@ setDefaultCurrency("USD");
 
 function App() {
   const [darkMode, setDarkMode] = useState(window.localStorage.getItem("darkMode") === "true");
-  const [changeServerSide, setChangeServerSide] = useState(true);
+  const [changeServerSide, setChangeServerSide] = useState(false);
   const [data, setData] = useState<User[]>([]);
 
   const toggleDarkMode = useCallback(() => setDarkMode((currDarkMode) => !currDarkMode), []);

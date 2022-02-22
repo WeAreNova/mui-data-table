@@ -35,7 +35,7 @@ const DYNAMIC_STATE = [
   "page",
   "activeFilters",
   "hiddenColumns",
-  "pinnedColumn",
+  "pinnedColumns",
   "selectedRows",
   "loading",
   "tableData",
@@ -85,7 +85,7 @@ interface BaseTableState<RowType extends BaseData = BaseData, AllDataType extend
   page: number;
   activeFilters: ActiveFilters<RowType>;
   hiddenColumns: { [column: string]: boolean };
-  pinnedColumn: string;
+  pinnedColumns: { [column: string]: boolean };
   selectedRows: { [rowId: string]: RowType };
   loading: boolean;
   exportToCSV?(): Promise<void>;
@@ -199,7 +199,7 @@ function initialise<RowType extends BaseData, AllDataType extends RowType[]>(
     loading: false,
     page: 0,
     hiddenColumns: {},
-    pinnedColumn: "",
+    pinnedColumns: {},
     selectedRows: {},
     isMacOS: getWindow()?.navigator.userAgent.indexOf("Mac") !== -1,
   };

@@ -209,7 +209,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
       update.pinnedColumns((currPinnedColumns) => ({
         ...currPinnedColumns,
         [id]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id],
-        ...(structure.colGroup?.reduce((acc, col) => ({ ...acc, [col.key]: id }), {}) || {}),
+        ...(structure.colGroup?.reduce((acc, col) => ({ ...acc, [col.key]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id] }), {}) || {}),
       })),
     [id, structure.colGroup, update],
   );

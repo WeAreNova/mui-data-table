@@ -214,8 +214,6 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     [id, structure.colGroup, update],
   );
 
-  console.log("Pinned:::", pinnedColumns);
-
   const headerClasses = useMemo(
     () =>
       clsx(classes.root, className, {

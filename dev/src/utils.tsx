@@ -293,7 +293,7 @@ const data = (() => {
         available: totalBalance - investedBalance,
       },
     };
-    return [value, { ...value, id: faker.datatype.uuid() }, { ...value, id: faker.datatype.uuid() }];
+    return [value];
   });
 })();
 

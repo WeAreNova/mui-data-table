@@ -145,12 +145,13 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   ...props
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
-  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update, resizeable } =
+  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumns, allTableData, update, resizeable } =
     useTableContext<RowType, AllDataType>();
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);
   const isHidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
+  const isPinned = useMemo(() => Boolean(pinnedColumns[id]), [pinnedColumns, id]);
   const colSpan = useMemo(
     () => (structure.colGroup && !hiddenColumns[id] ? structure.colGroup.length : 1),
     [hiddenColumns, id, structure.colGroup],
@@ -203,17 +204,22 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     });
   }, [id, structure.dataIndex, structure.sorter, update]);
 
-  const handlePin = useCallback(
-    () => update.pinnedColumn((currPinnedColumn) => (currPinnedColumn === id ? "" : id)),
-    [id, update],
+  const handlePinnedColumnsChange = useCallback(
+    (pinned?: React.MouseEvent | boolean) =>
+      update.pinnedColumns((currPinnedColumns) => ({
+        ...currPinnedColumns,
+        [id]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id],
+        ...(structure.colGroup?.reduce((acc, col) => ({ ...acc, [col.key]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id] }), {}) || {}),
+      })),
+    [id, structure.colGroup, update],
   );
 
   const headerClasses = useMemo(
     () =>
       clsx(classes.root, className, {
-        [classes.stickyColGroup]: colGroupHeader && pinnedColumn !== id,
+        [classes.stickyColGroup]: colGroupHeader && isPinned,
       }),
-    [className, classes.stickyColGroup, classes.root, colGroupHeader, id, pinnedColumn],
+    [className, classes.stickyColGroup, classes.root, colGroupHeader, isPinned],
   );
 
   const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -240,7 +246,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
-          pinned={pinnedColumn === id || pinnedColumn === structure.parentKey}
+          pinned={Boolean(isPinned)}
           colSpan={colSpan}
           rowSpan={rowSpan}
           align={structure.align}
@@ -284,7 +290,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   </IconButton>
                 )}
                 {structure.pinnable && (
-                  <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
+                  <IconButton onClick={handlePinnedColumnsChange} color={isPinned ? "primary" : "default"} size="small">
                     <AcUnit />
                   </IconButton>
                 )}

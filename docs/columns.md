@@ -405,7 +405,7 @@ interface ColumnDefinition<RowType extends BaseData, AllDataType extends RowType
 
 #### Pinnable - Optional
 
-The `pinnable` field is used to specify whether the column is able to be "pinned" and appear on top of other columns as you scroll. This displays a header action button which freezes the column.
+The `pinnable` field is used to specify whether the column is able to be "pinned" and appear on top of other columns as you scroll. This displays a header action button which freezes the column. Multiple columns can be "pinned" at any one time.
 
 !> This uses the CSS `sticky` property which may not be fully supported in all browsers. See `caniuse` [here](https://caniuse.com/css-sticky) to check if it is supported for your target browser(s).
 

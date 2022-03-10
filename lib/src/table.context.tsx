@@ -43,9 +43,10 @@ const DYNAMIC_STATE = [
 
 const DYNAMIC_STATE_MAP = DYNAMIC_STATE.reduce(
   (prev, key) => ({ ...prev, [key]: true } as const),
-  {} as { [key in typeof DYNAMIC_STATE[number]]: true } & {
-    [key in keyof Omit<BaseTableState, typeof DYNAMIC_STATE[number]>]: false;
-  },
+  {} as { [key in typeof DYNAMIC_STATE[number]]: true } &
+    {
+      [key in keyof Omit<BaseTableState, typeof DYNAMIC_STATE[number]>]: false;
+    },
 );
 
 type DynamicState<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -370,11 +371,17 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       state.tableStructure
         .filter((c) => c.filterColumn || c.colGroup?.some((cg) => cg.filterColumn))
         .flatMap((c) => {
-          const title = getColumnTitle(typeof c.filterColumn === "function" && c.filterColumn.title || c.title, value.tableData);
+          const title = getColumnTitle(
+            (typeof c.filterColumn === "object" && c.filterColumn.title) || c.title,
+            value.tableData,
+          );
           return [
             { ...c, title },
             ...(c.colGroup?.map((cg) => {
-              const nestedTitle = getColumnTitle(typeof cg.filterColumn === "function" && cg.filterColumn.title || cg.title, value.tableData);
+              const nestedTitle = getColumnTitle(
+                (typeof cg.filterColumn === "object" && cg.filterColumn.title) || cg.title,
+                value.tableData,
+              );
               return { ...cg, title: `${title} - ${nestedTitle}` };
             }) || []),
           ];

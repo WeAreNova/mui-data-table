@@ -1,6 +1,6 @@
 {
   "name": "dev",
-  "version": "1.7.13",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
     "start": "react-scripts start",

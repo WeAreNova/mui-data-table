@@ -181,6 +181,15 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     [handleCancelEdit, handleEdit],
   );
 
+  const saveEdit = useCallback(
+    async () => {
+      setIsSaving(true);
+      await handleEdit();
+      setIsSaving(false);
+    },
+    [handleEdit]
+  );
+
   useEffect(() => {
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
@@ -190,6 +199,11 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     document.addEventListener("cancelEdit", handleCancelEdit);
     return () => document.removeEventListener("cancelEdit", handleCancelEdit);
   }, [handleCancelEdit]);
+
+  useEffect(() => {
+    document.addEventListener("saveEdit", saveEdit);
+    return () => document.removeEventListener("saveEdit", saveEdit);
+  }, [saveEdit]);
 
   useEffect(() => {
     setEditValue(initialValue);
@@ -253,7 +267,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
   ]);
 
   return (
-    <ClickAwayListener onClickAway={handleCancelEdit}>
+    <ClickAwayListener onClickAway={saveEdit}>
       <div className={classes.root}>{field}</div>
     </ClickAwayListener>
   );

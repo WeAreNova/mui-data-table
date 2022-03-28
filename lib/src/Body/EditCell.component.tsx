@@ -219,6 +219,7 @@ const EditCell = <RowType extends BaseData, AllDataType extends RowType[]>({
     },
     [editType],
   );
+  
   const handleSelectChange = useCallback(
     (selected: SelectOptionObject | null) => {
       if (!selected) return setEditValue(null);

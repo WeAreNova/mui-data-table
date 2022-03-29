@@ -46,12 +46,10 @@ export function getDocument() {
  *
  * @param event the custom event to dispatch.
  */
-export function dispatchTableEvent(...events?) {
+export function dispatchTableEvent(...events: Array<typeof TABLE_EVENTS[number]>) {
   const doc = getDocument();
   if (!doc) return;
   events?.forEach(e => doc.dispatchEvent(new CustomEvent(e)));
-  // if (event && event !== "*") return doc.dispatchEvent(new CustomEvent(event));
-  // TABLE_EVENTS.forEach((e) => doc.dispatchEvent(new CustomEvent(e)));
 }
 
 /**

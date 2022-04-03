@@ -45,7 +45,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
     (e) => {
       if (!rowClick || !e.currentTarget.parentNode) return;
       const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
+      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
         if (!row.parentNode) continue;
         const rowIndex = Array.from(row.parentNode.children).indexOf(row);
         const rowsBetween = hoverRowIndex - rowIndex;
@@ -64,7 +64,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   const onUnHover = useCallback<React.MouseEventHandler<HTMLTableRowElement>>(
     (e) => {
       if (!rowClick) return;
-      for (let row = e.currentTarget.previousSibling as Element; row; row = row.previousSibling as Element) {
+      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
         row.querySelectorAll<HTMLTableCellElement>("td[rowspan]").forEach((cell) => {
           cell.style.cursor = "";
           cell.style.backgroundColor = "";

@@ -51,8 +51,6 @@ const DTTableCell = styled(MUITableCell, {
   },
   pinned && {
     position: "sticky",
-    left: 0,
-    right: 0,
     background: theme.palette.background.default,
     borderLeft: `1px solid ${theme.palette.divider}`,
     borderRight: `1px solid ${theme.palette.divider}`,
@@ -108,6 +106,16 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
     cell.style.right = getPinnedOffset(cell, "right");
     cell.style.left = getPinnedOffset(cell, "left");
   }, [getPinnedOffset, props.pinned]);
+
+  useEffect(
+    () => () => {
+      if (!cellRef.current) return;
+      const cell = cellRef.current;
+      cell.style.right = "";
+      cell.style.left = "";
+    },
+    [props.pinned],
+  );
 
   return (
     <DTTableCell

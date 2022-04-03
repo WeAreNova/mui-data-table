@@ -1,7 +1,7 @@
-import { alpha, styled, TableRow, useTheme } from "@mui/material";
+import { alpha, darken, lighten, styled, TableRow, useTheme } from "@mui/material";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { MouseEventHandler, PropsWithChildren, useCallback, useMemo } from "react";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef } from "react";
 import { BaseData } from "table.types";
 import { dontForwardProps, getRowId } from "utils";
 import { RowDataPropType } from "_propTypes";
@@ -35,67 +35,74 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   data,
 }: PropsWithChildren<BodyRowProps<RowType>>) => {
   const theme = useTheme();
+  const rowRef = useRef<HTMLTableRowElement>(null);
   const { structure, rowClick, rowOptions, rowsSelectable, selectedRows } = useTableContext<RowType, AllDataType>();
 
   const rowId = useMemo(() => getRowId(data, index), [data, index]);
-  const isAlternateRowColour = useMemo(() => rowOptions?.alternateRowColour?.(data) ?? false, [data, rowOptions]);
-  const isDisabledRow = useMemo(() => rowOptions?.rowDisabled?.(data) ?? false, [data, rowOptions]);
-
-  const onHover = useCallback<MouseEventHandler<HTMLTableRowElement>>(
-    (e) => {
-      if (!rowClick || !e.currentTarget.parentNode) return;
-      const hoverRowIndex = Array.from(e.currentTarget.parentNode.children).indexOf(e.currentTarget);
-      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
-        if (!row.parentNode) continue;
-        const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-        const rowsBetween = hoverRowIndex - rowIndex;
-        row.querySelectorAll<HTMLTableCellElement>("td[rowspan]").forEach((cell) => {
-          const rowSpan = Number(cell.getAttribute("rowspan"));
-          if (rowSpan > rowsBetween) {
-            cell.style.cursor = "pointer";
-            cell.style.backgroundColor = theme.palette.action.hover;
-          }
-        });
-      }
-    },
-    [rowClick, theme.palette.action.hover],
-  );
-
-  const onUnHover = useCallback<React.MouseEventHandler<HTMLTableRowElement>>(
-    (e) => {
-      if (!rowClick) return;
-      for (let row = e.currentTarget.previousElementSibling; row; row = row.previousElementSibling) {
-        row.querySelectorAll<HTMLTableCellElement>("td[rowspan]").forEach((cell) => {
-          cell.style.cursor = "";
-          cell.style.backgroundColor = "";
-        });
-      }
-    },
-    [rowClick],
-  );
-
-  const bodyContextValue = useMemo<Omit<BodyState<RowType, AllDataType>, "structure">>(
-    () => ({ data, index, rowId }),
+  const bodyContextValue = useMemo(
+    () => ({ data, index, rowId } as Omit<BodyState<RowType, AllDataType>, "structure">),
     [data, index, rowId],
   );
+
+  const isAlternateRowColour = useMemo(() => rowOptions?.alternateRowColour?.(data) ?? false, [data, rowOptions]);
+  const isDisabledRow = useMemo(() => rowOptions?.rowDisabled?.(data) ?? false, [data, rowOptions]);
+  const hoverBgColor = useMemo(
+    () =>
+      (theme.palette.mode === "dark" ? lighten : darken)(
+        theme.palette.background.default,
+        theme.palette.action.hoverOpacity,
+      ),
+    [theme.palette.action.hoverOpacity, theme.palette.background.default, theme.palette.mode],
+  );
+
+  const handleHover = useCallback(
+    function (this: HTMLTableRowElement) {
+      if (!this.parentElement || !this.previousElementSibling) return;
+      const tableRows = Array.from(this.parentElement.children);
+      const hoverRowIndex = tableRows.indexOf(this);
+      this.parentElement
+        .querySelectorAll<HTMLTableCellElement>(`tr:nth-of-type(-n+${hoverRowIndex}) > td[rowspan]`)
+        .forEach((td) => {
+          const tdRowIndex = tableRows.indexOf(td.parentElement!);
+          const rowspan = Number(td.getAttribute("rowspan") || 1);
+          if (hoverRowIndex < tdRowIndex + rowspan) {
+            td.style.backgroundColor = hoverBgColor;
+            td.classList.add("DTBodyRow-hovered");
+          }
+        });
+    },
+    [hoverBgColor],
+  );
+
+  const handleUnHover = useCallback(function (this: HTMLTableRowElement) {
+    if (!this.parentElement || !this.previousElementSibling) return;
+    this.parentElement.querySelectorAll<HTMLTableCellElement>("td[rowspan].DTBodyRow-hovered").forEach((td) => {
+      td.style.removeProperty("background-color");
+      td.classList.remove("DTBodyRow-hovered");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!rowClick || !rowRef.current) return;
+    const row = rowRef.current;
+    row.addEventListener("mouseenter", handleHover);
+    row.addEventListener("mouseleave", handleUnHover);
+    return () => {
+      row.removeEventListener("mouseenter", handleHover);
+      row.removeEventListener("mouseleave", handleUnHover);
+    };
+  }, [handleHover, handleUnHover, rowClick]);
 
   return (
     <DTBodyRow
       key={rowId}
       data-testid="tableRow"
-      onMouseOver={onHover}
-      onMouseOut={onUnHover}
+      onMouseOver={handleHover}
+      onMouseOut={handleUnHover}
       altColour={isAlternateRowColour}
       disabled={isDisabledRow}
       selected={Boolean(rowsSelectable && selectedRows[rowId])}
-      sx={
-        rowClick && {
-          cursor: "pointer",
-          "&:hover": {
-            bgcolor: "action.hover",
-          },
-        }
-      }
+      sx={rowClick && { cursor: "pointer", "&:hover > td": { backgroundColor: hoverBgColor } }}
     >
       {structure.flattened.notHidden.map((struct) => (
         <BodyContextProvider key={struct.key} value={{ ...bodyContextValue, structure: struct }}>

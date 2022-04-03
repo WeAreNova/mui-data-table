@@ -174,7 +174,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
       onClick={handleRowClick}
       editable={Boolean(tableEditable && structure.editable)}
       hidden={Boolean(hiddenColumns[structure.key])}
-      pinned={pinnedColumn === structure.key}
+      pinned={pinnedColumn === structure.key || pinnedColumn === structure.parentKey}
       maxWidth={structure.limitWidth}
       rowSpan={rowSpan}
       align={structure.align}

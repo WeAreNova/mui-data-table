@@ -6,14 +6,14 @@ import { InitialFilterValues } from "Filter";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
 import TableContext, { TableState } from "table.context";
-import type { ActionButton, BaseData, ColGroupDefinition, ColumnDefinition, Sort, TableCellAlign } from "table.types";
+import type { ActionButton, BaseData, FullColDef, FullColGroupDef, Sort, TableCellAlign } from "table.types";
 import TableCell from "TableCell.component";
 import { dispatchTableEvent, dontForwardProps, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
 import { ColumnDefinitionPropType } from "_propTypes";
 
 interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;
-  structure: ColumnDefinition<RowType, AllDataType> | ColGroupDefinition<RowType, AllDataType>;
+  structure: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>;
   onFilterClick(target: HTMLTableCellElement, initialFilter: InitialFilterValues<RowType>): void;
   hasColGroups?: boolean;
   colGroupHeader?: boolean;
@@ -218,7 +218,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
-          pinned={pinnedColumn === id}
+          pinned={pinnedColumn === id || pinnedColumn === structure.parentKey}
           colGroupHeader={colGroupHeader}
           colSpan={colSpan}
           rowSpan={rowSpan}

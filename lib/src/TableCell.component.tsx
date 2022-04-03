@@ -1,7 +1,7 @@
 import { CSSObject, styled, TableCell as MUITableCell, TableCellProps as MUITableCellProps } from "@mui/material";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { dontForwardProps } from "utils";
 
 type Widths = "lg" | "sm";
@@ -74,9 +74,50 @@ const DTTableCell = styled(MUITableCell, {
  *
  * @component
  */
-const TableCell: React.FC<TableCellProps> = React.forwardRef(function _TableCell(props: TableCellProps, ref) {
+const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(function _TableCell(
+  props: TableCellProps,
+  forwardedRef,
+) {
+  const cellRef = useRef<HTMLTableCellElement>();
   const { resizeable } = useTableContext();
-  return <DTTableCell align="left" {...props} resizeable={resizeable} ref={ref} />;
+
+  const handleRef = useCallback(
+    (r: HTMLTableCellElement) => {
+      cellRef.current = r;
+      if (!forwardedRef) return;
+      if (typeof forwardedRef === "function") return forwardedRef(r);
+      forwardedRef.current = r;
+    },
+    [forwardedRef],
+  );
+
+  const getPinnedOffset = useCallback((cell: HTMLTableCellElement, offset: "left" | "right") => {
+    const getNextCell = (c: HTMLTableCellElement) => {
+      return (offset === "right" ? c.nextElementSibling : c.previousElementSibling) as HTMLTableCellElement | null;
+    };
+    let totalOffset = 0;
+    for (let nextCell = getNextCell(cell); nextCell; nextCell = getNextCell(nextCell)) {
+      if (nextCell.classList.contains("DTTableCell-pinned")) totalOffset += nextCell.offsetWidth;
+    }
+    return `${totalOffset}px`;
+  }, []);
+
+  useEffect(() => {
+    if (!props.pinned || typeof cellRef === "function" || !cellRef?.current) return;
+    const cell = cellRef.current;
+    cell.style.right = getPinnedOffset(cell, "right");
+    cell.style.left = getPinnedOffset(cell, "left");
+  }, [getPinnedOffset, props.pinned]);
+
+  return (
+    <DTTableCell
+      align="left"
+      {...props}
+      resizeable={resizeable}
+      className={!props.pinned ? "" : "DTTableCell-pinned"}
+      ref={handleRef}
+    />
+  );
 });
 TableCell.propTypes = {
   hidden: PropTypes.bool,

@@ -63,6 +63,7 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
     key: "email",
     title: "Email",
     dataIndex: "email",
+    groupBy: "email",
     editable: true,
     sorter: true,
     filterColumn: true,
@@ -70,7 +71,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "contactNumber",
-    groupBy: "email",
     title: "Contact Number",
     dataIndex: "personalDetails.contactNumber",
     editable: true,
@@ -80,7 +80,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "address",
-    groupBy: "email",
     title: "Address",
     sorter: "personalDetails.addressHistory.addressLineOne",
     filterColumn: "personalDetails.addressHistory.addressLineOne",
@@ -189,7 +188,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "role",
-    groupBy: "email",
     title: "Role",
     dataIndex: "role",
     editable: true,
@@ -199,7 +197,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "registrationDate",
     dataType: "date",
-    groupBy: "email",
     title: "Registration Date",
     dataIndex: "registrationDate",
     render: (record) => new Date(record.registrationDate).toLocaleDateString(),
@@ -213,13 +210,11 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   },
   {
     key: "balances",
-    groupBy: "email",
     title: "Cash Balance",
     colGroup: [
       {
         key: "balances.total",
         dataType: "number",
-        groupBy: "email",
         title: "Total",
         dataIndex: "balances.total",
         sorter: true,
@@ -230,7 +225,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
       {
         key: "balances.invested",
         dataType: "number",
-        groupBy: "email",
         title: "Invested",
         dataIndex: "balances.invested",
         sorter: true,
@@ -241,7 +235,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
       {
         key: "balances.available",
         dataType: "number",
-        groupBy: "email",
         title: "Available",
         dataIndex: "balances.available",
         sorter: true,
@@ -254,7 +247,6 @@ export const STRUCTURE: ColumnDefinition<User>[] = [
   {
     key: "emailConfirmed",
     dataType: "boolean",
-    groupBy: "email",
     title: "Email Confirmed",
     dataIndex: "isConfirmed",
     sorter: true,

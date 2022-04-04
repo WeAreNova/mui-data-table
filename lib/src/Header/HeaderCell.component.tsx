@@ -3,9 +3,9 @@ import FilterList from "@mui/icons-material/FilterList";
 import Visibility from "@mui/icons-material/Visibility";
 import { Box, CSSObject, Divider, IconButton, styled, TableSortLabel, Tooltip } from "@mui/material";
 import { InitialFilterValues } from "Filter";
+import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useContext, useMemo, useRef } from "react";
-import TableContext, { TableState } from "table.context";
+import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useMemo, useRef } from "react";
 import type { ActionButton, BaseData, FullColDef, FullColGroupDef, Sort, TableCellAlign } from "table.types";
 import TableCell from "TableCell.component";
 import { dispatchTableEvent, dontForwardProps, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
@@ -131,12 +131,16 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   colGroupHeader = false,
   style,
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
-  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumn, allTableData, update, resizeable } =
-    useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumns, allTableData, update, resizeable } =
+    useTableContext<RowType, AllDataType>();
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
   const headerTitle = useMemo(() => getColumnTitle(structure.title, allTableData), [structure, allTableData]);
   const isHidden = useMemo(() => Boolean(hiddenColumns[id]), [hiddenColumns, id]);
+  const isPinned = useMemo(
+    () => Boolean(pinnedColumns[id] || (structure.parentKey && pinnedColumns[structure.parentKey])),
+    [pinnedColumns, id, structure.parentKey],
+  );
   const colSpan = useMemo(
     () => (structure.colGroup && !hiddenColumns[id] ? structure.colGroup.length : 1),
     [hiddenColumns, id, structure.colGroup],
@@ -189,9 +193,17 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     });
   }, [id, structure.dataIndex, structure.sorter, update]);
 
-  const handlePin = useCallback(
-    () => update.pinnedColumn((currPinnedColumn) => (currPinnedColumn === id ? "" : id)),
-    [id, update],
+  const handlePinnedColumnsChange = useCallback(
+    (pinned?: React.MouseEvent | boolean) =>
+      update.pinnedColumns((currPinnedColumns) => ({
+        ...currPinnedColumns,
+        [id]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id],
+        ...(structure.colGroup?.reduce(
+          (acc, col) => ({ ...acc, [col.key]: typeof pinned === "boolean" ? pinned : !currPinnedColumns[id] }),
+          {},
+        ) || {}),
+      })),
+    [id, structure.colGroup, update],
   );
 
   const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -218,7 +230,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
-          pinned={pinnedColumn === id || pinnedColumn === structure.parentKey}
+          pinned={Boolean(isPinned)}
           colGroupHeader={colGroupHeader}
           colSpan={colSpan}
           rowSpan={rowSpan}
@@ -279,7 +291,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
                   </IconButton>
                 )}
                 {structure.pinnable && (
-                  <IconButton onClick={handlePin} color={pinnedColumn === id ? "primary" : "default"} size="small">
+                  <IconButton onClick={handlePinnedColumnsChange} color={isPinned ? "primary" : "default"} size="small">
                     <AcUnit />
                   </IconButton>
                 )}

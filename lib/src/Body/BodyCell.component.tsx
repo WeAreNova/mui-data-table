@@ -51,7 +51,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
   const {
     rowClick,
     hiddenColumns,
-    pinnedColumn,
+    pinnedColumns,
     tableData,
     rowsSelectable,
     isMacOS,
@@ -175,7 +175,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
       onClick={handleRowClick}
       editable={Boolean(tableEditable && structure.editable)}
       hidden={Boolean(hiddenColumns[structure.key])}
-      pinned={pinnedColumn === structure.key || pinnedColumn === structure.parentKey}
+      pinned={Boolean(pinnedColumns[structure.key])}
       maxWidth={structure.limitWidth}
       rowSpan={rowSpan}
       align={structure.align}

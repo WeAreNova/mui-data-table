@@ -77,7 +77,7 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
   forwardedRef,
 ) {
   const cellRef = useRef<HTMLTableCellElement>();
-  const { resizeable } = useTableContext();
+  const { pinnedColumns, resizeable } = useTableContext();
 
   const handleRef = useCallback(
     (r: HTMLTableCellElement) => {
@@ -105,7 +105,7 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
     const cell = cellRef.current;
     cell.style.right = getPinnedOffset(cell, "right");
     cell.style.left = getPinnedOffset(cell, "left");
-  }, [getPinnedOffset, props.pinned]);
+  }, [getPinnedOffset, pinnedColumns, props.pinned]);
 
   useEffect(
     () => () => {

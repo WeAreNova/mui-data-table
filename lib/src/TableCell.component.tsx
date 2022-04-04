@@ -1,7 +1,7 @@
 import { CSSObject, styled, TableCell as MUITableCell, TableCellProps as MUITableCellProps } from "@mui/material";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { dontForwardProps } from "utils";
 
 type Widths = "lg" | "sm";
@@ -95,19 +95,19 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
     };
     let totalOffset = 0;
     for (let nextCell = getNextCell(cell); nextCell; nextCell = getNextCell(nextCell)) {
-      if (nextCell.classList.contains("DTTableCell-pinned")) totalOffset += nextCell.offsetWidth;
+      if (nextCell.getAttribute("data-pinned") === "true") totalOffset += nextCell.offsetWidth;
     }
     return `${totalOffset}px`;
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!props.pinned || typeof cellRef === "function" || !cellRef?.current) return;
     const cell = cellRef.current;
     cell.style.right = getPinnedOffset(cell, "right");
     cell.style.left = getPinnedOffset(cell, "left");
   }, [getPinnedOffset, pinnedColumns, props.pinned]);
 
-  useEffect(
+  useLayoutEffect(
     () => () => {
       if (!cellRef.current) return;
       const cell = cellRef.current;
@@ -117,17 +117,10 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
     [props.pinned],
   );
 
-  return (
-    <DTTableCell
-      align="left"
-      {...props}
-      resizeable={resizeable}
-      className={!props.pinned ? "" : "DTTableCell-pinned"}
-      ref={handleRef}
-    />
-  );
+  return <DTTableCell align="left" {...props} data-pinned={props.pinned} resizeable={resizeable} ref={handleRef} />;
 });
 TableCell.propTypes = {
+  className: PropTypes.string,
   hidden: PropTypes.bool,
   pinned: PropTypes.bool,
   maxWidth: PropTypes.oneOf(["lg", "sm"]),

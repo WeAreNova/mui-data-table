@@ -9,35 +9,38 @@ import TableCell from "TableCell.component";
 import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "utils";
 import EditCell from "./EditCell.component";
 
-const focusOutline = {
-  "& > div": {
-    outline: `1px solid`,
-    outlineColor: "action.focus",
-  },
-};
-
 const DTBodyCell = styled(TableCell, {
   name: "DTBodyCell",
   slot: "Root",
   shouldForwardProp: dontForwardProps("editable"),
-})<{ editable: boolean }>(({ editable, theme }) => [
-  {
-    outline: "none",
-    "&:focus": focusOutline,
-    "&:focus-within": focusOutline,
+})<{ editable: boolean }>(({ editable, theme }) => {
+  const focusOutline = {
     "& > div": {
-      minHeight: theme.spacing(2),
+      outline: `1px solid`,
+      outlineColor: theme.palette.action.focus,
     },
-  },
-  editable && {
-    "& > div": {
-      padding: theme.spacing(0.5, 1),
-      "&:hover": {
-        backgroundColor: theme.palette.action.hover,
+  };
+  return [
+    {
+      outline: "none",
+      "&:focus": focusOutline,
+      "&:focus-within": focusOutline,
+      "& > div": {
+        minHeight: theme.spacing(2),
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     },
-  },
-]);
+    editable && {
+      "& > div": {
+        padding: theme.spacing(0.5, 1),
+        "&:hover": {
+          backgroundColor: theme.palette.action.hover,
+        },
+      },
+    },
+  ];
+});
 
 /**
  * The BodyCell component is a wrapper around the custom TableCell component which manages the rendering of the

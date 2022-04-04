@@ -56,11 +56,12 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   );
 
   const handleHover = useCallback(
-    function (this: HTMLTableRowElement) {
-      if (!this.parentElement || !this.previousElementSibling) return;
-      const tableRows = Array.from(this.parentElement.children);
-      const hoverRowIndex = tableRows.indexOf(this);
-      this.parentElement
+    function () {
+      const row = rowRef.current;
+      if (!row?.parentElement || !row.previousElementSibling) return;
+      const tableRows = Array.from(row.parentElement.children);
+      const hoverRowIndex = tableRows.indexOf(row);
+      row.parentElement
         .querySelectorAll<HTMLTableCellElement>(`tr:nth-of-type(-n+${hoverRowIndex}) > td[rowspan]`)
         .forEach((td) => {
           const tdRowIndex = tableRows.indexOf(td.parentElement!);
@@ -74,9 +75,10 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
     [hoverBgColor],
   );
 
-  const handleUnHover = useCallback(function (this: HTMLTableRowElement) {
-    if (!this.parentElement || !this.previousElementSibling) return;
-    this.parentElement.querySelectorAll<HTMLTableCellElement>("td[rowspan].DTBodyRow-hovered").forEach((td) => {
+  const handleUnHover = useCallback(function () {
+    const row = rowRef.current;
+    if (!row?.parentElement || !row.previousElementSibling) return;
+    row.parentElement.querySelectorAll<HTMLTableCellElement>("td[rowspan].DTBodyRow-hovered").forEach((td) => {
       td.style.removeProperty("background-color");
       td.classList.remove("DTBodyRow-hovered");
     });
@@ -96,6 +98,7 @@ const BodyRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   return (
     <DTBodyRow
       key={rowId}
+      ref={rowRef}
       data-testid="tableRow"
       onMouseOver={handleHover}
       onMouseOut={handleUnHover}

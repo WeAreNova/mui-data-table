@@ -1,4 +1,4 @@
-import { FormHelperText, TextField } from "@material-ui/core";
+import { FormHelperText, TextField } from "@mui/material";
 import { ColumnDefinition, EditComponentProps } from "@wearenova/mui-data-table";
 import faker from "faker";
 import React, { Fragment } from "react";

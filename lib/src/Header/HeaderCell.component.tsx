@@ -41,7 +41,7 @@ const DTFilterButton = styled(IconButton, {
 const DTHeaderCell = styled(TableCell, {
   name: "DTHeaderCell",
   slot: "Root",
-  shouldForwardProp: dontForwardProps("colGroupHeader", "pinned"),
+  shouldForwardProp: dontForwardProps("colGroupHeader"),
 })<{
   colGroupHeader: boolean;
   pinned: boolean;

@@ -240,8 +240,9 @@ The value can be one of:
 
 ```ts
 interface FilterOptions<RowType extends BaseData> {
-  path: true | string; // `true` uses the value of `dataIndex`
+  path?: true | string; // `true` uses the value of `dataIndex`
   type?: "string" | "number" | "boolean" | "date" | undefined | null; // defaults to the value of the `dataType` field or `"string"` if `dataType` is not specified
+  title?: Exclude<ReactNode, number | boolean | null | undefined> | (data: AllDataType) => Exclude<ReactNode, number | boolean | null | undefined>;
   defaultOperator?: "exists" | "!exists" | "~" | "!~" | "=" | "!=" | ">" | ">=" | "<" | "<="; // See below for the meanings of these values
 }
 ```

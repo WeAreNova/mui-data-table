@@ -370,11 +370,17 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
       state.tableStructure
         .filter((c) => c.filterColumn || c.colGroup?.some((cg) => cg.filterColumn))
         .flatMap((c) => {
-          const title = getColumnTitle(c.title, value.tableData);
+          const title = getColumnTitle(
+            (typeof c.filterColumn === "object" && c.filterColumn.title) || c.title,
+            value.tableData,
+          );
           return [
             { ...c, title },
             ...(c.colGroup?.map((cg) => {
-              const nestedTitle = getColumnTitle(cg.title, value.tableData);
+              const nestedTitle = getColumnTitle(
+                (typeof cg.filterColumn === "object" && cg.filterColumn.title) || cg.title,
+                value.tableData,
+              );
               return { ...cg, title: `${title} - ${nestedTitle}` };
             }) || []),
           ];

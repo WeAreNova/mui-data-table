@@ -215,6 +215,7 @@ export type OperatorValues = typeof BASE_OPERATORS[number]["value"];
 export interface FilterOptions<RowType extends BaseData> {
   path?: PathValueType<RowType>;
   type?: NullableDataTypes;
+  title?: ColumnDefinitionTitle<RowType[]>;
   /**
    * The default operator.
    */

@@ -80,6 +80,8 @@ You can also specify a custom filename for the produced CSV file via the `csvFil
 
 To enable editing, you need to include a column (or column group) definition which specifies a value for the `editable` field.
 
+When enabled, this will allow the user to double click on a cell and edit it inline. To leaved editing mode they can click outside the cell, press tab, enter or escape. If escape is pressed the changes will be cancelled, otherwise changes to the cell will be saved.
+
 Currently, only cell editing is supported currently, row editing support shall come later.
 
 Including at least one definition with the `editable` field will make the table editable for the cells specified.

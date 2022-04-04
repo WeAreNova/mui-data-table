@@ -32,7 +32,7 @@ interface MatchActionArg {
 
 let defaultCurrency = "GBP";
 
-const TABLE_EVENTS = ["*", "cancelEdit", "closeFilter"] as const;
+const TABLE_EVENTS = ["cancelEdit", "closeFilter", "saveEdit"] as const;
 
 export function getWindow() {
   return typeof window !== "undefined" ? window : null;
@@ -50,11 +50,10 @@ export function dontForwardProps(...propsToIgnore: string[]) {
  *
  * @param event the custom event to dispatch.
  */
-export function dispatchTableEvent(event?: typeof TABLE_EVENTS[number]) {
+export function dispatchTableEvent(...events: Array<typeof TABLE_EVENTS[number]>) {
   const doc = getDocument();
   if (!doc) return;
-  if (event && event !== "*") return doc.dispatchEvent(new CustomEvent(event));
-  TABLE_EVENTS.forEach((e) => doc.dispatchEvent(new CustomEvent(e)));
+  events.forEach((e) => doc.dispatchEvent(new CustomEvent(e)));
 }
 
 /**

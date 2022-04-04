@@ -128,7 +128,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
   const handleRowClick = useCallback(
     (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>) => {
       e.stopPropagation();
-      dispatchTableEvent("*");
+      dispatchTableEvent("saveEdit", "closeFilter");
       if (loading) return;
       if (rowsSelectable && (e.shiftKey || (isMacOS ? e.metaKey : e.ctrlKey))) return handleRowsSelect(e);
       rowClick?.(data, e);
@@ -152,7 +152,7 @@ const BodyCell = <RowType extends BaseData, AllDataType extends RowType[]>() => 
       e.stopPropagation();
       dispatchTableEvent("closeFilter");
       if (editMode) return;
-      dispatchTableEvent("cancelEdit");
+      dispatchTableEvent("saveEdit");
     },
     [editMode, structure.editable, tableEditable],
   );

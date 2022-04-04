@@ -38,7 +38,7 @@ function eventPromise(event: string) {
 
 it("should dispatch table events", () => {
   const promises = [eventPromise("cancelEdit"), eventPromise("closeFilter")];
-  dispatchTableEvent("*");
+  dispatchTableEvent("cancelEdit", "closeFilter");
   promises.forEach((promise) => expect(promise).resolves.toBeInstanceOf(CustomEvent));
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@wearenova/mui-data-table",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "An extensive data-table with sorting, multi-column filtering, pagination and more with server-side data fetching support.",
   "source": "src/index.tsx",
   "types": "lib/index.d.ts",

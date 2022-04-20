@@ -1,7 +1,8 @@
 import { CSSObject, styled, TableCell as MUITableCell, TableCellProps as MUITableCellProps } from "@mui/material";
+import useIsomorphicLayoutEffect from "hooks/useIsomorphicLayoutEffect.hook";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { useCallback, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { dontForwardProps } from "utils";
 
 type Widths = "lg" | "sm";
@@ -100,14 +101,14 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(functio
     return `${totalOffset}px`;
   }, []);
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!props.pinned || typeof cellRef === "function" || !cellRef?.current) return;
     const cell = cellRef.current;
     cell.style.right = getPinnedOffset(cell, "right");
     cell.style.left = getPinnedOffset(cell, "left");
   }, [getPinnedOffset, pinnedColumns, props.pinned]);
 
-  useLayoutEffect(
+  useIsomorphicLayoutEffect(
     () => () => {
       if (!cellRef.current) return;
       const cell = cellRef.current;

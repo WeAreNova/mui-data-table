@@ -5,7 +5,6 @@ import { defineConfig } from "rollup";
 import analyzerPlugin from "rollup-plugin-analyzer";
 import cleanupPlugin from "rollup-plugin-cleanup";
 import copyPlugin from "rollup-plugin-copy";
-import deletePlugin from "rollup-plugin-delete";
 import progressPlugin from "rollup-plugin-progress";
 import packageJSON from "./lib/package.json";
 
@@ -15,14 +14,6 @@ const EXTERNALS = Object.keys({
 }).concat(["clsx"]);
 
 const EXTERNALS_REGEX = new RegExp(EXTERNALS.join("|"));
-
-const KEEP_TYPES = [
-  "index.d.ts",
-  "table.types.d.ts",
-  "utils.d.ts",
-  "_dataTable.consts.d.ts",
-  "Fields/SimpleSelect.component.d.ts",
-].map((path) => `!build/lib/${path}`);
 
 export default defineConfig({
   input: "lib/src/index.tsx",
@@ -63,6 +54,5 @@ export default defineConfig({
     }),
     cleanupPlugin({ extensions: ["js", "jsx", "ts", "tsx"] }),
     analyzerPlugin(),
-    deletePlugin({ targets: ["build/lib/**/*.d.ts", ...KEEP_TYPES], hook: "closeBundle" }),
   ],
 });

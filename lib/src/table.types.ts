@@ -1,4 +1,5 @@
 import type { IconButtonProps, TablePaginationProps, TableProps as MUITableProps } from "@mui/material";
+import { DateFormatMasks } from "dateformat";
 import { SelectOptionObject } from "Fields/SimpleSelect.component";
 import type React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
@@ -56,6 +57,10 @@ interface BaseColumnDefinition<RowType extends BaseData, AllDataType extends Row
    * Helper field for rendering and formatting the data as a numerical value.
    */
   numerical?: true | NumericalValueOptions<RowType>;
+  /**
+   * Helper field for rendering and formatting the data as a date.
+   */
+  date?: true | DateValueOptions<RowType>;
   /**
    * A function which allows for custom rendering of the data.
    *
@@ -203,6 +208,21 @@ export type NumericalValueOptions<RowType extends BaseData = BaseData> =
   | true
   | PathType<RowType>
   | NumericalObject<RowType>;
+
+export interface DateObject<RowType extends BaseData = BaseData> {
+  path?: true | PathType<RowType>;
+  /**
+   * The format of the date.
+   *
+   * @default DateTimeMasks.default
+   * @link https://www.npmjs.com/package/dateformat
+   */
+  format?: LiteralUnion<string & keyof DateFormatMasks, string>;
+  utc?: boolean;
+  gmt?: boolean;
+}
+
+export type DateValueOptions<RowType extends BaseData = BaseData> = true | PathType<RowType> | DateObject<RowType>;
 
 export interface ActionButton extends Omit<IconButtonProps, "size"> {
   key: string;

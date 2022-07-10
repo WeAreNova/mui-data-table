@@ -1,3 +1,4 @@
+import dateFormat from "dateformat";
 import { get } from "dot-prop";
 import { orderBy } from "natural-orderby";
 import type { ReactNode } from "react";
@@ -8,6 +9,8 @@ import {
   ColumnDefinitionTitle,
   DataTableErrorType,
   DataTypes,
+  DateLike,
+  DateObject,
   EditDataTypes,
   FilterColumn,
   FullColDef,
@@ -456,6 +459,11 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
   dataArrayIndex: number,
   isCSVExport = false,
 ): ReactNode | string | number {
+  if (struct.render) {
+    const val = struct.render(data, isCSVExport, rowId, dataArrayIndex);
+    if (typeof val === "boolean") return String(val);
+    return val;
+  }
   if (struct.numerical) {
     const {
       path,
@@ -464,20 +472,21 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
       maxDecimalPlaces,
       ...options
     }: NumericalObject<T> = typeof struct.numerical === "object" ? struct.numerical : { path: struct.numerical };
-    const value = get<any>(data, getPath(path, struct));
-    if (isNaN(Number(value))) return "";
-    return numberFormatter(value, {
+    const val = get<any>(data, getPath(path, struct));
+    if (isNaN(Number(val))) return "";
+    return numberFormatter(val, {
       minimumFractionDigits: minDecimalPlaces ?? decimalPlaces,
       maximumFractionDigits: maxDecimalPlaces ?? decimalPlaces,
       ...options,
     });
   }
-  let value: ReactNode;
-  if (struct.render) {
-    value = struct.render(data, isCSVExport, rowId, dataArrayIndex);
-  } else {
-    value = get(data, struct.dataIndex!);
+  if (struct.date) {
+    const { path, format, utc, gmt }: DateObject<T> =
+      typeof struct.date === "object" ? struct.date : { path: struct.date };
+    const val = get<DateLike>(data, getPath(path, struct));
+    return val && dateFormat(val, format, utc, gmt);
   }
+  const value = get(data, struct.dataIndex!);
   if (typeof value === "boolean") return String(value);
   return value;
 }

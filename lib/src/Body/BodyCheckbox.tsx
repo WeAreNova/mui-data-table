@@ -1,9 +1,9 @@
 import Checkbox from "@mui/material/Checkbox";
 import { get } from "dot-prop";
-import useTableContext from "hooks/useTableContext.hook";
 import React, { useCallback } from "react";
-import { BaseData } from "table.types";
-import { getRowId } from "utils";
+import useTableContext from "../table.context";
+import { BaseData } from "../types";
+import { getRowId } from "../utils";
 
 interface BodyCheckboxProps<RowType extends BaseData> {
   record: RowType;

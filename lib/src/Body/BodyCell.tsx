@@ -1,13 +1,13 @@
 import { styled, Tooltip } from "@mui/material";
 import { get } from "dot-prop";
-import ErrorBoundary from "ErrorBoundary.component";
-import useBodyContext from "hooks/useBodyContext.hook";
-import useTableContext from "hooks/useTableContext.hook";
 import React, { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { BaseData } from "table.types";
-import TableCell from "TableCell.component";
-import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "utils";
-import EditCell from "./EditCell.component";
+import ErrorBoundary from "../ErrorBoundary";
+import useTableContext from "../table.context";
+import TableCell from "../TableCell";
+import type { BaseData } from "../types";
+import { dispatchTableEvent, dontForwardProps, findIndexFrom, findLastIndexFrom, getRowId, getValue } from "../utils";
+import useBodyContext from "./body.context";
+import EditCell from "./EditCell";
 
 const DTBodyCell = styled(TableCell, {
   name: "DTBodyCell",

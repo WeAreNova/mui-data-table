@@ -1,9 +1,9 @@
 import Add from "@mui/icons-material/Add";
 import { Box, Button, ClickAwayListener, Paper } from "@mui/material";
-import useTableContext from "hooks/useTableContext.hook";
 import React, { Fragment, PropsWithChildren, useCallback, useEffect, useState } from "react";
-import { ActiveFilter, BaseData, NullableActiveFilter } from "table.types";
-import FilterRow, { EMPTY_FILTER } from "./FilterRow.component";
+import useTableContext from "../table.context";
+import { ActiveFilter, BaseData, NullableActiveFilter } from "../types";
+import FilterRow, { EMPTY_FILTER } from "./FilterRow";
 
 export type InitialFilterValues<RowType extends BaseData> = Pick<ActiveFilter<RowType>, "path" | "type" | "operator">;
 
@@ -33,12 +33,18 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
   onClose,
 }: PropsWithChildren<FilterProps<RowType>>) => {
   const { activeFilters, update } = useTableContext<RowType, AllTableData>();
-  const [filtersArray, setFiltersArray] = useState<Array<ActiveFilter | NullableActiveFilter>>(() =>
-    activeFilters.length ? activeFilters : [getInitialFilter(initialFilter)],
-  );
+  const [filters, setFilters] = useState<Array<ActiveFilter | NullableActiveFilter>>(activeFilters);
+
+  useEffect(() => {
+    if (!initialFilter) return;
+    setFilters((fs) => {
+      const filterActive = fs.some((f) => f.path === initialFilter.path);
+      return [...activeFilters, ...(filterActive ? [] : [getInitialFilter(initialFilter)])];
+    });
+  }, [activeFilters, initialFilter]);
 
   const handleAddBlankFilter = useCallback(
-    () => setFiltersArray((currFiltersArray) => [...currFiltersArray, getInitialFilter()]),
+    () => setFilters((currFiltersArray) => [...currFiltersArray, getInitialFilter()]),
     [],
   );
 
@@ -49,7 +55,7 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
       if (value.path) {
         update.activeFilters(removePredicate);
       }
-      setFiltersArray((currFiltersArray) => {
+      setFilters((currFiltersArray) => {
         const updatedArray = removePredicate(currFiltersArray);
         return updatedArray.length ? updatedArray : [getInitialFilter()];
       });
@@ -67,14 +73,14 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
         return updatedArray;
       };
       update.activeFilters(submitPredicate);
-      setFiltersArray(submitPredicate);
+      setFilters(submitPredicate);
     },
     [update],
   );
 
   useEffect(() => {
     if (!activeFilters.length) {
-      setFiltersArray([getInitialFilter(initialFilter)]);
+      setFilters([getInitialFilter(initialFilter)]);
     }
   }, [activeFilters.length, initialFilter]);
 
@@ -91,13 +97,13 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
         }}
       >
         <div>
-          {filtersArray.map((filter, index) => (
+          {filters.map((filter, index) => (
             <Fragment key={filter.id}>
               {Boolean(index) && <br />}
               <FilterRow
                 name={`filter-${index}`}
                 value={filter}
-                last={filtersArray.length === 1}
+                last={filters.length === 1}
                 onSubmit={handleFilterSubmit}
                 onRemove={handleRemoveFilter}
               />
@@ -127,5 +133,6 @@ const Filter = <RowType extends BaseData, AllTableData extends RowType[]>({
     </ClickAwayListener>
   );
 };
+Filter.whyDidYouRender = true;
 
 export default Filter;

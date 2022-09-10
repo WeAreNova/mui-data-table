@@ -1,9 +1,9 @@
 import { Grow, Popper, styled, TableHead, TableRow } from "@mui/material";
-import Filter, { InitialFilterValues } from "Filter";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import TableContext, { TableState } from "table.context";
-import type { BaseData } from "table.types";
-import HeaderCell from "./HeaderCell.component";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Filter, { InitialFilterValues } from "../Filter";
+import useTableContext from "../table.context";
+import type { BaseData } from "../types";
+import HeaderCell from "./HeaderCell";
 
 const DTFilterPopper = styled(Popper, { name: "DTFilter", slot: "Popper" })`
   zindex: 1;
@@ -16,7 +16,7 @@ const DTFilterPopper = styled(Popper, { name: "DTFilter", slot: "Popper" })`
  * @package
  */
 const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() => {
-  const { structure, hiddenColumns } = useContext<TableState<RowType, AllDataType>>(TableContext);
+  const { structure, hiddenColumns } = useTableContext<RowType, AllDataType>();
   const topHeaderRef = useRef<HTMLTableRowElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLTableCellElement | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -36,12 +36,8 @@ const HeaderRow = <RowType extends BaseData, AllDataType extends RowType[]>() =>
     (target: HTMLTableCellElement, targetInitFilter: InitialFilterValues<RowType>) => {
       setAnchorEl((currentTarget) => {
         const isSame = currentTarget === target;
-        if (!isSame) {
-          setInitialFilter(targetInitFilter);
-          setFilterOpen(true);
-        } else {
-          setFilterOpen((s) => !s);
-        }
+        setInitialFilter(targetInitFilter);
+        setFilterOpen((s) => !isSame || !s);
         return target;
       });
     },

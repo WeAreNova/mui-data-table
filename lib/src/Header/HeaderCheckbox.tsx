@@ -1,8 +1,8 @@
 import Checkbox from "@mui/material/Checkbox";
-import useTableContext from "hooks/useTableContext.hook";
 import React, { useCallback } from "react";
-import { BaseData } from "table.types";
-import { getRowId } from "utils";
+import useTableContext from "../table.context";
+import { BaseData } from "../types";
+import { getRowId } from "../utils";
 
 const HeaderCheckbox: React.FC = <RowType extends BaseData, AllDataType extends RowType[]>() => {
   const { update, numRowsSelected, tableData } = useTableContext<RowType, AllDataType>();

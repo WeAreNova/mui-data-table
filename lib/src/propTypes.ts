@@ -1,5 +1,15 @@
 import PropTypes from "prop-types";
-import { FilterTypePropTypes } from "_dataTable.consts";
+import { DATA_TYPES, OPERATORS } from "./consts";
+
+export const FilterTypePropTypes = PropTypes.oneOf([...DATA_TYPES, null, undefined]);
+
+export const FilterValuePropTypes = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  type: FilterTypePropTypes,
+  path: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date), PropTypes.bool]),
+  operator: PropTypes.oneOf([...OPERATORS.map((o) => o.value), null]),
+});
 
 export const PathValuePropType = [PropTypes.oneOf([true]), PropTypes.string];
 

@@ -1,7 +1,16 @@
-import BodyCheckbox from "Body/BodyCheckbox.component";
-import HeaderCheckbox from "Header/HeaderCheckbox.component";
 import fileDownload from "js-file-download";
-import React, { PropsWithChildren, Reducer, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import React, {
+  PropsWithChildren,
+  Reducer,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
+import BodyCheckbox from "./Body/BodyCheckbox";
+import HeaderCheckbox from "./Header/HeaderCheckbox";
 import type {
   ActiveFilters,
   BaseData,
@@ -13,7 +22,7 @@ import type {
   OperatorValues,
   Sort,
   TableProps,
-} from "table.types";
+} from "./types";
 import {
   debounce,
   exportTableToCSV,
@@ -27,7 +36,7 @@ import {
   getTableCellAlignment,
   getUnhiddenColumns,
   getWindow,
-} from "utils";
+} from "./utils";
 
 const DYNAMIC_STATE = [
   "sort",
@@ -225,15 +234,15 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     value,
     initialise,
   );
+
   useEffect(() => {
+    if (!initRendered.current) {
+      initRendered.current = true;
+      return;
+    }
     if (initRendered.current) dispatch(value);
-  }, [value]);
-  useEffect(() => {
     if (initRendered.current) baseOnChange.current = _onChange;
-  }, [_onChange]);
-  useEffect(() => {
-    initRendered.current = true;
-  }, []);
+  }, [_onChange, value]);
 
   const update = useMemo(() => {
     function updateFunction(
@@ -418,4 +427,8 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;
 };
 
-export default TableContext;
+const useTableContext = <RowType extends BaseData, AllDataType extends RowType[]>() => {
+  return useContext<TableState<RowType, AllDataType>>(TableContext);
+};
+
+export default useTableContext;

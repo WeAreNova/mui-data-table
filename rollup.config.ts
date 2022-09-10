@@ -42,7 +42,6 @@ export default defineConfig({
     commonjsPlugin(),
     typeScriptPlugin({
       tsconfig: "lib/tsconfig.json",
-      exclude: ["lib/src/_propTypes.ts"],
       outDir: "build/lib",
     }),
     copyPlugin({

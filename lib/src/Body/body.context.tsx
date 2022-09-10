@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import { createContext, Provider } from "react";
-import { BaseData, FullColDef, FullColGroupDef } from "table.types";
-import { ColumnDefinitionPropType, RowDataPropType } from "_propTypes";
+import { createContext, Provider, useContext } from "react";
+import { ColumnDefinitionPropType, RowDataPropType } from "../propTypes";
+import { BaseData, FullColDef, FullColGroupDef } from "../types";
 
 export interface BodyState<RowType extends BaseData, AllDataType extends RowType[]> {
   structure: FullColDef<RowType, AllDataType> | FullColGroupDef<RowType, AllDataType>;
@@ -22,4 +22,9 @@ export const BodyContextProvider = BodyContext.Provider;
     data: RowDataPropType.isRequired,
   }),
 };
-export default BodyContext;
+
+const useBodyContext = <RowType extends BaseData, AllDataType extends RowType[]>() => {
+  return useContext<BodyState<RowType, AllDataType>>(BodyContext);
+};
+
+export default useBodyContext;

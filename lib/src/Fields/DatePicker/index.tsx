@@ -1,9 +1,9 @@
 import { TextFieldProps } from "@mui/material";
 import React, { Suspense, useCallback, useMemo, useState } from "react";
-import { DateLike } from "table.types";
-import NativeDatePicker from "./NativeDatePicker.component";
+import { DateLike } from "../../types";
+import NativeDatePicker from "./NativeDatePicker";
 
-const DynamicDatePicker = React.lazy(async () => import("./DynamicPicker.component"));
+const DynamicDatePicker = React.lazy(async () => import("./DynamicPicker"));
 
 export interface DatePickerProps extends Pick<TextFieldProps, "variant"> {
   onChange(date: DateLike): void;

@@ -1,12 +1,12 @@
 import { alpha, darken, lighten, styled, TableRow, useTheme } from "@mui/material";
-import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef } from "react";
-import { BaseData } from "table.types";
-import { dontForwardProps, getRowId } from "utils";
-import { RowDataPropType } from "_propTypes";
+import { RowDataPropType } from "../propTypes";
+import useTableContext from "../table.context";
+import { BaseData } from "../types";
+import { dontForwardProps, getRowId } from "../utils";
 import { BodyContextProvider, BodyState } from "./body.context";
-import BodyCell from "./BodyCell.component";
+import BodyCell from "./BodyCell";
 
 interface BodyRowProps<RowType extends BaseData> {
   index: number;

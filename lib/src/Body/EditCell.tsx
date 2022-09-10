@@ -1,9 +1,9 @@
 import { Box, ClickAwayListener, TextField } from "@mui/material";
 import { get, set } from "dot-prop";
-import SimpleSelect, { SelectOptionObject } from "Fields/SimpleSelect.component";
-import useBodyContext from "hooks/useBodyContext.hook";
-import useTableContext from "hooks/useTableContext.hook";
 import React, { ChangeEventHandler, PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import { BOOLEAN_OPTIONS } from "../consts";
+import SimpleSelect, { SelectOptionObject } from "../Fields/SimpleSelect";
+import useTableContext from "../table.context";
 import {
   BaseData,
   DataTableErrorType,
@@ -12,9 +12,9 @@ import {
   FullColGroupDef,
   PathType,
   SelectOption,
-} from "table.types";
-import { createDTError, getDataType, getPath, getRowId } from "utils";
-import { BOOLEAN_OPTIONS } from "_dataTable.consts";
+} from "../types";
+import { createDTError, getDataType, getPath, getRowId } from "../utils";
+import useBodyContext from "./body.context";
 
 interface EditCellProps {
   cancelEdit(): void;

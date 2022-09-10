@@ -1,13 +1,14 @@
 import Close from "@mui/icons-material/Close";
 import { IconButton, styled, Typography } from "@mui/material";
-import SimpleSelect, { SimpleSelectChangeHandler } from "Fields/SimpleSelect.component";
-import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
-import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
-import type { ActiveFilter, BaseData, FilterValue, NullableActiveFilter, NullableDataTypes } from "table.types";
-import { debounce } from "utils";
-import { FilterValuePropTypes, OPERATORS } from "_dataTable.consts";
-import ValueField from "./ValueField.component";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { OPERATORS } from "../consts";
+import SimpleSelect, { SimpleSelectChangeHandler } from "../Fields/SimpleSelect";
+import { FilterValuePropTypes } from "../propTypes";
+import useTableContext from "../table.context";
+import type { ActiveFilter, BaseData, FilterValue, NullableActiveFilter, NullableDataTypes } from "../types";
+import { debounce } from "../utils";
+import ValueField from "./ValueField";
 
 interface Props {
   value: ActiveFilter | NullableActiveFilter;
@@ -78,7 +79,20 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
 }: PropsWithChildren<Props>) => {
   const { filterOptions } = useTableContext<RowType, AllDataType>();
   const [filter, setFilter] = useState({ ...EMPTY_FILTER, ...value });
-  const [errors, setErrors] = useState({ path: false, operator: false, value: false });
+  const initRender = useRef(true);
+
+  const errors = useMemo(
+    () => ({
+      path: !filter.path,
+      operator: !filter.operator,
+      value:
+        !filter.operator?.includes("exists") &&
+        typeof filter.value !== "boolean" &&
+        typeof filter.value !== "number" &&
+        !filter.value,
+    }),
+    [filter.operator, filter.path, filter.value],
+  );
 
   const operatorOptions = useMemo(() => getOperatorOptions(filter.type), [filter.type]);
 
@@ -97,21 +111,13 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
   const debouncedSubmit = useMemo(() => debounce(handleSubmit, 500), [handleSubmit]);
 
   useEffect(() => {
-    const errs = {
-      path: !filter.path,
-      operator: !filter.operator,
-      value:
-        !filter.operator?.includes("exists") &&
-        typeof filter.value !== "boolean" &&
-        typeof filter.value !== "number" &&
-        !filter.value,
-    };
-    const hasError = Object.values(errs).some((v) => v);
-    setErrors(errs);
-    if (!hasError) {
-      debouncedSubmit(filter as ActiveFilter);
+    if (initRender.current) {
+      initRender.current = false;
+      return;
     }
-  }, [debouncedSubmit, filter]);
+    if (errors.path || errors.operator || errors.value) return;
+    debouncedSubmit(filter as ActiveFilter);
+  }, [debouncedSubmit, errors.operator, errors.path, errors.value, filter]);
 
   const handleColumnChange = useCallback<SimpleSelectChangeHandler<typeof filterOptions[number]>>((selected) => {
     setFilter((currValues) => ({
@@ -143,7 +149,7 @@ const FilterRow = <RowType extends BaseData, AllDataType extends RowType[]>({
         <IconButton onClick={handleRemove} disabled={last && !value.path} size="small">
           <Close />
         </IconButton>
-        <div></div>
+        <div />
       </div>
       <div>
         <DTFieldContainer>

@@ -1,9 +1,9 @@
 import CalendarIcon from "@mui/icons-material/CalendarToday";
 import { IconButton, StandardTextFieldProps, TextField } from "@mui/material";
 import React, { useCallback, useState } from "react";
-import { DateLike } from "table.types";
+import { DateLike } from "../../types";
 import { DatePickerProps } from "./index";
-import NativeDatePicker from "./NativeDatePicker.component";
+import NativeDatePicker from "./NativeDatePicker";
 
 interface MUIPickerProps extends DatePickerProps {
   value: DateLike;

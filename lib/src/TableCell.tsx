@@ -1,9 +1,9 @@
 import { CSSObject, styled, TableCell as MUITableCell, TableCellProps as MUITableCellProps } from "@mui/material";
-import useIsomorphicLayoutEffect from "hooks/useIsomorphicLayoutEffect.hook";
-import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import React, { useCallback, useRef } from "react";
-import { dontForwardProps } from "utils";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicLayoutEffect";
+import useTableContext from "./table.context";
+import { dontForwardProps } from "./utils";
 
 type Widths = "lg" | "sm";
 

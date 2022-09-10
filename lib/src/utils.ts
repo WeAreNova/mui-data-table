@@ -20,7 +20,7 @@ import {
   Sort,
   Sorter,
   TableCellAlign,
-} from "table.types";
+} from "./types";
 
 type FilterValuesType = NonNullable<ReturnType<ReturnType<typeof getFilterTypeConvertors>[DataTypes]>>;
 interface MatchActionArg {
@@ -48,7 +48,7 @@ export function dontForwardProps(...propsToIgnore: string[]) {
 /**
  * A function to dispatch a custom Data Table event.
  *
- * @param event the custom event to dispatch.
+ * @param events the custom event/events to dispatch.
  */
 export function dispatchTableEvent(...events: Array<typeof TABLE_EVENTS[number]>) {
   const doc = getDocument();
@@ -479,7 +479,7 @@ export function getValue<T extends BaseData, AllDataType extends T[] = T[]>(
     value = get(data, struct.dataIndex!);
   }
   if (typeof value === "boolean") return String(value);
-  return value;
+  return value as ReactNode;
 }
 
 /**

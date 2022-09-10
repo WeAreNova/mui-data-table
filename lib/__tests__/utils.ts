@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { SetOptional } from "type-fest";
-import { ActiveFilter, OperatorValues } from "../src/table.types";
+import { ActiveFilter, OperatorValues } from "../src/types";
 
 export const DATA_TO_FILTER = [
   { email: "test@example.com", balance: 100, confirmed: true, date: "2022-01-02", nullable: true },

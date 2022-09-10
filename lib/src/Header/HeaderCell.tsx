@@ -2,14 +2,21 @@ import AcUnit from "@mui/icons-material/AcUnit";
 import FilterList from "@mui/icons-material/FilterList";
 import Visibility from "@mui/icons-material/Visibility";
 import { Box, CSSObject, Divider, IconButton, styled, TableSortLabel, Tooltip } from "@mui/material";
-import { InitialFilterValues } from "Filter";
-import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import React, { Fragment, MouseEventHandler, PropsWithChildren, useCallback, useMemo, useRef } from "react";
-import type { ActionButton, BaseData, FullColDef, FullColGroupDef, Sort, TableCellAlign } from "table.types";
-import TableCell from "TableCell.component";
-import { dispatchTableEvent, dontForwardProps, getColumnTitle, getDataType, getDefaultOperator, getPath } from "utils";
-import { ColumnDefinitionPropType } from "_propTypes";
+import { InitialFilterValues } from "../Filter";
+import { ColumnDefinitionPropType } from "../propTypes";
+import useTableContext from "../table.context";
+import TableCell from "../TableCell";
+import type { ActionButton, BaseData, FullColDef, FullColGroupDef, Sort, TableCellAlign } from "../types";
+import {
+  dispatchTableEvent,
+  dontForwardProps,
+  getColumnTitle,
+  getDataType,
+  getDefaultOperator,
+  getPath,
+} from "../utils";
 
 interface HeaderCellProps<RowType extends BaseData, AllDataType extends RowType[]> {
   id: string;
@@ -27,7 +34,6 @@ const DTFilterButton = styled(IconButton, {
   shouldForwardProp: dontForwardProps("active"),
 })<{ active: boolean }>(({ active, theme }) => [
   {
-    opacity: 0.3,
     transition: theme.transitions.create(["opacity", "color"], {
       duration: theme.transitions.duration.shorter,
       easing: theme.transitions.easing.easeInOut,

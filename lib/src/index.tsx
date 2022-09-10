@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 import React, { PropsWithChildren } from "react";
-import { TableProvider } from "table.context";
-import { BaseData, TableProps } from "table.types";
-import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "_propTypes";
-import _Table from "_Table.component";
+import { ColumnDefinitionPropType, RowDataPropType, RowsPerPageOptionsPropType } from "./propTypes";
+import Table from "./Table";
+import { TableProvider } from "./table.context";
+import { BaseData, TableProps } from "./types";
 
 /**
  * The DataTable component is the entry point for the DataTable library.
@@ -16,7 +16,7 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
 }: PropsWithChildren<TableProps<RowType, AllDataType>>) => {
   return (
     <TableProvider value={props} onChange={onChange}>
-      <_Table
+      <Table
         tableProps={props.tableProps}
         rowsPerPageOptions={props.rowsPerPageOptions}
         exportToCSVOption={props.exportToCSVOption}
@@ -54,6 +54,6 @@ export const DataTable = <RowType extends BaseData, AllDataType extends RowType[
   resizeable: PropTypes.bool,
 };
 
-export * from "./table.types";
+export * from "./types";
 export { createDTError, numberFormatter, setDefaultCurrency } from "./utils";
 export default DataTable;

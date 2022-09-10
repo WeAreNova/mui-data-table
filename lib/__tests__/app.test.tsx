@@ -2,7 +2,7 @@ import { LocalizationProvider } from "@mui/lab";
 import MomentUtils from "@mui/lab/AdapterMoment";
 import { render, RenderResult } from "@testing-library/react";
 import React from "react";
-import DataTable, { ColumnDefinition } from "../src";
+import DataTable, { ColumnDefinition } from "../src/index";
 import { getRowId } from "../src/utils";
 
 const DATA = Array(30)

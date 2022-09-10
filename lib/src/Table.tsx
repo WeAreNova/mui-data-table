@@ -12,16 +12,16 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import BodyRow from "Body/BodyRow.component";
-import HeaderRow from "Header/HeaderRow.component";
-import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import type { ChangeEventHandler, PropsWithChildren } from "react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { BaseData, TableProps } from "table.types";
-import TableCell from "TableCell.component";
-import { dontForwardProps, getRowId } from "utils";
-import { RowsPerPageOptionsPropType } from "_propTypes";
+import BodyRow from "./Body/BodyRow";
+import HeaderRow from "./Header/HeaderRow";
+import { RowsPerPageOptionsPropType } from "./propTypes";
+import useTableContext from "./table.context";
+import TableCell from "./TableCell";
+import { BaseData, TableProps } from "./types";
+import { dontForwardProps, getRowId } from "./utils";
 
 interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   extends Pick<
@@ -68,7 +68,7 @@ const DTToolbar = styled("div", {
  * @component
  * @package
  */
-const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
+const Table = <RowType extends BaseData, AllDataType extends RowType[]>({
   tableProps = {},
   rowsPerPageOptions = [5, 10, 25, 50, 100],
   exportToCSVOption = false,
@@ -278,11 +278,11 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     </>
   );
 };
-_Table.propTypes = {
+Table.propTypes = {
   tableProps: PropTypes.object,
   rowsPerPageOptions: RowsPerPageOptionsPropType,
   exportToCSVOption: PropTypes.bool,
   disablePagination: PropTypes.bool,
 };
 
-export default _Table;
+export default Table;

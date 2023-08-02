@@ -444,3 +444,5 @@ export interface TableProps<RowType extends BaseData, AllDataType extends RowTyp
    */
   resizeable?: boolean;
 }
+
+export type CellType = "Header" | "Data" | "Footer";

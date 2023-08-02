@@ -1,5 +1,6 @@
 name: Code Scan
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

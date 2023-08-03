@@ -245,6 +245,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
       <Tooltip title={isHidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
         <TableCell
           id={id}
+          data-testid={id}
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}

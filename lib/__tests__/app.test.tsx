@@ -1,6 +1,6 @@
 import MomentUtils from "@date-io/moment";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-import { render, RenderResult } from "@testing-library/react";
+import { fireEvent, render, RenderResult } from "@testing-library/react";
 import React from "react";
 import DataTable, { ColumnDefinition } from "../src";
 import { getRowId } from "../src/utils";
@@ -17,7 +17,7 @@ const STRUCTURE = [
   {
     key: "id",
     title: "ID",
-    dataIndex: "id",
+    dataIndex: "id"
   },
   {
     key: "name",
@@ -26,6 +26,8 @@ const STRUCTURE = [
     dataType: "string",
     filterColumn: true,
     sorter: true,
+    pinnable: true,
+    footer: (data) => `total: ${data.length}`,
   },
   {
     key: "registrationDate",
@@ -34,6 +36,7 @@ const STRUCTURE = [
     render: (record) => record.registrationDate.toLocaleDateString(),
     filterColumn: true,
     sorter: true,
+    pinnable: true,
   },
 ] as ColumnDefinition<typeof DATA[number]>[];
 
@@ -78,3 +81,18 @@ it("should render row cells correctly", async function () {
     });
   }
 });
+
+it("should pin and unpin columns", async function () {
+  //  Check if columns can be pinned
+  const pinnableColumns = STRUCTURE.filter((column) => column.pinnable);
+  pinnableColumns.forEach((column) => {
+    const columnHeader = component.getByTestId(`${column.key}`);
+    const pinButton = columnHeader.querySelector(".MuiIconButton-root");
+    expect(pinButton).toBeTruthy(); // Pin button should exist
+    if (pinButton) {
+      fireEvent.click(pinButton); // Simulate a click on the pin button
+      expect(pinButton.classList.contains("MuiIconButton-colorPrimary")).toBe(true); // Check if the class is applied after the click
+    }
+  });
+});
+

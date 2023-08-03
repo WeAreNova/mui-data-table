@@ -10,6 +10,8 @@ const DATA = Array(30)
   .map((_, i) => ({
     id: `id_${i}`,
     name: `Name ${i}`,
+    firstName: `FirstName ${i}`,
+    lastName: `Name ${i}`,
     registrationDate: new Date(2020, 0, i),
   }));
 
@@ -22,12 +24,26 @@ const STRUCTURE = [
   {
     key: "name",
     title: "User's Name",
-    dataIndex: "name",
-    dataType: "string",
-    filterColumn: true,
-    sorter: true,
     pinnable: true,
     footer: (data) => `total: ${data.length}`,
+    colGroup: [
+      {
+        key: "firstName",
+        title: "first name",
+        dataIndex: "firstName",
+        sorter: true,
+        filterColumn: true,
+        pinnable: true,
+      },
+      {
+        key: "lastName",
+        title: "lastName",
+        dataIndex: "lastName",
+        sorter: true,
+        filterColumn: true,
+        pinnable: true,
+      }
+    ]
   },
   {
     key: "registrationDate",
@@ -66,18 +82,33 @@ it("should render 25 rows", async function () {
 });
 
 it("should render row cells correctly", async function () {
+  const renderCell = (rowData: any, column: any, index: number) => column.render
+    ? column.render(rowData, false, getRowId(rowData, index), index) as string
+    : rowData[column.dataIndex as keyof typeof rowData] as string;
+
+  const assertCellRenderedCorrectly = (rowData: any, column: any, index: number) => {
+    const rendered = renderCell(rowData, column, index);
+    const cell = component.getByText(rendered);
+    expect(cell).toBeTruthy();
+    expect(rows[index].contains(cell)).toBe(true);
+  };
+
   const rows = component.getAllByTestId("tableRow");
   const cells = component.getAllByTestId("DataTable-BodyCell");
-  expect(cells).toHaveLength(25 * STRUCTURE.length);
+  let columns = 0;
+  STRUCTURE.forEach(struct => columns += (struct.colGroup ? struct.colGroup?.length : 1));
+  expect(cells).toHaveLength(25 * columns);
   for (let i = 0; i < rows.length; i++) {
     const rowData = DATA[i];
     STRUCTURE.forEach((column) => {
-      const rendered = column.render
-        ? (column.render(rowData, false, getRowId(rowData, i), i) as string)
-        : (rowData[column.dataIndex as keyof typeof rowData] as string);
-      const cell = component.getByText(rendered);
-      expect(cell).toBeTruthy();
-      expect(rows[i].contains(cell)).toBe(true);
+      if (column.colGroup) {
+        column.colGroup.forEach(subColumn => {
+          assertCellRenderedCorrectly(rowData, subColumn, i);
+        })
+      } else {
+        assertCellRenderedCorrectly(rowData, column, i);
+
+      }
     });
   }
 });

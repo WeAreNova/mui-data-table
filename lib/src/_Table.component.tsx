@@ -28,7 +28,7 @@ interface _TableProps<RowType extends BaseData, AllDataType extends RowType[]>
   extends Pick<
     TableProps<RowType, AllDataType>,
     "tableProps" | "rowsPerPageOptions" | "exportToCSVOption" | "disablePagination"
-  > {}
+  > { }
 
 const useStyles = makeStyles(
   (theme) =>
@@ -114,6 +114,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
     count,
     isMacOS,
     resizeable,
+    pinnedColumns
   } = useTableContext<RowType, AllDataType>();
 
   const allColumnsVisible = useMemo(() => {
@@ -201,7 +202,10 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                   {structure.flattened.map((struct) => (
                     <TableCell
                       key={struct.key}
+                      customKey={struct.key}
                       rowSpan={hasColGroupFooter && (!struct.isColGroup || !struct.hasColGroupFooter) ? 2 : 1}
+                      pinned={Boolean(pinnedColumns[struct.key])}
+                      type={"Footer"}
                     >
                       {struct.footer ? struct.footer(allTableData) : ""}
                     </TableCell>
@@ -212,7 +216,7 @@ const _Table = <RowType extends BaseData, AllDataType extends RowType[]>({
                 <TableRow>
                   {structure.map(({ colGroup, footer, ...struct }) =>
                     colGroup && footer ? (
-                      <TableCell key={struct.key} colSpan={colGroup.length} align="center">
+                      <TableCell key={struct.key} customKey={struct.key} colSpan={colGroup.length} align="center" pinned={Boolean(pinnedColumns[struct.key])} type={"Footer"} >
                         {footer(allTableData)}
                       </TableCell>
                     ) : null,

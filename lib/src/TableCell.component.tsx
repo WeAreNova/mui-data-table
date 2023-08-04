@@ -3,12 +3,15 @@ import clsx from "clsx";
 import useTableContext from "hooks/useTableContext.hook";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { CellType } from "table.types";
 
 interface Props extends TableCellProps {
   className?: string;
   hidden?: boolean;
   pinned?: boolean;
   maxWidth?: "lg" | "sm";
+  type?: CellType
+  customKey?: string;
 }
 
 const useStyles = makeStyles(
@@ -79,11 +82,11 @@ const useStyles = makeStyles(
  * @component
  */
 const TableCell = React.forwardRef<HTMLTableCellElement, Props>(function _TableCell(
-  { hidden = false, pinned = false, maxWidth, className, ...props }: Props,
+  { hidden = false, pinned = false, maxWidth, className, type, customKey, ...props }: Props,
   forwardedRef,
 ) {
   const cellRef = useRef<HTMLTableCellElement>();
-  const { resizeable, pinnedColumns } = useTableContext();
+  const { resizeable, pinnedColumns, headerCellsSiblingsMap } = useTableContext();
   const classes = useStyles(props);
   const cellClasses = useMemo(
     () =>
@@ -122,27 +125,45 @@ const TableCell = React.forwardRef<HTMLTableCellElement, Props>(function _TableC
   );
 
   const getPinnedOffset = useCallback(
-    (cell: HTMLTableCellElement, offset: "left" | "right") => {
+    (cell: HTMLTableCellElement, offset: "left" | "right", useMap?: boolean) => {
       const getNextCell = (c: HTMLTableCellElement) => {
         return (offset === "right" ? c.nextElementSibling : c.previousElementSibling) as HTMLTableCellElement | null;
       };
+
+      const getNextCellFromMap = (c: HTMLTableCellElement) => {
+        return (offset === "right" ? document.getElementById(headerCellsSiblingsMap[c.id].rightSibling) : document.getElementById(headerCellsSiblingsMap[c.id].leftSibling)) as HTMLTableCellElement | null;
+      };
+
       let totalOffset = 0;
-      for (let nextCell = getNextCell(cell); nextCell; nextCell = getNextCell(nextCell)) {
+      for (let nextCell = useMap ? getNextCellFromMap(cell) : getNextCell(cell); nextCell; nextCell = useMap ? getNextCellFromMap(nextCell) : getNextCell(nextCell)) {
         if (nextCell.classList.contains(classes.pinned)) totalOffset += nextCell.offsetWidth;
       }
       return `${totalOffset}px`;
     },
-    [classes.pinned],
+    [classes.pinned, headerCellsSiblingsMap],
   );
 
   useEffect(() => {
     if (!pinned || typeof cellRef === "function" || !cellRef?.current) return;
     const cell = cellRef.current;
-    cell.style.right = getPinnedOffset(cell, "right");
-    cell.style.left = getPinnedOffset(cell, "left");
-    cell.classList.add(classes.pinnedStyling);
-  }, [classes.pinned, classes.pinnedStyling, getPinnedOffset, pinned, pinnedColumns]);
 
+    if (type === "Header") {
+      cell.style.right = getPinnedOffset(cell, "right", true);
+      cell.style.left = getPinnedOffset(cell, "left", true);
+    } else if (type === "Footer" && customKey) {
+      //finding pinned offset for footer with colgroup is problematic, because of multiple footer rows, and having empty footer columns, so we will find footer offset based on the header
+      const headerCell = document.getElementById(customKey);
+      if (headerCell && headerCell instanceof HTMLTableCellElement) {
+        cell.style.right = getPinnedOffset(headerCell, "right", true);
+        cell.style.left = getPinnedOffset(headerCell, "left", true);
+      }
+    } else {
+      cell.style.right = getPinnedOffset(cell, "right");
+      cell.style.left = getPinnedOffset(cell, "left");
+    }
+    cell.classList.add(classes.pinnedStyling);
+
+  }, [classes.pinned, classes.pinnedStyling, customKey, getPinnedOffset, pinned, pinnedColumns, type]);
   useEffect(
     () => () => {
       if (!cellRef.current) return;

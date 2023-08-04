@@ -145,7 +145,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
   ...props
 }: PropsWithChildren<HeaderCellProps<RowType, AllDataType>>) => {
   const classes = useStyles(props);
-  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumns, allTableData, update, resizeable } =
+  const { activeFilters, sort, enableHiddenColumns, hiddenColumns, pinnedColumns, allTableData, update, resizeable, headerCellsSiblingsMap } =
     useTableContext<RowType, AllDataType>();
   const tableCellRef = useRef<HTMLTableCellElement>(null);
 
@@ -222,6 +222,7 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     [className, classes.stickyColGroup, classes.root, colGroupHeader, isPinned],
   );
 
+  const index = useMemo(() => headerCellsSiblingsMap[id].index, [headerCellsSiblingsMap, id]);
   const handleFilterClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     (e) => {
       if (!filterPath) return;
@@ -243,6 +244,8 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
     <Fragment key={id}>
       <Tooltip title={isHidden ? `Unhide '${structure.title}' Column` : ""} placement="top">
         <TableCell
+          id={id}
+          data-testid={id}
           onClick={handleUnhide}
           ref={tableCellRef}
           hidden={Boolean(isHidden)}
@@ -251,7 +254,8 @@ const HeaderCell = <RowType extends BaseData, AllDataType extends RowType[] = Ro
           rowSpan={rowSpan}
           align={structure.align}
           className={headerClasses}
-          style={style}
+          style={{ ...style, zIndex: isPinned ? index?.pinned : index?.default }}
+          type={"Header"}
         >
           <div className={classes.resizeContainer}>
             <div

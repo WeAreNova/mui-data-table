@@ -44,9 +44,9 @@ const DYNAMIC_STATE = [
 const DYNAMIC_STATE_MAP = DYNAMIC_STATE.reduce(
   (prev, key) => ({ ...prev, [key]: true } as const),
   {} as { [key in typeof DYNAMIC_STATE[number]]: true } &
-    {
-      [key in keyof Omit<BaseTableState, typeof DYNAMIC_STATE[number]>]: false;
-    },
+  {
+    [key in keyof Omit<BaseTableState, typeof DYNAMIC_STATE[number]>]: false;
+  },
 );
 
 type DynamicState<RowType extends BaseData, AllDataType extends RowType[]> = Pick<
@@ -115,6 +115,8 @@ export interface TableState<RowType extends BaseData = BaseData, AllDataType ext
   resizeable: boolean;
   rowOptions?: Omit<NonNullable<BaseTableState<RowType, AllDataType>["rowOptions"]>, "alternateRowColor">;
   numRowsSelected: number;
+  TotalColumns: number;
+  headerCellsSiblingsMap: { [key: string]: any }
 }
 
 type TableReducer<RowType extends BaseData, AllDataType extends RowType[]> = Reducer<
@@ -140,17 +142,17 @@ const reducer = <RowType extends BaseData, AllDataType extends RowType[]>(
   typeof action === "function"
     ? { ...state, ...filterUpdates(action(state)) }
     : {
-        ...state,
-        ...Object.entries(action).reduce((prev, [key, value]) => {
-          return {
-            ...prev,
-            [key]:
-              typeof value === "function" && DYNAMIC_STATE_MAP[key as keyof typeof DYNAMIC_STATE_MAP]
-                ? value(state[key as keyof BaseTableState] as never)
-                : value,
-          };
-        }, {} as Partial<typeof state>),
-      };
+      ...state,
+      ...Object.entries(action).reduce((prev, [key, value]) => {
+        return {
+          ...prev,
+          [key]:
+            typeof value === "function" && DYNAMIC_STATE_MAP[key as keyof typeof DYNAMIC_STATE_MAP]
+              ? value(state[key as keyof BaseTableState] as never)
+              : value,
+        };
+      }, {} as Partial<typeof state>),
+    };
 
 function getStoredValues(
   defaultSort: Sort = { key: null, direction: undefined },
@@ -322,30 +324,30 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
         ...(!state.rowsSelectable
           ? []
           : [
-              {
-                key: "selectCheckbox",
-                align: "center",
-                groupBy: state.selectGroupBy,
-                title: <HeaderCheckbox />,
-                render: (data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number) => (
-                  <BodyCheckbox record={data} isCSVExport={isCSVExport} rowId={rowId} dataArrayIndex={dataArrayIndex} />
-                ),
-              },
-            ]),
+            {
+              key: "selectCheckbox",
+              align: "center",
+              groupBy: state.selectGroupBy,
+              title: <HeaderCheckbox />,
+              render: (data: RowType, isCSVExport: boolean, rowId: string, dataArrayIndex: number) => (
+                <BodyCheckbox record={data} isCSVExport={isCSVExport} rowId={rowId} dataArrayIndex={dataArrayIndex} />
+              ),
+            },
+          ]),
         ...state.tableStructure.map(
           (column) =>
-            ({
-              ...column,
-              ...(!column.colGroup
-                ? { align: getTableCellAlignment(column, value.tableData?.[0]) }
-                : {
-                    align: "center",
-                    colGroup: column.colGroup.map((colGroupColumn) => ({
-                      ...colGroupColumn,
-                      align: getTableCellAlignment(colGroupColumn, value.tableData?.[0]),
-                    })),
-                  }),
-            } as const),
+          ({
+            ...column,
+            ...(!column.colGroup
+              ? { align: getTableCellAlignment(column, value.tableData?.[0]) }
+              : {
+                align: "center",
+                colGroup: column.colGroup.map((colGroupColumn) => ({
+                  ...colGroupColumn,
+                  align: getTableCellAlignment(colGroupColumn, value.tableData?.[0]),
+                })),
+              }),
+          } as const),
         ),
       ] as Structure<RowType, AllDataType>,
     [state.rowsSelectable, state.selectGroupBy, state.tableStructure, value.tableData],
@@ -399,21 +401,85 @@ export const TableProvider = <RowType extends BaseData, AllDataType extends RowT
     [state.tableStructure, value.tableData],
   );
 
+
+  const TotalColumns = useMemo(() => {
+    let total = 0;
+
+    structure.forEach((obj) => {
+      // Count parent key
+      total++;
+
+      // Count child keys
+      if (obj.colGroup && obj.colGroup.length > 0) {
+        total += obj.colGroup.length;
+      }
+    });
+
+    return total;
+  }, [structure]);
+
+  const buildHeaderCellsSiblingsMap = useCallback((TotalColumns: number, structure: Structure<RowType, AllDataType>) => {
+    const headerCellsSiblings: { [key: string]: any } = {};
+    let zIndex = 0;
+
+    const findSiblingKey = (index: number, offset: number) =>
+      structure[index + offset]?.key;
+
+    structure.forEach((struct, index) => {
+      const leftSibling = findSiblingKey(index, -1);
+      const rightSibling = findSiblingKey(index, 1);
+
+      const createColGroupSibling = (colGroup: ColGroupDefinition<RowType, AllDataType>[] | undefined, index: number) => {
+        if (colGroup) {
+          return {
+            leftSibling: index === 0 ? leftSibling : colGroup[index - 1].key,
+            rightSibling: index === colGroup.length - 1 ? rightSibling : colGroup[index + 1].key,
+          }
+
+        }
+      };
+
+      const parentIndex = zIndex++;
+      headerCellsSiblings[struct.key] = {
+        leftSibling,
+        rightSibling,
+        index: { default: parentIndex, pinned: TotalColumns + parentIndex },
+      };
+
+      struct.colGroup?.forEach((colGroup, index) => {
+        const childIndex = zIndex++;
+        headerCellsSiblings[colGroup.key] = {
+          ...createColGroupSibling(struct.colGroup, index),
+          index: { default: childIndex, pinned: TotalColumns + childIndex },
+        };
+      });
+    });
+
+    return headerCellsSiblings;
+  }, []);
+
+  const headerCellsSiblingsMap = useMemo(() => {
+    return buildHeaderCellsSiblingsMap(TotalColumns, structure);
+  }, [TotalColumns, buildHeaderCellsSiblingsMap, structure]);
+
+
   const providerValue = useMemo(
     () =>
-      ({
-        ...state,
-        onChange: debouncedOnChange,
-        tableData,
-        allTableData: state.tableData,
-        count: tableCount,
-        exportToCSV,
-        structure,
-        update,
-        filterOptions,
-        numRowsSelected,
-      } as TableState<RowType, AllDataType>),
-    [debouncedOnChange, exportToCSV, filterOptions, numRowsSelected, state, structure, tableCount, tableData, update],
+    ({
+      ...state,
+      onChange: debouncedOnChange,
+      tableData,
+      allTableData: state.tableData,
+      count: tableCount,
+      exportToCSV,
+      structure,
+      update,
+      filterOptions,
+      numRowsSelected,
+      TotalColumns,
+      headerCellsSiblingsMap
+    } as TableState<RowType, AllDataType>),
+    [TotalColumns, debouncedOnChange, exportToCSV, filterOptions, headerCellsSiblingsMap, numRowsSelected, state, structure, tableCount, tableData, update],
   );
 
   return <TableContext.Provider value={providerValue}>{props.children}</TableContext.Provider>;
